@@ -57,6 +57,7 @@ footer strong{font-style:normal;color:var(--sepia);}
 
   <div class="legend">
     <div class="leg"><div class="sw" style="background:#888780;border:1px solid #444"></div>NYU building (180×100 ft)</div>
+    <div class="leg"><div class="sw" style="background:rgba(100,100,100,0.3);border:1px solid #666"></div>Waverly Place (65 ft wide)</div>
     <div class="leg"><div class="sw" style="background:rgba(127,119,221,0.5);border:1px solid #534AB7"></div>Row house 1 (90×50 ft)</div>
     <div class="leg"><div class="sw" style="background:rgba(29,158,117,0.4);border:1px solid #0F6E56"></div>Row house 2 (180×50 ft)</div>
     <div class="leg"><div class="sw" style="background:rgba(192,57,43,0.35);border:1px dashed rgba(192,57,43,0.7)"></div>Blind region (within cone)</div>
@@ -67,21 +68,21 @@ footer strong{font-style:normal;color:var(--sepia);}
   </div>
 
   <footer>
-    Grid = <strong>100 ft</strong> &nbsp;·&nbsp; NYU NW corner = origin (0,0) &nbsp;·&nbsp; Camera constrained to −x, +y quadrant &nbsp;·&nbsp; Church of the Messiah <strong>735 ft</strong> east
+    Grid = <strong>100 ft</strong> &nbsp;·&nbsp; NYU NW corner = origin (0,0) &nbsp;·&nbsp; Camera constrained to −x, +y quadrant &nbsp;·&nbsp; Waverly Place <strong>65 ft</strong> north &nbsp;·&nbsp; Church of the Messiah <strong>735 ft</strong> east
   </footer>
 </div>
 
 <script>
 const plan=document.getElementById('plan'), ctx=plan.getContext('2d');
 
-const PAD_X_MIN=-100,PAD_X_MAX=0,PAD_Y_MIN=-50,PAD_Y_MAX=150;
+const PAD_X_MIN=-100,PAD_X_MAX=0,PAD_Y_MIN=-50,PAD_Y_MAX=65;
 const PAD_FT_W=PAD_X_MAX-PAD_X_MIN, PAD_FT_H=PAD_Y_MAX-PAD_Y_MIN;
 
 const NYU_NS=180,NYU_EW=100,B2_NS=75,B2_EW=100,B2_PROJ=5;
 const RH1_EW=90,RH1_NS=50,RH2_EW=180,RH2_NS=50,GAP=735;
 const MARGIN_LEFT_FT=220,PLAN_FT_W=MARGIN_LEFT_FT+NYU_EW+GAP+B2_EW+40,GRID=100;
 
-let camFtX=-60,camFtY=50,rh1FtY=0,rh2FtY=0;
+let camFtX=-60,camFtY=30,rh1FtY=0,rh2FtY=0;
 
 function clampCam(){camFtX=Math.round(Math.max(PAD_X_MIN,Math.min(-1,camFtX)));camFtY=Math.round(Math.max(1,Math.min(PAD_Y_MAX,camFtY)));}
 clampCam();
@@ -142,6 +143,9 @@ function drawPlan(){
   const b2x=nx+GAP*s,b2y=ny,sec=25*s,proj=B2_PROJ*s;
   const r1x=nex,r2x=nex+(RH1_EW+45)*s,r1y=ny+rh1FtY*s,r2y=ny+rh2FtY*s;
   const cx=nx+camFtX*s,cy=ny-camFtY*s;
+  
+  // Waverly Place (65 ft wide street north of NYU)
+  const waverlyY = ny - 65*s;
   const tc='#1a1208',mc='#6b5a3e',gc='rgba(139,105,20,0.08)',gl='rgba(100,75,14,0.18)';
   ctx.fillStyle='#faf5ec';ctx.fillRect(0,0,W,PH);
   const gp=GRID*s;
@@ -184,6 +188,12 @@ function drawPlan(){
   ctx.beginPath();ctx.rect(nx,ny,NYU_EW*s,NYU_NS*s);ctx.fill();ctx.stroke();
   ctx.fillStyle=tc;ctx.font='600 9px "Source Code Pro",monospace';ctx.textAlign='center';ctx.fillText('NYU',nx+NYU_EW*s/2,ny+NYU_NS*s/2-4);
   ctx.fillStyle=mc;ctx.font='8px "Source Code Pro",monospace';ctx.fillText('180×100',nx+NYU_EW*s/2,ny+NYU_NS*s/2+7);
+  
+  // Draw Waverly Place (65 ft wide street)
+  ctx.fillStyle='rgba(100,100,100,0.3)';ctx.strokeStyle='#666';ctx.lineWidth=1;
+  ctx.beginPath();ctx.rect(nx-20,waverlyY,NYU_EW*s+40,65*s);ctx.fill();ctx.stroke();
+  ctx.fillStyle='#666';ctx.font='8px "Source Code Pro",monospace';ctx.textAlign='center';
+  ctx.fillText('Waverly Place (65 ft)',nx+NYU_EW*s/2,waverlyY+65*s/2);
   function nsArr(ax,ay){ctx.strokeStyle='rgba(255,255,255,0.8)';ctx.lineWidth=1.2;ctx.setLineDash([]);ctx.beginPath();ctx.moveTo(ax,ay-7);ctx.lineTo(ax,ay+7);ctx.stroke();ctx.beginPath();ctx.moveTo(ax-3,ay-4);ctx.lineTo(ax,ay-7);ctx.lineTo(ax+3,ay-4);ctx.stroke();ctx.beginPath();ctx.moveTo(ax-3,ay+4);ctx.lineTo(ax,ay+7);ctx.lineTo(ax+3,ay+4);ctx.stroke();}
   ctx.fillStyle='rgba(127,119,221,0.4)';ctx.strokeStyle='#534AB7';ctx.lineWidth=1.5;ctx.beginPath();ctx.rect(r1x,r1y,RH1_EW*s,RH1_NS*s);ctx.fill();ctx.stroke();
   ctx.fillStyle='#26215C';ctx.font='700 8px "Source Code Pro",monospace';ctx.textAlign='center';ctx.fillText('RH1 90×50',r1x+RH1_EW*s/2,r1y+RH1_NS*s/2+3);nsArr(r1x+RH1_EW*s/2,r1y+RH1_NS*s/2);
