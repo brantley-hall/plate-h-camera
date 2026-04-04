@@ -44,8 +44,8 @@ footer strong{font-style:normal;color:var(--sepia);}
   <div class="controls">
     <div class="ctrl">
       <label>Field of view</label>
-      <input type="range" id="fov" min="10" max="100" value="45" step="1">
-      <span class="val" id="fov-out">45°</span>
+      <input type="range" id="fov" min="10" max="100" value="14" step="1">
+      <span class="val" id="fov-out">14°</span>
     </div>
     <div class="coord">Camera: <span id="coords">(-60, +50) ft</span></div>
     <div class="coord" style="margin-left:auto">Drag <strong style="color:#534AB7">RH1</strong> / <strong style="color:#0F6E56">RH2</strong> north–south in plan view</div>
@@ -125,8 +125,16 @@ function movePl(p){
     camFtY=Math.round(-(p.y-planOffY-ny)/s);
     clampCam();updateCoords();
   }
-  else if(planDrag==='rh1')rh1FtY=Math.round((p.y-planOffY-ny)/s);
-  else if(planDrag==='rh2')rh2FtY=Math.round((p.y-planOffY-ny)/s);
+  else if(planDrag==='rh1'){
+    const newY=Math.round((p.y-planOffY-ny)/s);
+    // Northern edge of row house can go up to south side of Waverly Place
+    rh1FtY=Math.min(65, newY); // Can go up to 65 (Waverly south side)
+  }
+  else if(planDrag==='rh2'){
+    const newY=Math.round((p.y-planOffY-ny)/s);
+    // Northern edge of row house can go up to south side of Waverly Place
+    rh2FtY=Math.min(65, newY); // Can go up to 65 (Waverly south side)
+  }
   drawAll();
 }
 plan.addEventListener('mousedown',e=>startPl(getPlP(e)));
