@@ -47,7 +47,12 @@ footer strong{font-style:normal;color:var(--sepia);}
       <input type="range" id="fov" min="10" max="100" value="14" step="1">
       <span class="val" id="fov-out">14°</span>
     </div>
-    <div class="coord">Camera: <span id="coords">(-60, +50) ft</span></div>
+    <div class="ctrl">
+      <label>Camera rotation</label>
+      <input type="range" id="rotation" min="-180" max="180" value="0" step="1">
+      <span class="val" id="rot-out">0°</span>
+    </div>
+    <div class="coord">Camera: <span id="coords">(-60, +30) ft</span></div>
     <div class="coord" style="margin-left:auto">Drag <strong style="color:#534AB7">RH1</strong> / <strong style="color:#0F6E56">RH2</strong> north–south in plan view</div>
   </div>
 
@@ -83,7 +88,7 @@ const NYU_NS=180,NYU_EW=100,B2_NS=75,B2_EW=100,B2_PROJ=5;
 const RH1_EW=90,RH1_NS=50,RH2_EW=180,RH2_NS=50,GAP=735;
 const MARGIN_LEFT_FT=220,PLAN_FT_W=MARGIN_LEFT_FT+NYU_EW+GAP+B2_EW+40,GRID=100;
 
-let camFtX=-60,camFtY=30,rh1FtY=0,rh2FtY=0;
+let camFtX=-60,camFtY=30,camRot=0,rh1FtY=0,rh2FtY=0;
 
 function clampCam(){camFtX=Math.round(Math.max(PAD_X_MIN,Math.min(-1,camFtX)));camFtY=Math.round(Math.max(1,Math.min(PAD_Y_MAX,camFtY)));}
 clampCam();
@@ -127,13 +132,15 @@ function movePl(p){
   }
   else if(planDrag==='rh1'){
     const newY=Math.round((p.y-planOffY-ny)/s);
-    // Simple constraint: don't let row houses go too far north or south
-    rh1FtY=Math.max(-100, Math.min(100, newY)); // Reasonable bounds
+    // Row houses cannot go onto Waverly Place (north of NYU)
+    // Northern edge (rh1FtY + RH1_NS) must be <= 0 (NYU level)
+    rh1FtY=Math.min(0 - RH1_NS, newY); // Max so northern edge stays at or below NYU
   }
   else if(planDrag==='rh2'){
     const newY=Math.round((p.y-planOffY-ny)/s);
-    // Simple constraint: don't let row houses go too far north or south
-    rh2FtY=Math.max(-100, Math.min(100, newY)); // Reasonable bounds
+    // Row houses cannot go onto Waverly Place (north of NYU)
+    // Northern edge (rh2FtY + RH2_NS) must be <= 0 (NYU level)
+    rh2FtY=Math.min(0 - RH2_NS, newY); // Max so northern edge stays at or below NYU
   }
   drawAll();
 }
@@ -144,6 +151,7 @@ plan.addEventListener('touchstart',e=>{e.preventDefault();startPl(getPlP(e));},{
 plan.addEventListener('touchmove',e=>{e.preventDefault();if(!planDrag)return;movePl(getPlP(e));},{passive:false});
 plan.addEventListener('touchend',()=>planDrag=null);
 document.getElementById('fov').addEventListener('input',e=>{document.getElementById('fov-out').textContent=e.target.value+'°';drawAll();});
+document.getElementById('rotation').addEventListener('input',e=>{document.getElementById('rot-out').textContent=e.target.value+'°';drawAll();});
 
 function drawPlan(){
   const W=plan.width,PH=plan.height,s=planScale();
@@ -171,7 +179,10 @@ function drawPlan(){
   ctx.beginPath();ctx.moveTo(0,ny);ctx.lineTo(W,ny);ctx.stroke();
   ctx.font='9px "Source Code Pro",monospace';ctx.fillStyle=mc;ctx.textAlign='left';ctx.fillText('(0,0)',nx+3,ny-4);
   const fovDeg=parseInt(document.getElementById('fov').value);
-  const ca=Math.atan2(ny-cy,nx-cx),fR=fovDeg*Math.PI/180,FAR=8000;
+  const camRotDeg=parseInt(document.getElementById('rotation').value);
+  const baseAngle=Math.atan2(ny-cy,nx-cx);
+  const ca=baseAngle + (camRotDeg * Math.PI/180);
+  const fR=fovDeg*Math.PI/180,FAR=8000;
   const r1={x:cx+Math.cos(ca-fR/2)*FAR,y:cy+Math.sin(ca-fR/2)*FAR};
   const r2={x:cx+Math.cos(ca+fR/2)*FAR,y:cy+Math.sin(ca+fR/2)*FAR};
   function ep(tx,ty){const dx=tx-cx,dy=ty-cy,d=Math.sqrt(dx*dx+dy*dy);if(d<0.001)return{x:cx+Math.cos(ca)*FAR,y:cy+Math.sin(ca)*FAR};return{x:cx+(dx/d)*FAR,y:cy+(dy/d)*FAR};}
