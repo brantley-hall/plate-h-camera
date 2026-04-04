@@ -51,14 +51,6 @@ footer strong{font-style:normal;color:var(--sepia);}
     <div class="coord" style="margin-left:auto">Drag <strong style="color:#534AB7">RH1</strong> / <strong style="color:#0F6E56">RH2</strong> north–south in plan view</div>
   </div>
 
-  <div class="pad-wrap">
-    <div class="pad-hdr">
-      <span>&#9650; Camera precision gamepad — 100 ft west × 200 ft north/south, 1 ft increments</span>
-      <span id="pad-coord" style="font-weight:600">(-60, +50)</span>
-    </div>
-    <canvas id="pad"></canvas>
-  </div>
-
   <div class="plan-wrap">
     <canvas id="plan"></canvas>
   </div>
@@ -80,7 +72,6 @@ footer strong{font-style:normal;color:var(--sepia);}
 </div>
 
 <script>
-const pad=document.getElementById('pad'), pctx=pad.getContext('2d');
 const plan=document.getElementById('plan'), ctx=plan.getContext('2d');
 
 const PAD_X_MIN=-100,PAD_X_MAX=0,PAD_Y_MIN=-50,PAD_Y_MAX=150;
@@ -96,42 +87,17 @@ function clampCam(){camFtX=Math.round(Math.max(PAD_X_MIN,Math.min(-1,camFtX)));c
 clampCam();
 
 function setup(){
-  const W=pad.parentElement.parentElement.offsetWidth||960;
-  pad.width=W*0.3; pad.height=Math.round(W*0.3*(PAD_FT_H/PAD_FT_W));
+  const W=plan.parentElement.parentElement.offsetWidth||960;
   plan.width=W; plan.height=Math.round(W*0.45);
   drawAll();
 }
 
 function planScale(){return(plan.width-10)/PLAN_FT_W;}
 
-function padFtToPx(ftX,ftY){
-  const W=pad.width,H=pad.height,m=36;
-  return{x:m+((ftX-PAD_X_MIN)/PAD_FT_W)*(W-2*m), y:m+((PAD_Y_MAX-ftY)/PAD_FT_H)*(H-2*m)};
-}
-function padPxToFt(px,py){
-  const W=pad.width,H=pad.height,m=36;
-  return{
-    x:Math.round(Math.max(PAD_X_MIN,Math.min(-1,PAD_X_MIN+((px-m)/(W-2*m))*PAD_FT_W))),
-    y:Math.round(Math.max(1,Math.min(PAD_Y_MAX,PAD_Y_MAX-((py-m)/(H-2*m))*PAD_FT_H)))
-  };
-}
-
 function updateCoords(){
   const s='('+camFtX+', +'+(camFtY)+') ft';
   document.getElementById('coords').textContent=s;
-  document.getElementById('pad-coord').textContent=s;
 }
-
-let padDrag=false;
-function getPP(e){const r=pad.getBoundingClientRect(),s=pad.width/r.width,src=e.touches?e.touches[0]:e;return{x:(src.clientX-r.left)*s,y:(src.clientY-r.top)*s};}
-function hp(p){const f=padPxToFt(p.x,p.y);camFtX=f.x;camFtY=f.y;clampCam();updateCoords();drawAll();}
-pad.addEventListener('mousedown',e=>{padDrag=true;hp(getPP(e));});
-pad.addEventListener('mousemove',e=>{if(!padDrag)return;hp(getPP(e));});
-pad.addEventListener('mouseup',()=>padDrag=false);
-pad.addEventListener('mouseleave',()=>padDrag=false);
-pad.addEventListener('touchstart',e=>{e.preventDefault();padDrag=true;hp(getPP(e));},{passive:false});
-pad.addEventListener('touchmove',e=>{e.preventDefault();if(!padDrag)return;hp(getPP(e));},{passive:false});
-pad.addEventListener('touchend',()=>padDrag=false);
 
 let planDrag=null,planOffY=0;
 function getPlP(e){const r=plan.getBoundingClientRect(),s=plan.width/r.width,src=e.touches?e.touches[0]:e;return{x:(src.clientX-r.left)*s,y:(src.clientY-r.top)*s};}
@@ -155,72 +121,6 @@ plan.addEventListener('touchstart',e=>{e.preventDefault();startPl(getPlP(e));},{
 plan.addEventListener('touchmove',e=>{e.preventDefault();if(!planDrag)return;movePl(getPlP(e));},{passive:false});
 plan.addEventListener('touchend',()=>planDrag=null);
 document.getElementById('fov').addEventListener('input',e=>{document.getElementById('fov-out').textContent=e.target.value+'°';drawAll();});
-
-function drawPad(){
-  const W=pad.width,H=pad.height,m=36;
-  const bg='#faf5ec',gc='rgba(139,105,20,0.1)',gc5='rgba(139,105,20,0.28)';
-  const lbl='rgba(100,75,14,0.6)',axc='rgba(100,75,14,0.55)',shade='rgba(139,105,20,0.06)';
-  pctx.fillStyle=bg;pctx.fillRect(0,0,W,H);
-  const ox=padFtToPx(0,0).x,oy=padFtToPx(0,0).y;
-  // shade unusable zones
-  pctx.fillStyle=shade;pctx.fillRect(ox,m,W-m-ox,oy-m); // +x,+y
-  pctx.fillStyle=shade;pctx.fillRect(m,oy,W-m-ox,H-m-oy); // -x,-y (below x-axis except allowed 50ft)
-  pctx.fillStyle='rgba(139,105,20,0.03)';pctx.fillRect(ox,oy,W-m-ox,H-m-oy); // +x,-y
-  // grid
-  for(let fx=PAD_X_MIN;fx<=PAD_X_MAX;fx+=10){
-    const{x}=padFtToPx(fx,0);
-    pctx.strokeStyle=fx%50===0?gc5:gc;pctx.lineWidth=0.5;
-    pctx.beginPath();pctx.moveTo(x,m);pctx.lineTo(x,H-m);pctx.stroke();
-  }
-  for(let fy=PAD_Y_MIN;fy<=PAD_Y_MAX;fy+=10){
-    const{y}=padFtToPx(0,fy);
-    pctx.strokeStyle=fy%50===0?gc5:gc;pctx.lineWidth=0.5;
-    pctx.beginPath();pctx.moveTo(m,y);pctx.lineTo(W-m,y);pctx.stroke();
-  }
-  // axes
-  pctx.strokeStyle=axc;pctx.lineWidth=1.5;
-  pctx.beginPath();pctx.moveTo(m,oy);pctx.lineTo(W-m,oy);pctx.stroke();
-  pctx.beginPath();pctx.moveTo(ox,m);pctx.lineTo(ox,H-m);pctx.stroke();
-  // labels
-  pctx.font='9px "Source Code Pro",monospace';pctx.fillStyle=lbl;
-  for(let fx=PAD_X_MIN;fx<PAD_X_MAX;fx+=10){
-    if(fx===0)continue;
-    const{x}=padFtToPx(fx,0);
-    pctx.textAlign='center';pctx.fillText(fx,x,oy+13);
-  }
-  for(let fy=PAD_Y_MIN;fy<=PAD_Y_MAX;fy+=10){
-    if(fy===0)continue;
-    const{y}=padFtToPx(0,fy);
-    pctx.textAlign='right';pctx.fillText((fy>0?'+':'')+fy,ox-4,y+3);
-  }
-  // origin
-  pctx.fillStyle='#3a3020';pctx.beginPath();pctx.arc(ox,oy,5,0,Math.PI*2);pctx.fill();
-  pctx.fillStyle=axc;pctx.font='bold 9px "Source Code Pro",monospace';pctx.textAlign='left';
-  pctx.fillText('(0,0) NW corner',ox+8,oy-6);
-  // axis direction labels
-  pctx.fillStyle=lbl;pctx.font='9px "Source Code Pro",monospace';
-  pctx.textAlign='center';pctx.fillText('← west  (−x)',m+(ox-m)*0.5,H-10);
-  pctx.save();pctx.translate(14,m+(oy-m)*0.5);pctx.rotate(-Math.PI/2);
-  pctx.textAlign='center';pctx.fillText('north (+y)',0,0);pctx.restore();
-  pctx.save();pctx.translate(14,oy+(H-m-oy)*0.5);pctx.rotate(-Math.PI/2);
-  pctx.textAlign='center';pctx.fillText('south (−y)',0,0);pctx.restore();
-  // crosshair
-  const cp=padFtToPx(camFtX,camFtY);
-  pctx.strokeStyle='rgba(192,57,43,0.28)';pctx.lineWidth=0.8;pctx.setLineDash([3,4]);
-  pctx.beginPath();pctx.moveTo(cp.x,m);pctx.lineTo(cp.x,H-m);pctx.stroke();
-  pctx.beginPath();pctx.moveTo(m,cp.y);pctx.lineTo(W-m,cp.y);pctx.stroke();
-  pctx.setLineDash([]);
-  pctx.strokeStyle='rgba(192,57,43,0.6)';pctx.lineWidth=1;
-  [m,H-m].forEach(y=>{pctx.beginPath();pctx.moveTo(cp.x-5,y);pctx.lineTo(cp.x+5,y);pctx.stroke();});
-  [m,W-m].forEach(x=>{pctx.beginPath();pctx.moveTo(x,cp.y-5);pctx.lineTo(x,cp.y+5);pctx.stroke();});
-  // camera dot
-  pctx.fillStyle='#c0392b';pctx.beginPath();pctx.arc(cp.x,cp.y,7,0,Math.PI*2);pctx.fill();
-  pctx.strokeStyle='white';pctx.lineWidth=1.5;pctx.beginPath();pctx.arc(cp.x,cp.y,7,0,Math.PI*2);pctx.stroke();
-  pctx.fillStyle='white';pctx.font='bold 8px monospace';pctx.textAlign='center';pctx.fillText('C',cp.x,cp.y+3);
-  pctx.fillStyle='#c0392b';pctx.font='bold 9px "Source Code Pro",monospace';
-  const lx=cp.x+12>W-100?cp.x-102:cp.x+12,ly=cp.y-10<m+10?cp.y+20:cp.y-10;
-  pctx.textAlign='left';pctx.fillText('('+camFtX+', +'+camFtY+')',lx,ly);
-}
 
 function drawPlan(){
   const W=plan.width,PH=plan.height,s=planScale();
@@ -299,7 +199,7 @@ function drawPlan(){
   ctx.restore();
 }
 
-function drawAll(){drawPad();drawPlan();}
+function drawAll(){drawPlan();}
 updateCoords();setup();
 window.addEventListener('resize',setup);
 </script>
