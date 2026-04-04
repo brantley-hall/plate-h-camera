@@ -131,13 +131,13 @@ function movePl(p){
     clampCam();updateCoords();
   }
   else if(planDrag==='rh1'){
-    const newY=Math.round((p.y-planOffY-ny)/s);
+    const newY=Math.round(-(p.y-planOffY-ny)/s); // Invert Y for north-up movement
     // Row houses cannot go onto Waverly Place (north of NYU)
     // Northern edge (rh1FtY + RH1_NS) must be <= 0 (NYU level)
     rh1FtY=Math.min(0 - RH1_NS, newY); // Max so northern edge stays at or below NYU
   }
   else if(planDrag==='rh2'){
-    const newY=Math.round((p.y-planOffY-ny)/s);
+    const newY=Math.round(-(p.y-planOffY-ny)/s); // Invert Y for north-up movement
     // Row houses cannot go onto Waverly Place (north of NYU)
     // Northern edge (rh2FtY + RH2_NS) must be <= 0 (NYU level)
     rh2FtY=Math.min(0 - RH2_NS, newY); // Max so northern edge stays at or below NYU
