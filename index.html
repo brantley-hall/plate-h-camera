@@ -107,9 +107,9 @@ const NYU_NS=180,NYU_EW=100,B2_NS=75,B2_EW=100,B2_PROJ=5;
 const RH1_EW=90,RH1_NS=50,RH2_EW=180,RH2_NS=50,GAP=735;
 const MARGIN_LEFT_FT=220, PLAN_FT_W=MARGIN_LEFT_FT+NYU_EW+GAP+B2_EW+40, GRID=100;
 
-let camFtX=-60, camFtY=50, rh1FtY=0, rh2FtY=0;
+let camFtX=60, camFtY=50, rh1FtY=0, rh2FtY=0;
 
-function clampCam(){ camFtX=Math.round(Math.max(-PAD_FT_W,Math.min(-1,camFtX))); camFtY=Math.round(Math.max(1,Math.min(PAD_FT_H,camFtY))); }
+function clampCam(){ camFtX=Math.round(Math.max(0,Math.min(PAD_FT_W,camFtX))); camFtY=Math.round(Math.max(0,Math.min(PAD_FT_H,camFtY))); }
 clampCam();
 
 function setup(){
@@ -121,14 +121,14 @@ function planScale(){ return (plan.width-10)/PLAN_FT_W; }
 
 function padFtToPx(ftX,ftY){
   const W=pad.width,H=pad.height,m=20;
-  // Remove X-axis inversion to match plan view coordinate system
-  return { x:m+(((ftX-1))/(PAD_FT_W-1))*(W-2*m), y:m+((ftY-1)/(PAD_FT_H-1))*(H-2*m) };
+  // Map 0,0 to far right, positive values go left; invert Y for proper orientation
+  return { x:m+(((PAD_FT_W-ftX)/(PAD_FT_W-1))*(W-2*m)), y:m+(((PAD_FT_H-ftY)/(PAD_FT_H-1))*(H-2*m)) };
 }
 function padPxToFt(px,py){
   const W=pad.width,H=pad.height,m=20;
-  // Remove X-axis inversion to match plan view coordinate system
-  return { x:Math.round(Math.max(1,Math.min(PAD_FT_W,((px-m)/(W-2*m))*(PAD_FT_W-1)+1))),
-           y: Math.round(Math.max(1,Math.min(PAD_FT_H,((py-m)/(H-2*m))*(PAD_FT_H-1)+1))) };
+  // Map far right to 0,0, positive values go left; invert Y for proper orientation
+  return { x:Math.round(Math.max(0,Math.min(PAD_FT_W,PAD_FT_W-((px-m)/(W-2*m))*(PAD_FT_W-1)))),
+           y: Math.round(Math.max(0,Math.min(PAD_FT_H,PAD_FT_H-((py-m)/(H-2*m))*(PAD_FT_H-1)))) };
 }
 
 function updateCoords(){
