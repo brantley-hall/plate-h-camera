@@ -252,8 +252,13 @@ function drawPlan(){
     ctx.setLineDash([4,4]);ctx.lineWidth=1;ctx.strokeStyle='rgba(192,57,43,0.55)';
     ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(sp.x,sp.y);ctx.moveTo(ax,ay);ctx.lineTo(sa.x,sa.y);ctx.moveTo(bx,by);ctx.lineTo(sb.x,sb.y);ctx.stroke();ctx.setLineDash([]);
   }
+  // NYU building blind region
   blind(nyuNWx,nyuNWy,nyuNEx,nyuNWy,nyuNWx,nyuSWy);
+  
+  // Row house 1 blind region - always calculate regardless of position
   blind(rh1X,rh1Y,rh1X+RH1_EW*s,rh1Y,rh1X,rh1Y+RH1_NS*s);
+  
+  // Row house 2 blind region - always calculate regardless of position  
   blind(rh2X,rh2Y,rh2X+RH2_EW*s,rh2Y,rh2X,rh2Y+RH2_NS*s);
   ctx.setLineDash([5,3]);ctx.lineWidth=1.5;ctx.strokeStyle='#8b6914';
   ctx.beginPath();ctx.moveTo(camX,camY);ctx.lineTo(r1.x,r1.y);ctx.moveTo(camX,camY);ctx.lineTo(r2.x,r2.y);ctx.stroke();
