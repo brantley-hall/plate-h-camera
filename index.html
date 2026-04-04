@@ -57,14 +57,21 @@ footer strong{font-style:normal;color:var(--sepia);}
 
   <div class="legend">
     <div class="leg"><div class="sw" style="background:#888780;border:1px solid #444"></div>NYU building (180×100 ft)</div>
-    <div class="leg"><div class="sw" style="background:rgba(100,100,100,0.3);border:1px solid #666"></div>Waverly Place (65 ft wide)</div>
+    <div class="leg"><div class="sw" style="background:rgba(139,105,20,0.4);border:1px solid #8b6914"></div>Waverly Place (65 ft wide - outline)</div>
+    <div class="leg"><div class="sw" style="background:rgba(173,216,230,0.7);border:1px solid #ADD8E6"></div>Visible area (light blue)</div>
     <div class="leg"><div class="sw" style="background:rgba(127,119,221,0.5);border:1px solid #534AB7"></div>Row house 1 (90×50 ft)</div>
     <div class="leg"><div class="sw" style="background:rgba(29,158,117,0.4);border:1px solid #0F6E56"></div>Row house 2 (180×50 ft)</div>
-    <div class="leg"><div class="sw" style="background:rgba(192,57,43,0.35);border:1px dashed rgba(192,57,43,0.7)"></div>Blind region (within cone)</div>
+    <div class="leg"><div class="sw" style="background:rgba(220,20,60,0.6);border:1px solid #DC143C"></div>Blind region (blocked view - red)</div>
     <div class="leg"><div class="sw" style="background:rgba(139,105,20,0.2);border:1px dashed #8b6914"></div>Cone of sight</div>
     <div class="leg"><div class="sw" style="background:#B5D4F4;border:1px solid #185FA5"></div>Church — north</div>
     <div class="leg"><div class="sw" style="background:#9FE1CB;border:1px solid #0F6E56"></div>Church — tower</div>
     <div class="leg"><div class="sw" style="background:#FAC775;border:1px solid #854F0B"></div>Church — south</div>
+  </div>
+
+  <!-- Simple illustration of wall vs visible proportions -->
+  <div style="margin:1rem 0;text-align:center;">
+    <p style="font-family:'Source Code Pro',monospace;font-size:0.65rem;color:var(--sepia);margin-bottom:0.5rem;">Vertical photo composition — Wall vs Visible</p>
+    <canvas id="proportion" width="300" height="80" style="border:1px solid var(--sepia);border-radius:3px;background:var(--paper);"></canvas>
   </div>
 
   <footer>
@@ -168,14 +175,20 @@ function drawPlan(){
   function ep(tx,ty){const dx=tx-cx,dy=ty-cy,d=Math.sqrt(dx*dx+dy*dy);if(d<0.001)return{x:cx+Math.cos(ca)*FAR,y:cy+Math.sin(ca)*FAR};return{x:cx+(dx/d)*FAR,y:cy+(dy/d)*FAR};}
   ctx.save();
   ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(r1.x,r1.y);ctx.lineTo(r2.x,r2.y);ctx.closePath();ctx.fillStyle='rgba(139,105,20,0.08)';ctx.fill();
+  
+  // Add light blue overlay for visible area
+  ctx.clip();
+  ctx.fillStyle='rgba(173,216,230,0.7)'; // Less translucent blue
+  ctx.fillRect(0,0,W,PH);
+  ctx.restore();
   function blind(px,py,ax,ay,bx,by){
     const sp=ep(px,py),sa=ep(ax,ay),sb=ep(bx,by);
     ctx.save();ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(r1.x,r1.y);ctx.lineTo(r2.x,r2.y);ctx.closePath();ctx.clip();
-    ctx.fillStyle='rgba(192,57,43,0.32)';
+    ctx.fillStyle='rgba(220,20,60,0.6)'; // Single shade of red for everything
     ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(ax,ay);ctx.lineTo(sa.x,sa.y);ctx.lineTo(sp.x,sp.y);ctx.closePath();ctx.fill();
     ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(bx,by);ctx.lineTo(sb.x,sb.y);ctx.lineTo(sp.x,sp.y);ctx.closePath();ctx.fill();
     ctx.restore();
-    ctx.setLineDash([4,4]);ctx.lineWidth=1;ctx.strokeStyle='rgba(192,57,43,0.55)';
+    ctx.setLineDash([4,4]);ctx.lineWidth=1.5;ctx.strokeStyle='rgba(220,20,60,0.9)'; // Same red for lines
     ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(sp.x,sp.y);ctx.moveTo(ax,ay);ctx.lineTo(sa.x,sa.y);ctx.moveTo(bx,by);ctx.lineTo(sb.x,sb.y);ctx.stroke();ctx.setLineDash([]);
   }
   blind(nx,ny,nex,ny,nx,nsy);
@@ -189,11 +202,11 @@ function drawPlan(){
   ctx.fillStyle=tc;ctx.font='600 9px "Source Code Pro",monospace';ctx.textAlign='center';ctx.fillText('NYU',nx+NYU_EW*s/2,ny+NYU_NS*s/2-4);
   ctx.fillStyle=mc;ctx.font='8px "Source Code Pro",monospace';ctx.fillText('180×100',nx+NYU_EW*s/2,ny+NYU_NS*s/2+7);
   
-  // Draw Waverly Place (65 ft wide street)
-  ctx.fillStyle='rgba(100,100,100,0.3)';ctx.strokeStyle='#666';ctx.lineWidth=1;
-  ctx.beginPath();ctx.rect(nx-20,waverlyY,NYU_EW*s+40,65*s);ctx.fill();ctx.stroke();
-  ctx.fillStyle='#666';ctx.font='8px "Source Code Pro",monospace';ctx.textAlign='center';
-  ctx.fillText('Waverly Place (65 ft)',nx+NYU_EW*s/2,waverlyY+65*s/2);
+  // Draw Waverly Place (65 ft wide street across full width - outline only)
+  ctx.strokeStyle='#8b6914';ctx.lineWidth=3;
+  ctx.beginPath();ctx.rect(0,waverlyY,W,65*s);ctx.stroke();
+  ctx.fillStyle='#8b6914';ctx.font='bold 9px "Source Code Pro",monospace';ctx.textAlign='center';
+  ctx.fillText('Waverly Place (65 ft)',W/2,waverlyY+65*s/2);
   function nsArr(ax,ay){ctx.strokeStyle='rgba(255,255,255,0.8)';ctx.lineWidth=1.2;ctx.setLineDash([]);ctx.beginPath();ctx.moveTo(ax,ay-7);ctx.lineTo(ax,ay+7);ctx.stroke();ctx.beginPath();ctx.moveTo(ax-3,ay-4);ctx.lineTo(ax,ay-7);ctx.lineTo(ax+3,ay-4);ctx.stroke();ctx.beginPath();ctx.moveTo(ax-3,ay+4);ctx.lineTo(ax,ay+7);ctx.lineTo(ax+3,ay+4);ctx.stroke();}
   ctx.fillStyle='rgba(127,119,221,0.4)';ctx.strokeStyle='#534AB7';ctx.lineWidth=1.5;ctx.beginPath();ctx.rect(r1x,r1y,RH1_EW*s,RH1_NS*s);ctx.fill();ctx.stroke();
   ctx.fillStyle='#26215C';ctx.font='700 8px "Source Code Pro",monospace';ctx.textAlign='center';ctx.fillText('RH1 90×50',r1x+RH1_EW*s/2,r1y+RH1_NS*s/2+3);nsArr(r1x+RH1_EW*s/2,r1y+RH1_NS*s/2);
@@ -223,7 +236,62 @@ function drawPlan(){
   ctx.restore();
 }
 
-function drawAll(){drawPlan();}
+function drawAll(){drawPlan();drawProportion();}
+function drawProportion(){
+  const prop=document.getElementById('proportion'), pctx=prop.getContext('2d');
+  const W=prop.width,H=prop.height;
+  
+  // Clear background
+  pctx.fillStyle='#faf5ec';
+  pctx.fillRect(0,0,W,H);
+  
+  // Calculate proportions based on camera position and buildings
+  const totalAngle = parseInt(document.getElementById('fov').value);
+  let blockedAngle = 0;
+  
+  // Simplified calculation - estimate blocked portions
+  if(camFtX < -80) blockedAngle += 15; // NYU building
+  if(rh1FtY > -20 && camFtX < -50) blockedAngle += 8; // RH1
+  if(rh2FtY > -20 && camFtX < -30) blockedAngle += 12; // RH2
+  
+  const visibleAngle = totalAngle - blockedAngle;
+  const blockedWidth = (blockedAngle / totalAngle) * W;
+  const visibleWidth = W - blockedWidth;
+  
+  // Draw blocked portion (red - wall/obstructions)
+  pctx.fillStyle='rgba(220,20,60,0.7)';
+  pctx.fillRect(0,0,blockedWidth,H);
+  
+  // Draw visible portion (blue - background)
+  pctx.fillStyle='rgba(173,216,230,0.8)';
+  pctx.fillRect(blockedWidth,0,visibleWidth,H);
+  
+  // Add labels
+  pctx.fillStyle='white';
+  pctx.font='bold 12px "Source Code Pro",monospace';
+  pctx.textAlign='center';
+  if(blockedWidth > 30){
+    pctx.fillText('WALL',blockedWidth/2,H/2+4);
+  }
+  if(visibleWidth > 30){
+    pctx.fillStyle='#333';
+    pctx.fillText('VISIBLE',blockedWidth+visibleWidth/2,H/2+4);
+  }
+  
+  // Add percentage labels
+  pctx.font='10px "Source Code Pro",monospace';
+  const blockedPct = Math.round((blockedAngle / totalAngle) * 100);
+  const visiblePct = 100 - blockedPct;
+  
+  if(blockedWidth > 20){
+    pctx.fillStyle='white';
+    pctx.fillText(blockedPct + '%',blockedWidth/2,H-8);
+  }
+  if(visibleWidth > 20){
+    pctx.fillStyle='#333';
+    pctx.fillText(visiblePct + '%',blockedWidth+visibleWidth/2,H-8);
+  }
+}
 updateCoords();setup();
 window.addEventListener('resize',setup);
 </script>
