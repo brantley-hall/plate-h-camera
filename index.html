@@ -176,11 +176,6 @@ function drawPlan(){
   ctx.save();
   ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(r1.x,r1.y);ctx.lineTo(r2.x,r2.y);ctx.closePath();ctx.fillStyle='rgba(139,105,20,0.08)';ctx.fill();
   
-  // Add light blue overlay for visible area
-  ctx.clip();
-  ctx.fillStyle='rgba(173,216,230,0.7)'; // Less translucent blue
-  ctx.fillRect(0,0,W,PH);
-  ctx.restore();
   function blind(px,py,ax,ay,bx,by){
     const sp=ep(px,py),sa=ep(ax,ay),sb=ep(bx,by);
     ctx.save();ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(r1.x,r1.y);ctx.lineTo(r2.x,r2.y);ctx.closePath();ctx.clip();
@@ -191,9 +186,16 @@ function drawPlan(){
     ctx.setLineDash([4,4]);ctx.lineWidth=1.5;ctx.strokeStyle='rgba(220,20,60,0.9)'; // Same red for lines
     ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(sp.x,sp.y);ctx.moveTo(ax,ay);ctx.lineTo(sa.x,sa.y);ctx.moveTo(bx,by);ctx.lineTo(sb.x,sb.y);ctx.stroke();ctx.setLineDash([]);
   }
+  // Draw blind regions FIRST (before blue overlay)
   blind(nx,ny,nex,ny,nx,nsy);
   blind(r1x,r1y,r1x+RH1_EW*s,r1y,r1x,r1y+RH1_NS*s);
   blind(r2x,r2y,r2x+RH2_EW*s,r2y,r2x,r2y+RH2_NS*s);
+  
+  // Add light blue overlay for visible area (drawn AFTER blind regions)
+  ctx.clip();
+  ctx.fillStyle='rgba(173,216,230,0.7)'; // Less translucent blue
+  ctx.fillRect(0,0,W,PH);
+  ctx.restore();
   ctx.setLineDash([5,3]);ctx.lineWidth=1.5;ctx.strokeStyle='#8b6914';
   ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(r1.x,r1.y);ctx.moveTo(cx,cy);ctx.lineTo(r2.x,r2.y);ctx.stroke();
   ctx.setLineDash([]);ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(ca)*160,cy+Math.sin(ca)*160);ctx.stroke();
