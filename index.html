@@ -121,13 +121,13 @@ function planScale(){ return (plan.width-10)/PLAN_FT_W; }
 
 function padFtToPx(ftX,ftY){
   const W=pad.width,H=pad.height,m=20;
-  // Invert Y to match plan view coordinate system
-  return { x:m+((-ftX-1)/(PAD_FT_W-1))*(W-2*m), y:m+((ftY-1)/(PAD_FT_H-1))*(H-2*m) };
+  // Remove X-axis inversion to match plan view coordinate system
+  return { x:m+(((ftX-1))/(PAD_FT_W-1))*(W-2*m), y:m+((ftY-1)/(PAD_FT_H-1))*(H-2*m) };
 }
 function padPxToFt(px,py){
   const W=pad.width,H=pad.height,m=20;
-  // Invert Y to match plan view coordinate system
-  return { x:-Math.round(Math.max(1,Math.min(PAD_FT_W,((px-m)/(W-2*m))*(PAD_FT_W-1)+1))),
+  // Remove X-axis inversion to match plan view coordinate system
+  return { x:Math.round(Math.max(1,Math.min(PAD_FT_W,((px-m)/(W-2*m))*(PAD_FT_W-1)+1))),
            y: Math.round(Math.max(1,Math.min(PAD_FT_H,((py-m)/(H-2*m))*(PAD_FT_H-1)+1))) };
 }
 
