@@ -127,17 +127,13 @@ function movePl(p){
   }
   else if(planDrag==='rh1'){
     const newY=Math.round((p.y-planOffY-ny)/s);
-    // Row houses move south when Y increases (ny+rh1FtY*s)
-    // Waverly is at ny - 65*s (north of NYU)
-    // So rh1FtY must be >= -65 to not go north of Waverly
-    rh1FtY=Math.max(-65, newY); // Minimum -65 (can't go north of Waverly)
+    // Simple constraint: don't let row houses go too far north or south
+    rh1FtY=Math.max(-100, Math.min(100, newY)); // Reasonable bounds
   }
   else if(planDrag==='rh2'){
     const newY=Math.round((p.y-planOffY-ny)/s);
-    // Row houses move south when Y increases (ny+rh2FtY*s)
-    // Waverly is at ny - 65*s (north of NYU)
-    // So rh2FtY must be >= -65 to not go north of Waverly
-    rh2FtY=Math.max(-65, newY); // Minimum -65 (can't go north of Waverly)
+    // Simple constraint: don't let row houses go too far north or south
+    rh2FtY=Math.max(-100, Math.min(100, newY)); // Reasonable bounds
   }
   drawAll();
 }
