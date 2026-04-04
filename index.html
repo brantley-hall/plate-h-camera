@@ -63,10 +63,10 @@ footer strong{font-style:normal;color:var(--sepia);}
   <div class="legend">
     <div class="leg"><div class="sw" style="background:#888780;border:1px solid #444"></div>NYU building (180×100 ft)</div>
     <div class="leg"><div class="sw" style="background:rgba(139,105,20,0.4);border:1px solid #8b6914"></div>Waverly Place (65 ft wide - outline)</div>
-    <div class="leg"><div class="sw" style="background:rgba(173,216,230,0.7);border:1px solid #ADD8E6"></div>Visible area (light blue)</div>
+    <div class="leg"><div class="sw" style="background:rgba(0,123,255,0.6);border:1px solid #007BFF"></div>Visible area (bright blue)</div>
     <div class="leg"><div class="sw" style="background:rgba(127,119,221,0.5);border:1px solid #534AB7"></div>Row house 1 (90×50 ft)</div>
     <div class="leg"><div class="sw" style="background:rgba(29,158,117,0.4);border:1px solid #0F6E56"></div>Row house 2 (180×50 ft)</div>
-    <div class="leg"><div class="sw" style="background:rgba(220,20,60,0.6);border:1px solid #DC143C"></div>Blind region (blocked view - red)</div>
+    <div class="leg"><div class="sw" style="background:rgba(255,0,0,0.7);border:1px solid #FF0000"></div>Blind region (blocked view - bright red)</div>
     <div class="leg"><div class="sw" style="background:rgba(139,105,20,0.2);border:1px dashed #8b6914"></div>Cone of sight</div>
     <div class="leg"><div class="sw" style="background:#B5D4F4;border:1px solid #185FA5"></div>Church — north</div>
     <div class="leg"><div class="sw" style="background:#9FE1CB;border:1px solid #0F6E56"></div>Church — tower</div>
@@ -132,13 +132,17 @@ function movePl(p){
   }
   else if(planDrag==='rh1'){
     const newY=Math.round((p.y-planOffY-ny)/s);
-    // Simple constraint: don't let row houses go too far in either direction
-    rh1FtY=newY; // Let them move freely for now
+    // North side (top edge) of row house must stay below Y axis
+    // Row house top is at ny+rh1FtY*s, Y axis is at ny
+    // So we need ny+rh1FtY*s >= ny, which means rh1FtY >= 0
+    rh1FtY=Math.max(0, newY); // Min 0 keeps top edge at or below Y axis
   }
   else if(planDrag==='rh2'){
     const newY=Math.round((p.y-planOffY-ny)/s);
-    // Simple constraint: don't let row houses go too far in either direction
-    rh2FtY=newY; // Let them move freely for now
+    // North side (top edge) of row house must stay below Y axis
+    // Row house top is at ny+rh2FtY*s, Y axis is at ny
+    // So we need ny+rh2FtY*s >= ny, which means rh2FtY >= 0
+    rh2FtY=Math.max(0, newY); // Min 0 keeps top edge at or below Y axis
   }
   drawAll();
 }
@@ -191,11 +195,11 @@ function drawPlan(){
   function blind(px,py,ax,ay,bx,by){
     const sp=ep(px,py),sa=ep(ax,ay),sb=ep(bx,by);
     ctx.save();ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(r1.x,r1.y);ctx.lineTo(r2.x,r2.y);ctx.closePath();ctx.clip();
-    ctx.fillStyle='rgba(220,20,60,0.6)'; // Single shade of red for everything
+    ctx.fillStyle='rgba(255,0,0,0.7)'; // Bright red for occluded areas
     ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(ax,ay);ctx.lineTo(sa.x,sa.y);ctx.lineTo(sp.x,sp.y);ctx.closePath();ctx.fill();
     ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(bx,by);ctx.lineTo(sb.x,sb.y);ctx.lineTo(sp.x,sp.y);ctx.closePath();ctx.fill();
     ctx.restore();
-    ctx.setLineDash([4,4]);ctx.lineWidth=1.5;ctx.strokeStyle='rgba(220,20,60,0.9)'; // Same red for lines
+    ctx.setLineDash([4,4]);ctx.lineWidth=1.5;ctx.strokeStyle='rgba(255,0,0,0.9)'; // Bright red lines
     ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(sp.x,sp.y);ctx.moveTo(ax,ay);ctx.lineTo(sa.x,sa.y);ctx.moveTo(bx,by);ctx.lineTo(sb.x,sb.y);ctx.stroke();ctx.setLineDash([]);
   }
   // Draw blind regions FIRST (before blue overlay)
@@ -207,7 +211,7 @@ function drawPlan(){
   ctx.restore(); // Restore from the initial save
   ctx.save();
   ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(r1.x,r1.y);ctx.lineTo(r2.x,r2.y);ctx.closePath();ctx.clip();
-  ctx.fillStyle='rgba(173,216,230,0.7)'; // Less translucent blue
+  ctx.fillStyle='rgba(0,123,255,0.6)'; // Brighter, more distinct blue
   ctx.fillRect(0,0,W,PH);
   ctx.restore();
   ctx.setLineDash([5,3]);ctx.lineWidth=1.5;ctx.strokeStyle='#8b6914';
