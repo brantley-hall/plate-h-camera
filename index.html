@@ -102,36 +102,33 @@ const pctx = pad.getContext('2d');
 const plan = document.getElementById('plan');
 const ctx  = plan.getContext('2d');
 
-const PAD_FT_W=100, PAD_FT_H=100;
+const PAD_FT_W=200, PAD_FT_H=200;
 const NYU_NS=180,NYU_EW=100,B2_NS=75,B2_EW=100,B2_PROJ=5;
 const RH1_EW=90,RH1_NS=50,RH2_EW=180,RH2_NS=50,GAP=735;
 const MARGIN_LEFT_FT=220, PLAN_FT_W=MARGIN_LEFT_FT+NYU_EW+GAP+B2_EW+40, GRID=100;
 
-let camFtX=0, camFtY=0, rh1FtY=0, rh2FtY=0;
+let camFtX=-100, camFtY=100, rh1FtY=0, rh2FtY=0;
 
-function clampCam(){ camFtX=Math.round(Math.max(-PAD_FT_W/2,Math.min(PAD_FT_W/2,camFtX))); camFtY=Math.round(Math.max(-PAD_FT_H/2,Math.min(PAD_FT_H/2,camFtY))); }
+function clampCam(){ camFtX=Math.round(Math.max(-PAD_FT_W,Math.min(0,camFtX))); camFtY=Math.round(Math.max(0,Math.min(PAD_FT_H,camFtY))); }
 clampCam();
 
 function setup(){
   const W=pad.parentElement.parentElement.offsetWidth||900;
-  pad.width=W; pad.height=W; plan.width=W; plan.height=420; drawAll();
+  pad.width=W; pad.height=W*0.8; plan.width=W; plan.height=420; drawAll();
 }
 
 function planScale(){ return (plan.width-10)/PLAN_FT_W; }
 
 function padFtToPx(ftX,ftY){
   const W=pad.width,H=pad.height,m=20;
-  // Standard X,Y coordinates: center at 0,0, positive right/up
-  const centerX = W/2, centerY = H/2;
-  const scaleX = (W-2*m)/PAD_FT_W, scaleY = (H-2*m)/PAD_FT_H;
-  return { x:centerX + ftX*scaleX, y:centerY + ftY*scaleY };
+  // Upper left quadrant: -200 to 0 X, 0 to 200 Y
+  return { x:m+((ftX+PAD_FT_W)/(PAD_FT_W))*(W-2*m), y:m+((PAD_FT_H-ftY)/(PAD_FT_H))*(H-2*m) };
 }
 function padPxToFt(px,py){
   const W=pad.width,H=pad.height,m=20;
-  // Standard X,Y coordinates: center at 0,0, positive right/up
-  const centerX = W/2, centerY = H/2;
-  const scaleX = (W-2*m)/PAD_FT_W, scaleY = (H-2*m)/PAD_FT_H;
-  return { x:Math.round((px-centerX)/scaleX), y:Math.round((py-centerY)/scaleY) };
+  // Upper left quadrant: -200 to 0 X, 0 to 200 Y
+  return { x:Math.round(Math.max(-PAD_FT_W,Math.min(0,((px-m)/(W-2*m))*PAD_FT_W-PAD_FT_W))),
+           y:Math.round(Math.max(0,Math.min(PAD_FT_H,PAD_FT_H-((py-m)/(H-2*m))*PAD_FT_H))) };
 }
 
 function updateCoords(){
@@ -176,28 +173,41 @@ document.getElementById('fov').addEventListener('input',e=>{document.getElementB
 
 function drawPad(){
   const W=pad.width,H=pad.height;
-  pctx.fillStyle='#0c0c0a'; pctx.fillRect(0,0,W,H);
-  for(let y=0;y<H;y+=2){pctx.fillStyle='rgba(0,0,0,0.08)';pctx.fillRect(0,y,W,1);}
-  for(let fx=0;fx<=PAD_FT_W;fx++){
-    if(fx%10!==0)continue;
-    const {x}=padFtToPx(-fx,1);
-    pctx.strokeStyle=fx%50===0?'rgba(0,200,120,0.2)':'rgba(0,200,120,0.07)';
-    pctx.lineWidth=0.5;pctx.beginPath();pctx.moveTo(x,0);pctx.lineTo(x,H);pctx.stroke();
+  pctx.fillStyle='#f5f5f0'; pctx.fillRect(0,0,W,H);
+  for(let y=0;y<H;y+=2){pctx.fillStyle='rgba(139,105,20,0.02)';pctx.fillRect(0,y,W,1);}
+  
+  // Draw 1-foot grid lines
+  for(let fx=-PAD_FT_W;fx<=0;fx++){
+    const {x}=padFtToPx(fx,1);
+    pctx.strokeStyle=fx%10===0?'rgba(139,105,20,0.4)':'rgba(139,105,20,0.15)';
+    pctx.lineWidth=fx%10===0?1:0.5;pctx.beginPath();pctx.moveTo(x,0);pctx.lineTo(x,H);pctx.stroke();
   }
   for(let fy=0;fy<=PAD_FT_H;fy++){
-    if(fy%10!==0)continue;
     const {y}=padFtToPx(-1,fy);
-    pctx.strokeStyle=fy%50===0?'rgba(0,200,120,0.2)':'rgba(0,200,120,0.07)';
-    pctx.lineWidth=0.5;pctx.beginPath();pctx.moveTo(0,y);pctx.lineTo(W,y);pctx.stroke();
+    pctx.strokeStyle=fy%10===0?'rgba(139,105,20,0.4)':'rgba(139,105,20,0.15)';
+    pctx.lineWidth=fy%10===0?1:0.5;pctx.beginPath();pctx.moveTo(0,y);pctx.lineTo(W,y);pctx.stroke();
   }
-  pctx.font='8px "Source Code Pro",monospace'; pctx.fillStyle='rgba(0,200,120,0.5)';
+  
+  // Draw NYU building side (right edge of gamepad)
+  const nyuRight = padFtToPx(0, 0);
+  pctx.fillStyle='rgba(120,110,90,0.6)'; pctx.fillRect(nyuRight.x-8, 0, 8, H);
+  pctx.strokeStyle='rgba(120,110,90,0.9)'; pctx.lineWidth=2;
+  pctx.beginPath(); pctx.moveTo(nyuRight.x, 0); pctx.lineTo(nyuRight.x, H); pctx.stroke();
+  
+  // NYU building label
+  pctx.fillStyle='rgba(120,110,90,0.8)'; pctx.font='bold 10px "Source Code Pro",monospace';
+  pctx.textAlign='center'; pctx.fillText('NYU', nyuRight.x-4, 15);
+  
+  // Grid labels
+  pctx.font='8px "Source Code Pro",monospace'; pctx.fillStyle='rgba(139,105,20,0.7)';
   pctx.textAlign='center';
-  for(let fx=10;fx<=PAD_FT_W;fx+=10){const {x}=padFtToPx(-fx,1);pctx.fillText('-'+fx,x,H-4);}
+  for(let fx=-PAD_FT_W;fx<=0;fx+=10){if(fx===0)continue;const {x}=padFtToPx(fx,1);pctx.fillText(fx.toString(),x,H-3);}
   pctx.textAlign='left';
-  for(let fy=10;fy<=PAD_FT_H;fy+=10){const {y}=padFtToPx(-1,fy);pctx.fillText('+'+fy,3,y+3);}
-  pctx.strokeStyle='rgba(0,200,120,0.35)';pctx.lineWidth=1;pctx.strokeRect(1,1,W-2,H-2);
+  for(let fy=10;fy<=PAD_FT_H;fy+=10){const {y}=padFtToPx(-1,fy);pctx.fillText(fy.toString(),3,y+3);}
+  
+  pctx.strokeStyle='rgba(139,105,20,0.3)';pctx.lineWidth=1;pctx.strokeRect(1,1,W-2,H-2);
   const cp=padFtToPx(camFtX,camFtY);
-  pctx.strokeStyle='rgba(0,220,140,0.2)';pctx.lineWidth=0.8;pctx.setLineDash([2,4]);
+  pctx.strokeStyle='rgba(192,57,43,0.3)';pctx.lineWidth=0.8;pctx.setLineDash([2,4]);
   pctx.beginPath();pctx.moveTo(cp.x,0);pctx.lineTo(cp.x,H);pctx.stroke();
   pctx.beginPath();pctx.moveTo(0,cp.y);pctx.lineTo(W,cp.y);pctx.stroke();
   pctx.setLineDash([]);
