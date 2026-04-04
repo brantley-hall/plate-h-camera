@@ -97,7 +97,7 @@ clampCam();
 
 function setup(){
   const W=pad.parentElement.parentElement.offsetWidth||960;
-  pad.width=W; pad.height=Math.round(W*(PAD_FT_H/PAD_FT_W));
+  pad.width=W*0.3; pad.height=Math.round(W*0.3*(PAD_FT_H/PAD_FT_W));
   plan.width=W; plan.height=Math.round(W*0.45);
   drawAll();
 }
