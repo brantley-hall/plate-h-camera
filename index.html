@@ -127,13 +127,13 @@ function movePl(p){
   }
   else if(planDrag==='rh1'){
     const newY=Math.round((p.y-planOffY-ny)/s);
-    // Northern edge of row house can go up to south side of Waverly Place
-    rh1FtY=Math.min(65, newY); // Can go up to 65 (Waverly south side)
+    // Northern edge of row house (rh1FtY + RH1_NS) cannot go beyond Waverly south side (+65)
+    rh1FtY=Math.min(65 - RH1_NS, newY); // Max position so top edge reaches Waverly
   }
   else if(planDrag==='rh2'){
     const newY=Math.round((p.y-planOffY-ny)/s);
-    // Northern edge of row house can go up to south side of Waverly Place
-    rh2FtY=Math.min(65, newY); // Can go up to 65 (Waverly south side)
+    // Northern edge of row house (rh2FtY + RH2_NS) cannot go beyond Waverly south side (+65)
+    rh2FtY=Math.min(65 - RH2_NS, newY); // Max position so top edge reaches Waverly
   }
   drawAll();
 }
