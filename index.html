@@ -99,19 +99,32 @@ function updateCoords(){
   document.getElementById('coords').textContent=s;
 }
 
-let planDrag=null,planOffY=0;
+let planDrag=null,planOffY=0,planOffX=0;
 function getPlP(e){const r=plan.getBoundingClientRect(),s=plan.width/r.width,src=e.touches?e.touches[0]:e;return{x:(src.clientX-r.left)*s,y:(src.clientY-r.top)*s};}
 function inR(px,py,rx,ry,rw,rh){return px>=rx&&px<=rx+rw&&py>=ry&&py<=ry+rh;}
 function startPl(p){
   const s=planScale(),nx=Math.round(MARGIN_LEFT_FT*s)+5,ny=Math.round(plan.height*0.47);
-  const r1x=nx+NYU_EW*s,r1y=ny+rh1FtY*s,r2x=nx+(NYU_EW+RH1_EW+45)*s,r2y=ny+rh2FtY*s;
-  if(inR(p.x,p.y,r1x,r1y,RH1_EW*s,RH1_NS*s)){planDrag='rh1';planOffY=p.y-r1y;}
+  const nex=nx+NYU_EW*s;
+  const r1x=nex,r1y=ny+rh1FtY*s,r2x=nex+(RH1_EW+45)*s,r2y=ny+rh2FtY*s;
+  const cx=nx+camFtX*s,cy=ny-camFtY*s;
+  
+  // Check if clicking on camera
+  if(Math.sqrt((p.x-cx)*(p.x-cx)+(p.y-cy)*(p.y-cy))<20){
+    planDrag='camera';planOffX=p.x-cx;planOffY=p.y-cy;
+  }
+  // Check if clicking on row houses
+  else if(inR(p.x,p.y,r1x,r1y,RH1_EW*s,RH1_NS*s)){planDrag='rh1';planOffY=p.y-r1y;}
   else if(inR(p.x,p.y,r2x,r2y,RH2_EW*s,RH2_NS*s)){planDrag='rh2';planOffY=p.y-r2y;}
 }
 function movePl(p){
-  const s=planScale(),ny=Math.round(plan.height*0.47);
-  if(planDrag==='rh1')rh1FtY=Math.round((p.y-planOffY-ny)/s);
-  if(planDrag==='rh2')rh2FtY=Math.round((p.y-planOffY-ny)/s);
+  const s=planScale(),nx=Math.round(MARGIN_LEFT_FT*s)+5,ny=Math.round(plan.height*0.47);
+  if(planDrag==='camera'){
+    camFtX=Math.round((p.x-planOffX-nx)/s);
+    camFtY=Math.round(-(p.y-planOffY-ny)/s);
+    clampCam();updateCoords();
+  }
+  else if(planDrag==='rh1')rh1FtY=Math.round((p.y-planOffY-ny)/s);
+  else if(planDrag==='rh2')rh2FtY=Math.round((p.y-planOffY-ny)/s);
   drawAll();
 }
 plan.addEventListener('mousedown',e=>startPl(getPlP(e)));
@@ -192,8 +205,9 @@ function drawPlan(){
   ctx.fillStyle='#3a3020';ctx.beginPath();ctx.arc(nx,ny,3,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(b2x,b2y,3,0,Math.PI*2);ctx.fill();
   ctx.strokeStyle='rgba(192,57,43,0.22)';ctx.lineWidth=0.8;ctx.setLineDash([3,3]);
   ctx.beginPath();ctx.moveTo(cx,0);ctx.lineTo(cx,PH);ctx.stroke();ctx.beginPath();ctx.moveTo(0,cy);ctx.lineTo(W,cy);ctx.stroke();ctx.setLineDash([]);
-  ctx.fillStyle='#c0392b';ctx.beginPath();ctx.arc(cx,cy,4,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='white';ctx.font='bold 6px monospace';ctx.textAlign='center';ctx.fillText('C',cx,cy+2);
+  ctx.fillStyle='#c0392b';ctx.beginPath();ctx.arc(cx,cy,8,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='white';ctx.lineWidth=2;ctx.beginPath();ctx.arc(cx,cy,8,0,Math.PI*2);ctx.stroke();
+  ctx.fillStyle='white';ctx.font='bold 10px monospace';ctx.textAlign='center';ctx.fillText('C',cx,cy+3);
   ctx.fillStyle=mc;ctx.font='11px serif';ctx.textAlign='center';ctx.fillText('N',W-18,18);ctx.strokeStyle=mc;ctx.lineWidth=1;
   ctx.beginPath();ctx.moveTo(W-18,22);ctx.lineTo(W-18,34);ctx.stroke();ctx.beginPath();ctx.moveTo(W-22,26);ctx.lineTo(W-18,22);ctx.lineTo(W-14,26);ctx.stroke();
   ctx.restore();
