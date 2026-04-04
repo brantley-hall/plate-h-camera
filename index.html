@@ -114,7 +114,7 @@ clampCam();
 
 function setup(){
   const W=pad.parentElement.parentElement.offsetWidth||900;
-  pad.width=W; pad.height=220; plan.width=W; plan.height=420; drawAll();
+  pad.width=W; pad.height=W; plan.width=W; plan.height=420; drawAll();
 }
 
 function planScale(){ return (plan.width-10)/PLAN_FT_W; }
@@ -124,14 +124,14 @@ function padFtToPx(ftX,ftY){
   // Standard X,Y coordinates: center at 0,0, positive right/up
   const centerX = W/2, centerY = H/2;
   const scaleX = (W-2*m)/PAD_FT_W, scaleY = (H-2*m)/PAD_FT_H;
-  return { x:centerX + ftX*scaleX, y:centerY - ftY*scaleY };
+  return { x:centerX + ftX*scaleX, y:centerY + ftY*scaleY };
 }
 function padPxToFt(px,py){
   const W=pad.width,H=pad.height,m=20;
   // Standard X,Y coordinates: center at 0,0, positive right/up
   const centerX = W/2, centerY = H/2;
   const scaleX = (W-2*m)/PAD_FT_W, scaleY = (H-2*m)/PAD_FT_H;
-  return { x:Math.round((px-centerX)/scaleX), y:Math.round(-(py-centerY)/scaleY) };
+  return { x:Math.round((px-centerX)/scaleX), y:Math.round((py-centerY)/scaleY) };
 }
 
 function updateCoords(){
@@ -224,7 +224,7 @@ function drawPlan(){
   const b2NWx=nyuNWx+GAP*s, b2NWy=nyuNWy, sec=25*s, proj=B2_PROJ*s;
   const rh1X=nyuNEx, rh2X=nyuNEx+(RH1_EW+45)*s;
   const rh1Y=nyuNWy+rh1FtY*s, rh2Y=nyuNWy+rh2FtY*s;
-  const camX=nyuNWx+camFtX*s, camY=nyuNWy+camFtY*s;
+  const camX=nyuNWx+camFtX*s, camY=nyuNWy-camFtY*s;
   const tc='#1a1208',mc='#6b5a3e',gc='rgba(139,105,20,0.07)',gl='rgba(139,105,20,0.2)';
   ctx.fillStyle='#faf5ec';ctx.fillRect(0,0,W,PH);
   const gp=GRID*s;
