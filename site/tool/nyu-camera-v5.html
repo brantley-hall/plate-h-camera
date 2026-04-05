@@ -112,6 +112,11 @@ footer strong{font-style:normal;color:var(--sepia);}
           <input type="range" id="churchslide" min="0" max="100" value="0" step="1" style="width:60px">
           <span class="val" id="church-out">0</span>
         </div>
+        <div class="fov-row">
+          <label>NYU Building (North)</label>
+          <input type="range" id="nyuslide" min="0" max="100" value="0" step="1" style="width:60px">
+          <span class="val" id="nyu-out">0</span>
+        </div>
 
       <div class="panel-hdr">
         <span>Camera control — drag to position (variable increments)</span>
@@ -218,6 +223,8 @@ let camRotation=0;
 let rh1FtY=0,   rh2FtY=0;
 // Church of Messiah vertical position (0 = at original position, positive = northward)
 let churchFtY=0;
+// NYU building vertical position (0 = at original position, positive = northward)
+let nyuFtY=0;
 
 function clampCam(){
   camFtX=Math.round(Math.max(-400,Math.min(400,camFtX)));
@@ -268,6 +275,12 @@ document.getElementById('churchslide').addEventListener('input',e=>{
   churchFtY=parseInt(e.target.value); 
   document.getElementById('church-out').textContent=churchFtY; 
   console.log('Church slider moved to:', churchFtY);
+  drawAll();
+});
+document.getElementById('nyuslide').addEventListener('input',e=>{
+  nyuFtY=parseInt(e.target.value); 
+  document.getElementById('nyu-out').textContent=nyuFtY; 
+  console.log('NYU slider moved to:', nyuFtY);
   drawAll();
 });
 
@@ -352,7 +365,7 @@ function getCamAngle(){ return camRotation * Math.PI / 180; }
 
 function getConeParams(s, ox, oy){
   const cx=ox+camFtX*s, cy=oy-camFtY*s;
-  const nex=ox+NYU_EW*s, nsy=oy+NYU_NS*s;
+  const nex=ox+NYU_EW*s, nsy=oy+NYU_NS*s - nyuFtY*s; // Apply NYU movement
   const r1x=nex, r2x=nex+(RH1_EW+45)*s;
   const r1y=oy+rh1FtY*s, r2y=oy+rh2FtY*s;
   const b2x=ox+GAP*s, b2y=oy-churchFtY*s;
@@ -469,12 +482,13 @@ function drawPlan(){
   pctx.beginPath();pctx.moveTo(cx,cy);pctx.lineTo(cx+Math.cos(ca)*120,cy+Math.sin(ca)*120);pctx.stroke();
 
   // NYU
+  const nyuY = oy - nyuFtY*s; // Apply NYU north-south movement
   pctx.fillStyle='rgba(120,110,90,0.5)';pctx.strokeStyle='#3a3020';pctx.lineWidth=1.5;
-  pctx.beginPath();pctx.rect(ox,oy,NYU_EW*s,NYU_NS*s);pctx.fill();pctx.stroke();
+  pctx.beginPath();pctx.rect(ox,nyuY,NYU_EW*s,NYU_NS*s);pctx.fill();pctx.stroke();
   pctx.fillStyle=tc;pctx.font='600 9px "Source Code Pro",monospace';pctx.textAlign='center';
-  pctx.fillText('NYU',ox+NYU_EW*s/2,oy+NYU_NS*s/2-4);
+  pctx.fillText('NYU',ox+NYU_EW*s/2,nyuY+NYU_NS*s/2-4);
   pctx.fillStyle=mc;pctx.font='8px "Source Code Pro",monospace';
-  pctx.fillText('180×100',ox+NYU_EW*s/2,oy+NYU_NS*s/2+7);
+  pctx.fillText('180×100',ox+NYU_EW*s/2,nyuY+NYU_NS*s/2+7);
 
   function nsArr(ax,ay){pctx.strokeStyle='rgba(255,255,255,0.8)';pctx.lineWidth=1.2;pctx.setLineDash([]);pctx.beginPath();pctx.moveTo(ax,ay-7);pctx.lineTo(ax,ay+7);pctx.stroke();pctx.beginPath();pctx.moveTo(ax-3,ay-4);pctx.lineTo(ax,ay-7);pctx.lineTo(ax+3,ay-4);pctx.stroke();pctx.beginPath();pctx.moveTo(ax-3,ay+4);pctx.lineTo(ax,ay+7);pctx.lineTo(ax+3,ay+4);pctx.stroke();}
 
@@ -782,7 +796,7 @@ function speakInstruction(topic) {
     
     'field-of-view': 'Field of View: Change the FOV angle between 10 and 100 degrees. Wider angles show more of the scene but with less detail. Narrower angles focus on specific areas with more detail. This simulates different camera lenses.',
     
-    'building-movement': 'Building Movement: Use the row house and church sliders to move buildings north and south. This lets you test different historical positions and sight lines. Move buildings to see how they affect what the camera can see.',
+    'building-movement': 'Building Movement: Use the row house, church, and NYU sliders to move buildings north and south. This lets you test different historical positions and sight lines. Move buildings to see how they affect what the camera can see.',
     
     'sight-analysis': 'Sight Analysis: The yellow cone shows the camera\'s field of view - what the camera can see. Red areas indicate blind regions that are blocked by buildings. This helps you understand sight lines and obstructions.',
     
