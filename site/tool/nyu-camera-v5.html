@@ -44,6 +44,14 @@ canvas#compass{width:60px;height:60px;cursor:crosshair;flex-shrink:0;border:1px 
 footer{border-top:1px solid var(--rule);padding-top:0.8rem;font-size:0.72rem;color:var(--muted);font-style:italic;text-align:center;}
 footer strong{font-style:normal;color:var(--sepia);}
 
+/* Instruction Panel */
+.instruction-panel{background:var(--aged);border:1px solid var(--rule);border-radius:4px;padding:1.5rem;margin:2rem 0;box-shadow:3px 3px 0 rgba(139,105,20,0.1);}
+.instruction-title{font-family:'Playfair Display',Georgia,serif;font-size:1.3rem;font-weight:600;color:var(--ink);margin-bottom:1rem;text-align:center;border-bottom:1px solid var(--sepia);padding-bottom:0.5rem;}
+.instruction-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem;}
+.instruction-item{background:var(--paper);border:1px solid var(--rule);border-radius:3px;padding:1rem;}
+.instruction-label{font-family:'Source Code Pro',monospace;font-size:0.9rem;font-weight:600;color:var(--sepia);margin-bottom:0.5rem;}
+.instruction-text{font-size:0.85rem;line-height:1.5;color:var(--muted);}
+
 </style>
 </head>
 <body>
@@ -117,6 +125,37 @@ footer strong{font-style:normal;color:var(--sepia);}
       </div>
     </div>
 
+  </div>
+
+  <!-- INSTRUCTION PANEL -->
+  <div class="instruction-panel">
+    <div class="instruction-title">How to Use the Camera Obscura Tool</div>
+    <div class="instruction-grid">
+      <div class="instruction-item">
+        <div class="instruction-label">🎯 Camera Position</div>
+        <div class="instruction-text">Use X/Y sliders to move camera east-west and north-south. Camera stays in the western quadrant (negative X, positive Y).</div>
+      </div>
+      <div class="instruction-item">
+        <div class="instruction-label">🔄 Camera Rotation</div>
+        <div class="instruction-text">Adjust rotation to point camera. 0° = east, +90° = north, -90° = south.</div>
+      </div>
+      <div class="instruction-item">
+        <div class="instruction-label">👁️ Field of View</div>
+        <div class="instruction-text">Change FOV angle (10°-100°). Wider angles see more, narrower angles focus on specific areas.</div>
+      </div>
+      <div class="instruction-item">
+        <div class="instruction-label">🏢 Building Movement</div>
+        <div class="instruction-text">Move row houses and church north-south to test different historical positions and sight lines.</div>
+      </div>
+      <div class="instruction-item">
+        <div class="instruction-label">📊 Sight Analysis</div>
+        <div class="instruction-text">Yellow cone shows camera's field of view. Red area indicates blind regions blocked by buildings.</div>
+      </div>
+      <div class="instruction-item">
+        <div class="instruction-label">🗺️ Historical Map</div>
+        <div class="instruction-text">1852 Perris map provides historical context. Buildings are positioned based on historical records.</div>
+      </div>
+    </div>
   </div>
 
   <footer>
