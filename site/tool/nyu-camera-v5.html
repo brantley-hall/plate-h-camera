@@ -68,6 +68,17 @@ footer strong{font-style:normal;color:var(--sepia);}
 .tool-nav a{color:var(--sepia);text-decoration:none;font-family:'Source Code Pro',monospace;font-size:0.7rem;margin:0 0.5rem;padding:0.3rem 0.6rem;border:1px solid var(--sepia);border-radius:2px;transition:all 0.3s ease;display:inline-block;}
 .tool-nav a:hover{background:var(--sepia);color:var(--paper);}
 
+/* Main Navigation */
+.main-nav{background:var(--aged);border:1px solid var(--rule);border-radius:4px;padding:1rem;margin-bottom:2rem;box-shadow:3px 3px 0 rgba(139,105,20,0.1);}
+.nav-section{margin-bottom:0.8rem;}
+.nav-section:last-child{margin-bottom:0;}
+.nav-label{font-family:'Source Code Pro',monospace;font-size:0.7rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;display:block;margin-bottom:0.5rem;}
+.nav-link{display:inline-block;color:var(--sepia);text-decoration:none;font-family:'Source Code Pro',monospace;font-size:0.8rem;padding:0.4rem 0.8rem;margin:0.2rem 0.4rem;border:1px solid var(--sepia);border-radius:2px;transition:all 0.3s ease;}
+.nav-link:hover{background:var(--sepia);color:var(--paper);transform:translateY(-1px);}
+.nav-link.primary{background:var(--sepia);color:var(--paper);border-color:var(--sepia);}
+.nav-link.primary:hover{background:var(--ink);border-color:var(--ink);}
+.nav-link.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+
 </style>
 </head>
 <body>
@@ -76,11 +87,21 @@ footer strong{font-style:normal;color:var(--sepia);}
   <div class="eyebrow">Plate H Camera</div>
   <h1>Washington Square 1839 <em>camera study</em></h1>
   <div class="ground-level-note">📍 <strong>Ground-Level View Only</strong> — Camera positioned at street level, not elevated. Height of buildings not analyzed.</div>
-  <div class="tool-nav">
-    <a href="../index.html">← Main</a>
-    <a href="../1893-photo-study.html">1893 Study</a>
-    <a href="../photos.html">Photos</a>
-    <a href="../studies.html">Studies</a>
+  <div class="main-nav">
+    <div class="nav-section">
+      <span class="nav-label">Analysis Tools</span>
+      <a href="nyu-camera-v5.html" class="nav-link primary active">Camera Tool</a>
+      <a href="../1893-photo-study.html" class="nav-link">1893 Study</a>
+    </div>
+    <div class="nav-section">
+      <span class="nav-label">Historical Record</span>
+      <a href="../photos.html" class="nav-link">Photos</a>
+      <a href="../studies.html" class="nav-link">Studies</a>
+    </div>
+    <div class="nav-section">
+      <span class="nav-label">Site</span>
+      <a href="../index.html" class="nav-link">← Home</a>
+    </div>
   </div>
 </header>
 
