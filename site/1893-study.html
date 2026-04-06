@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1893 Photo Study - Plate H Camera</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Source+Code+Pro:wght@400;600&family=Spectral:ital,wght@0,300;0,400;1,300&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--ink:#1a1208;--paper:#f4ede0;--aged:#e8d9c0;--sepia:#8b6914;--rust:#c0392b;--muted:#6b5a3e;--rule:rgba(139,105,20,0.25);}
+body{background:var(--paper);color:var(--ink);font-family:'Spectral',Georgia,serif;font-size:15px;line-height:1.6;}
+.wrapper{max-width:1400px;margin:0 auto;padding:0.8rem 0.8rem 1.5rem;}
+header{border-top:3px double var(--sepia);border-bottom:1px solid var(--rule);padding:0.8rem 0 0.6rem;margin-bottom:0.8rem;text-align:center;}
+.eyebrow{font-family:'Source Code Pro',monospace;font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--sepia);margin-bottom:0.3rem;}
+h1{font-family:'Playfair Display',Georgia,serif;font-size:clamp(1.2rem,2.5vw,1.8rem);font-weight:600;line-height:1.15;color:var(--ink);}
+h1 em{font-style:italic;font-weight:400;color:var(--sepia);}
+
+/* Main Navigation */
+.main-nav{background:var(--aged);border:1px solid var(--rule);border-radius:4px;padding:1rem;margin-bottom:2rem;box-shadow:3px 3px 0 rgba(139,105,20,0.1);}
+.nav-section{margin-bottom:0.8rem;}
+.nav-section:last-child{margin-bottom:0;}
+.nav-label{font-family:'Source Code Pro',monospace;font-size:0.7rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;display:block;margin-bottom:0.5rem;}
+.nav-link{display:inline-block;color:var(--sepia);text-decoration:none;font-family:'Source Code Pro',monospace;font-size:0.8rem;padding:0.4rem 0.8rem;margin:0.2rem 0.4rem;border:1px solid var(--sepia);border-radius:2px;transition:all 0.3s ease;}
+.nav-link:hover{background:var(--sepia);color:var(--paper);transform:translateY(-1px);}
+.nav-link.primary{background:var(--sepia);color:var(--paper);border-color:var(--sepia);}
+.nav-link.primary:hover{background:var(--ink);border-color:var(--ink);}
+.nav-link.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+
+/* Study Sections */
+.study-section{background:var(--aged);border:1px solid var(--rule);border-radius:4px;padding:2rem;margin-bottom:2rem;box-shadow:3px 3px 0 rgba(139,105,20,0.1);}
+.study-title{font-family:'Playfair Display',Georgia,serif;font-size:1.8rem;font-weight:600;color:var(--ink);margin-bottom:1rem;border-bottom:2px solid var(--sepia);padding-bottom:0.8rem;}
+.study-subtitle{font-family:'Source Code Pro',monospace;font-size:1.2rem;font-weight:600;color:var(--sepia);margin-bottom:1rem;}
+
+/* Image Display */
+.image-display{background:var(--paper);border:3px double var(--sepia);border-radius:4px;box-shadow:5px 5px 0 rgba(139,105,20,0.2);overflow:hidden;margin-bottom:2rem;}
+.image-display img{width:100%;height:auto;display:block;}
+.image-controls{text-align:center;padding:1rem;background:var(--aged);border-top:1px solid var(--rule);}
+.image-controls button{color:var(--sepia);text-decoration:none;font-family:'Source Code Pro',monospace;font-weight:600;padding:0.5rem 1rem;margin:0.2rem;border:1px solid var(--sepia);border-radius:3px;background:var(--paper);cursor:pointer;transition:all 0.3s ease;}
+.image-controls button:hover{background:var(--sepia);color:var(--paper);}
+.zoom-level{font-family:'Source Code Pro',monospace;font-size:0.8rem;text-align:center;margin-top:0.5rem;color:var(--muted);}
+
+/* Two Column Layout */
+.two-column{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-bottom:2rem;}
+.column-left{background:var(--paper);border:1px solid var(--rule);border-radius:4px;padding:1.5rem;}
+.column-right{background:var(--paper);border:1px solid var(--rule);border-radius:4px;padding:1.5rem;}
+
+/* Info Grid */
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1rem;margin-bottom:1rem;}
+.info-item{background:var(--aged);border:1px solid var(--rule);border-radius:3px;padding:1rem;}
+.info-label{font-family:'Source Code Pro',monospace;font-size:0.8rem;font-weight:600;color:var(--sepia);margin-bottom:0.3rem;}
+.info-value{font-size:0.9rem;color:var(--muted);line-height:1.4;}
+
+/* Analysis Grid */
+.analysis-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem;margin-top:1rem;}
+.analysis-item{background:var(--paper);border:1px solid var(--rule);border-radius:3px;padding:1rem;}
+.analysis-item h3{font-family:'Source Code Pro',monospace;font-size:0.8rem;font-weight:600;color:var(--sepia);margin-bottom:0.5rem;}
+.analysis-item p{font-size:0.8rem;line-height:1.5;color:var(--muted);}
+
+/* Camera Tool Link */
+.tool-link{text-align:center;padding:2rem;background:var(--paper);border:1px solid var(--rule);border-radius:4px;margin-bottom:2rem;}
+.tool-link a{color:var(--sepia);text-decoration:none;font-family:'Source Code Pro',monospace;font-weight:600;padding:1rem 2rem;border:2px solid var(--sepia);border-radius:4px;background:var(--aged);display:inline-block;transition:all 0.3s ease;font-size:1.1rem;}
+.tool-link a:hover{background:var(--sepia);color:var(--paper);transform:translateY(-2px);box-shadow:3px 3px 0 rgba(139,105,20,0.2);}
+
+/* Footer */
+footer{border-top:1px solid var(--rule);padding-top:0.8rem;font-size:0.72rem;color:var(--muted);font-style:italic;text-align:center;}
+footer strong{font-style:normal;color:var(--sepia);}
+footer a{color:var(--sepia);text-decoration:none;}
+footer a:hover{text-decoration:underline;}
+
+@media (max-width:768px){
+  .two-column{grid-template-columns:1fr;}
+  .wrapper{padding:0.5rem;}
+  .study-section{padding:1rem;}
+}
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <header>
+    <div class="eyebrow">Plate H Camera</div>
+    <h1>1893 <em>Photo Study</em></h1>
+  </header>
+
+  <nav class="main-nav">
+    <div class="nav-section">
+      <span class="nav-label">Analysis Tools</span>
+      <a href="tool/nyu-camera-v5.html" class="nav-link primary">Camera Tool</a>
+      <a href="1893-study.html" class="nav-link active">1893 Study</a>
+    </div>
+    <div class="nav-section">
+      <span class="nav-label">Historical Record</span>
+      <a href="photos.html" class="nav-link">Photos</a>
+      <a href="studies.html" class="nav-link">Studies</a>
+    </div>
+    <div class="nav-section">
+      <span class="nav-label">Site</span>
+      <a href="index.html" class="nav-link">← Home</a>
+    </div>
+  </nav>
+
+  <!-- PHOTOGRAPH SECTION -->
+  <div class="study-section">
+    <div class="study-title">1893 Photograph</div>
+    <div class="study-subtitle">University of the City of New York, Washington Square</div>
+    
+    <div class="image-display">
+      <img id="mainImage" src="https://upload.wikimedia.org/wikipedia/commons/4/41/%28King1893NYC%29_pg281_UNIVERSITY_OF_THE_CITY_OF_NEW_YORK%2C_WASHINGTON_SQUARE.jpg" 
+           alt="University of the City of New York, Washington Square - 1893 Photograph">
+      <div class="image-controls">
+        <button onclick="zoomIn()">Zoom In (+)</button>
+        <button onclick="zoomOut()">Zoom Out (-)</button>
+        <button onclick="resetZoom()">Reset (1x)</button>
+        <button onclick="toggleFullscreen()">Fullscreen</button>
+        <div class="zoom-level">Zoom: <span id="zoomValue">1.0x</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IMAGE DETAILS SECTION -->
+  <div class="study-section">
+    <div class="study-title">Image Details</div>
+    
+    <div class="info-grid">
+      <div class="info-item">
+        <div class="info-label">Publication</div>
+        <div class="info-value">King's Handbook of New York City, Second Edition (1893)</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Page</div>
+        <div class="info-value">Page 281</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Photographer</div>
+        <div class="info-value">Unknown (professional photographer for King's Handbook)</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Building Status</div>
+        <div class="info-value">Still standing in 1893, demolished mid-1890s</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">View Direction</div>
+        <div class="info-value">Westward view from Washington Square</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Format</div>
+        <div class="info-value">Photographic print, 1,283 × 974 pixels (original)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VISUAL ANALYSIS SECTION -->
+  <div class="study-section">
+    <div class="study-title">Visual Analysis</div>
+    
+    <div class="two-column">
+      <div class="column-left">
+        <h3 style="font-family:'Source Code Pro',monospace;font-size:1rem;color:var(--sepia);margin-bottom:1rem;">Visible Elements</h3>
+        <ul style="color:var(--muted);line-height:1.8;">
+          <li>Five-story main building with central tower</li>
+          <li>Gothic architectural details (pointed arches, decorative stonework)</li>
+          <li>Washington Square foreground with pathways and trees</li>
+          <li>Surrounding buildings and street-level activity</li>
+        </ul>
+      </div>
+      
+      <div class="column-right">
+        <h3 style="font-family:'Source Code Pro',monospace;font-size:1rem;color:var(--sepia);margin-bottom:1rem;">Camera Position Clues</h3>
+        <ul style="color:var(--muted);line-height:1.8;">
+          <li>Ground-level perspective (no elevated viewpoint)</li>
+          <li>Wide angle capturing building's full height</li>
+          <li>Position appears to be near center of Washington Square</li>
+          <li>Distance suggests 200-400 feet from building facade</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="analysis-grid">
+      <div class="analysis-item">
+        <h3>Architectural Details</h3>
+        <p>• Central tower with spire<br>
+        • Gothic Revival style elements<br>
+        • Five-story main structure<br>
+        • Decorative stonework and pointed arches<br>
+        • Windows and facade details visible</p>
+      </div>
+      
+      <div class="analysis-item">
+        <h3>Historical Context</h3>
+        <p>• Building constructed 1832-1835<br>
+        • Still in active use in 1893<br>
+        • Demolished mid-1890s for expansion<br>
+        • Located at current Silver Center site</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CAMERA ANALYSIS SECTION -->
+  <div class="study-section">
+    <div class="study-title">Camera Position Analysis</div>
+    
+    <div class="two-column">
+      <div class="column-left">
+        <h3 style="font-family:'Source Code Pro',monospace;font-size:1rem;color:var(--sepia);margin-bottom:1rem;">Estimated Camera Specifications</h3>
+        <div class="info-grid" style="margin-bottom:1rem;">
+          <div class="info-item">
+            <div class="info-label">Camera Type</div>
+            <div class="info-value">Large format view camera</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Lens</div>
+            <div class="info-value">Rapid rectilinear ~8-10 inch</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Film Plate</div>
+            <div class="info-value">8×10 inch glass plate</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Position</div>
+            <div class="info-value">Washington Square, ground level</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Field of View</div>
+            <div class="info-value">~45-60 degrees horizontal</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="column-right">
+        <h3 style="font-family:'Source Code Pro',monospace;font-size:1rem;color:var(--sepia);margin-bottom:1rem;">Reconstructed Position</h3>
+        <div class="info-grid" style="margin-bottom:1rem;">
+          <div class="info-item">
+            <div class="info-label">Camera X</div>
+            <div class="info-value">~-250 ft (west of NYU)</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Camera Y</div>
+            <div class="info-value">~+50 ft (north of building center)</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Rotation</div>
+            <div class="info-value">~0° (pointing east)</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Field of View</div>
+            <div class="info-value">~50°</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="analysis-grid">
+      <div class="analysis-item">
+        <h3>Sight Line Verification</h3>
+        <p>The reconstructed position matches the visible perspective in the photograph, showing the building's full facade and the correct angular relationships between architectural elements.</p>
+      </div>
+      
+      <div class="analysis-item">
+        <h3>Technical Analysis</h3>
+        <p>The photograph shows excellent depth of field and sharp architectural details, characteristic of large format photography of the period. The even lighting suggests either overcast conditions or careful timing to avoid harsh shadows.</p>
+      </div>
+      
+      <div class="analysis-item">
+        <h3>Comparison with Other Views</h3>
+        <p>This ground-level perspective differs from elevated views taken from nearby buildings, providing a more accurate representation of how the building appeared to street-level observers.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CAMERA TOOL LINK -->
+  <div class="tool-link">
+    <a href="tool/nyu-camera-v5.html">
+      🎯 Test Camera Position with Interactive Tool →
+    </a>
+  </div>
+
+  <footer>
+    <strong>Plate H Camera</strong> &nbsp;·&nbsp; Washington Square Historical Study &nbsp;·&nbsp; 
+    <a href="index.html">Home</a> &nbsp;·&nbsp; 
+    <a href="tool/nyu-camera-v5.html">Camera Tool</a> &nbsp;·&nbsp; 
+    <a href="documentation.html">Documentation</a>
+  </footer>
+</div>
+
+<script>
+  let currentZoom = 1.0;
+  const img = document.getElementById('mainImage');
+  const zoomValue = document.getElementById('zoomValue');
+  
+  function updateZoom() {
+    img.style.transform = `scale(${currentZoom})`;
+    img.style.transformOrigin = 'center center';
+    zoomValue.textContent = currentZoom.toFixed(1) + 'x';
+  }
+  
+  function zoomIn() {
+    if (currentZoom < 3.0) {
+      currentZoom += 0.25;
+      updateZoom();
+    }
+  }
+  
+  function zoomOut() {
+    if (currentZoom > 0.5) {
+      currentZoom -= 0.25;
+      updateZoom();
+    }
+  }
+  
+  function resetZoom() {
+    currentZoom = 1.0;
+    updateZoom();
+  }
+  
+  function toggleFullscreen() {
+    const imageDisplay = document.querySelector('.image-display');
+    if (!document.fullscreenElement) {
+      imageDisplay.requestFullscreen().catch(err => {
+        console.log(`Error attempting to enable fullscreen: ${err.message}`);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  }
+  
+  // Keyboard controls
+  document.addEventListener('keydown', (e) => {
+    switch(e.key) {
+      case '+':
+      case '=':
+        zoomIn();
+        break;
+      case '-':
+      case '_':
+        zoomOut();
+        break;
+      case '0':
+        resetZoom();
+        break;
+      case 'f':
+      case 'F':
+        toggleFullscreen();
+        break;
+    }
+  });
+</script>
+</body>
+</html>
