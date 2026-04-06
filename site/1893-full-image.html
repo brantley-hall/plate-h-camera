@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1893 NYU University Building - Full Image Analysis</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Source+Code+Pro:wght@400;600&family=Spectral:ital,wght@0,300;0,400;1,300&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--ink:#1a1208;--paper:#f4ede0;--aged:#e8d9c0;--sepia:#8b6914;--rust:#c0392b;--muted:#6b5a3e;--rule:rgba(139,105,20,0.25);}
+body{background:var(--paper);color:var(--ink);font-family:'Spectral',Georgia,serif;font-size:15px;line-height:1.6;min-height:100vh;}
+.header{background:var(--aged);border-bottom:2px solid var(--sepia);padding:1rem;text-align:center;position:sticky;top:0;z-index:100;}
+.header h1{font-family:'Playfair Display',Georgia,serif;font-size:1.5rem;font-weight:600;color:var(--ink);margin-bottom:0.5rem;}
+.header .source{font-family:'Source Code Pro',monospace;font-size:0.8rem;color:var(--muted);}
+.navigation{text-align:center;padding:0.5rem;background:var(--paper);border-bottom:1px solid var(--rule);}
+.navigation a{color:var(--sepia);text-decoration:none;font-family:'Source Code Pro',monospace;font-size:0.7rem;margin:0 1rem;padding:0.3rem 0.6rem;border:1px solid var(--sepia);border-radius:2px;transition:all 0.3s ease;}
+.navigation a:hover{background:var(--sepia);color:var(--paper);}
+.main-container{display:flex;flex-direction:column;align-items:center;padding:2rem;gap:2rem;}
+.image-container{max-width:100%;background:var(--paper);border:3px double var(--sepia);border-radius:4px;box-shadow:5px 5px 0 rgba(139,105,20,0.2);overflow:hidden;}
+.image-container img{width:100%;height:auto;display:block;}
+.image-info{background:var(--aged);border:1px solid var(--rule);border-radius:4px;padding:1.5rem;max-width:1000px;width:100%;box-shadow:3px 3px 0 rgba(139,105,20,0.1);}
+.image-info h2{font-family:'Playfair Display',Georgia,serif;font-size:1.3rem;font-weight:600;color:var(--ink);margin-bottom:1rem;border-bottom:1px solid var(--sepia);padding-bottom:0.5rem;}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1rem;margin-bottom:1rem;}
+.info-item{background:var(--paper);border:1px solid var(--rule);border-radius:3px;padding:1rem;}
+.info-label{font-family:'Source Code Pro',monospace;font-size:0.8rem;font-weight:600;color:var(--sepia);margin-bottom:0.3rem;}
+.info-value{font-size:0.9rem;color:var(--muted);line-height:1.4;}
+.analysis-section{background:var(--aged);border:1px solid var(--rule);border-radius:4px;padding:1.5rem;max-width:1000px;width:100%;box-shadow:3px 3px 0 rgba(139,105,20,0.1);}
+.analysis-section h2{font-family:'Playfair Display',Georgia,serif;font-size:1.3rem;font-weight:600;color:var(--ink);margin-bottom:1rem;border-bottom:1px solid var(--sepia);padding-bottom:0.5rem;}
+.analysis-content{font-size:0.9rem;line-height:1.6;color:var(--muted);}
+.analysis-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem;margin-top:1rem;}
+.analysis-item{background:var(--paper);border:1px solid var(--rule);border-radius:3px;padding:1rem;}
+.analysis-item h3{font-family:'Source Code Pro',monospace;font-size:0.8rem;font-weight:600;color:var(--sepia);margin-bottom:0.5rem;}
+.analysis-item p{font-size:0.8rem;line-height:1.5;color:var(--muted);}
+.controls{position:fixed;bottom:2rem;right:2rem;background:var(--aged);border:2px solid var(--sepia);border-radius:4px;padding:1rem;box-shadow:3px 3px 0 rgba(139,105,20,0.2);z-index:100;}
+.controls h3{font-family:'Source Code Pro',monospace;font-size:0.8rem;font-weight:600;color:var(--ink);margin-bottom:0.5rem;}
+.control-btn{display:block;width:100%;padding:0.5rem;margin-bottom:0.5rem;background:var(--paper);border:1px solid var(--sepia);border-radius:2px;color:var(--ink);font-family:'Source Code Pro',monospace;font-size:0.7rem;cursor:pointer;transition:all 0.3s ease;}
+.control-btn:hover{background:var(--sepia);color:var(--paper);}
+.control-btn:last-child{margin-bottom:0;}
+.zoom-level{font-family:'Source Code Pro',monospace;font-size:0.8rem;text-align:center;margin-top:0.5rem;color:var(--muted);}
+@media (max-width:768px){
+  .controls{position:static;margin:2rem auto;max-width:300px;}
+  .main-container{padding:1rem;}
+  .image-container,.image-info,.analysis-section{margin:0 1rem;}
+}
+</style>
+</head>
+<body>
+  <div class="header">
+    <h1>NYU University Building - 1893</h1>
+    <div class="source">Source: King's Handbook of New York City, Second Edition (1893), Page 281</div>
+  </div>
+  
+  <div class="navigation">
+    <a href="1893-photo-study.html">← Study</a>
+    <a href="index.html">Main</a>
+    <a href="tool/nyu-camera-v5.html">Camera Tool</a>
+    <a href="photos.html">Photos</a>
+  </div>
+
+  <div class="main-container">
+    <div class="image-container">
+      <img src="https://commons.wikimedia.org/wiki/Special:FilePath/File:(King1893NYC)_pg281_UNIVERSITY_OF_THE_CITY_OF_NEW_YORK,_WASHINGTON_SQUARE.jpg" 
+           alt="University of the City of New York, Washington Square - 1893 Photograph">
+    </div>
+
+    <div class="image-info">
+      <h2>Image Details</h2>
+      <div class="info-grid">
+        <div class="info-item">
+          <div class="info-label">Publication</div>
+          <div class="info-value">King's Handbook of New York City, Second Edition (1893)</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Page</div>
+          <div class="info-value">Page 281</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Photographer</div>
+          <div class="info-value">Unknown (likely professional photographer for King's Handbook)</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Building Status</div>
+          <div class="info-value">Still standing in 1893, demolished mid-1890s</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">View Direction</div>
+          <div class="info-value">Westward view from Washington Square</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Format</div>
+          <div class="info-value">Photographic print, 1,283 × 974 pixels (original)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="analysis-section">
+      <h2>Visual Analysis</h2>
+      <div class="analysis-content">
+        <p>This 1893 photograph shows the NYU University Building from Washington Square, looking westward. The image provides crucial reference points for camera position analysis and sight line reconstruction.</p>
+        
+        <div class="analysis-grid">
+          <div class="analysis-item">
+            <h3>Visible Elements</h3>
+            <p>• Five-story main building with central tower<br>
+            • Gothic architectural details (pointed arches, decorative stonework)<br>
+            • Washington Square foreground with pathways and trees<br>
+            • Surrounding buildings and street-level activity</p>
+          </div>
+          
+          <div class="analysis-item">
+            <h3>Camera Position Clues</h3>
+            <p>• Ground-level perspective (no elevated viewpoint)<br>
+            • Wide angle capturing building's full height<br>
+            • Position appears to be near center of Washington Square<br>
+            • Distance suggests 200-400 feet from building facade</p>
+          </div>
+          
+          <div class="analysis-item">
+            <h3>Architectural Details</h3>
+            <p>• Central tower with spire<br>
+            • Gothic Revival style elements<br>
+            • Five-story main structure<br>
+            • Decorative stonework and pointed arches<br>
+            • Windows and facade details visible</p>
+          </div>
+          
+          <div class="analysis-item">
+            <h3>Historical Context</h3>
+            <p>• Building constructed 1832-1835<br>
+            • Still in active use in 1893<br>
+            • Demolished mid-1890s for expansion<br>
+            • Located at current Silver Center site</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <h3>Image Controls</h3>
+    <button class="control-btn" onclick="zoomIn()">Zoom In (+)</button>
+    <button class="control-btn" onclick="zoomOut()">Zoom Out (-)</button>
+    <button class="control-btn" onclick="resetZoom()">Reset (1x)</button>
+    <button class="control-btn" onclick="toggleFullscreen()">Fullscreen</button>
+    <div class="zoom-level">Zoom: <span id="zoomValue">1.0x</span></div>
+  </div>
+
+  <script>
+    let currentZoom = 1.0;
+    const img = document.querySelector('.image-container img');
+    const zoomValue = document.getElementById('zoomValue');
+    
+    function updateZoom() {
+      img.style.transform = `scale(${currentZoom})`;
+      img.style.transformOrigin = 'center center';
+      zoomValue.textContent = currentZoom.toFixed(1) + 'x';
+    }
+    
+    function zoomIn() {
+      if (currentZoom < 3.0) {
+        currentZoom += 0.25;
+        updateZoom();
+      }
+    }
+    
+    function zoomOut() {
+      if (currentZoom > 0.5) {
+        currentZoom -= 0.25;
+        updateZoom();
+      }
+    }
+    
+    function resetZoom() {
+      currentZoom = 1.0;
+      updateZoom();
+    }
+    
+    function toggleFullscreen() {
+      const imgContainer = document.querySelector('.image-container');
+      if (!document.fullscreenElement) {
+        imgContainer.requestFullscreen().catch(err => {
+          console.log(`Error attempting to enable fullscreen: ${err.message}`);
+        });
+      } else {
+        document.exitFullscreen();
+      }
+    }
+    
+    // Keyboard controls
+    document.addEventListener('keydown', (e) => {
+      switch(e.key) {
+        case '+':
+        case '=':
+          zoomIn();
+          break;
+        case '-':
+        case '_':
+          zoomOut();
+          break;
+        case '0':
+          resetZoom();
+          break;
+        case 'f':
+        case 'F':
+          toggleFullscreen();
+          break;
+      }
+    });
+  </script>
+</body>
+</html>
