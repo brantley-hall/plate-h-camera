@@ -137,7 +137,7 @@ footer strong{font-style:normal;color:var(--sepia);}
         <div class="leg"><div class="sw" style="background:#888780;border:1px solid #444"></div>NYU (180×100 ft)</div>
         <div class="leg"><div class="sw" style="background:rgba(127,119,221,0.5);border:1px solid #534AB7"></div>Row house 1 (90×50)</div>
         <div class="leg"><div class="sw" style="background:rgba(29,158,117,0.4);border:1px solid #0F6E56"></div>Row house 2 (180×50)</div>
-        <div class="leg"><div class="sw" style="background:rgba(192,57,43,0.35);border:1px dashed rgba(192,57,43,0.7)"></div>Blind region</div>
+        <div class="leg"><div class="sw" style="background:rgba(255,0,0,0.7);border:1px solid rgba(255,0,0,0.9)"></div>Blind region</div>
         <div class="leg"><div class="sw" style="background:rgba(139,105,20,0.2);border:1px dashed #8b6914"></div>Cone of sight</div>
       </div>
       
@@ -468,11 +468,11 @@ function drawPlan(){
     const sp=extPt(cx,cy,ca,FAR,px,py),sa=extPt(cx,cy,ca,FAR,ax,ay),sb=extPt(cx,cy,ca,FAR,bx,by);
     ctx2.save();
     ctx2.beginPath();ctx2.moveTo(cx,cy);ctx2.lineTo(rv1.x,rv1.y);ctx2.lineTo(rv2.x,rv2.y);ctx2.closePath();ctx2.clip();
-    ctx2.fillStyle='rgba(192,57,43,0.32)';
+    ctx2.fillStyle='rgba(255,0,0,0.7)';
     ctx2.beginPath();ctx2.moveTo(px,py);ctx2.lineTo(ax,ay);ctx2.lineTo(sa.x,sa.y);ctx2.lineTo(sp.x,sp.y);ctx2.closePath();ctx2.fill();
     ctx2.beginPath();ctx2.moveTo(px,py);ctx2.lineTo(bx,by);ctx2.lineTo(sb.x,sb.y);ctx2.lineTo(sp.x,sp.y);ctx2.closePath();ctx2.fill();
     ctx2.restore();
-    ctx2.setLineDash([4,4]);ctx2.lineWidth=1;ctx2.strokeStyle='rgba(192,57,43,0.55)';
+    ctx2.setLineDash([4,4]);ctx2.lineWidth=1;ctx2.strokeStyle='rgba(255,0,0,0.9)';
     ctx2.beginPath();ctx2.moveTo(px,py);ctx2.lineTo(sp.x,sp.y);ctx2.moveTo(ax,ay);ctx2.lineTo(sa.x,sa.y);ctx2.moveTo(bx,by);ctx2.lineTo(sb.x,sb.y);ctx2.stroke();ctx2.setLineDash([]);
   }
   blind(pctx,ox,oy,nex,oy,ox,nsy);
