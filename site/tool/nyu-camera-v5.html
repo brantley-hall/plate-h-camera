@@ -487,7 +487,7 @@ function drawPlan(){
 
   // NYU
   const nyuY = oy + nyuFtY*s; // Apply NYU north-south movement (southward)
-  pctx.fillStyle='rgba(120,110,90,0.5)';pctx.strokeStyle='#3a3020';pctx.lineWidth=1.5;
+  pctx.fillStyle='rgba(255,255,255,0.8)';pctx.strokeStyle='#3a3020';pctx.lineWidth=1.5;
   pctx.beginPath();pctx.rect(ox,nyuY,NYU_EW*s,NYU_NS*s);pctx.fill();pctx.stroke();
   pctx.fillStyle=tc;pctx.font='600 9px "Source Code Pro",monospace';pctx.textAlign='center';
   pctx.fillText('NYU',ox+NYU_EW*s/2,nyuY+NYU_NS*s/2-4);
@@ -607,7 +607,7 @@ function drawZoom(){
   // NYU Building (same positioning as plan view)
   if(nyuX < sceneOffsetX + viewSize*zs/2 && nyuX + NYU_EW*zs > sceneOffsetX - viewSize*zs/2 &&
      nyuY - NYU_NS*zs < sceneOffsetY + viewSize*zs/2 && nyuY > sceneOffsetY - viewSize*zs/2){
-    zctx.fillStyle='rgba(120,110,90,0.7)';
+    zctx.fillStyle='rgba(255,255,255,0.9)';
     zctx.strokeStyle='#3a3020';
     zctx.lineWidth=2;
     zctx.fillRect(nyuX, nyuY - NYU_NS*zs, NYU_EW*zs, NYU_NS*zs);
@@ -658,7 +658,7 @@ function drawZoom(){
 
   // Buildings if in view
   // NYU
-  zctx.fillStyle='rgba(120,110,90,0.5)';zctx.strokeStyle='#3a3020';zctx.lineWidth=1.5;
+  zctx.fillStyle='rgba(255,255,255,0.8)';zctx.strokeStyle='#3a3020';zctx.lineWidth=1.5;
   zctx.beginPath();zctx.rect(nyuNWzx,nyuNWzy,NYU_EW*zs,NYU_NS*zs);zctx.fill();zctx.stroke();
   // only label if big enough on screen
   if(NYU_EW*zs>30){zctx.fillStyle='#1a1208';zctx.font='700 9px "Source Code Pro",monospace';zctx.textAlign='center';zctx.fillText('NYU',nyuNWzx+NYU_EW*zs/2,nyuNWzy+NYU_NS*zs/2+3);}
@@ -747,7 +747,7 @@ function drawMagnified(){
   // NYU Building (if visible)
   if(nyuX < sceneRight && nyuX + NYU_EW*ms > sceneLeft &&
      nyuY - NYU_NS*ms < sceneBottom && nyuY > sceneTop){
-    mctx.fillStyle='rgba(120,110,90,0.7)';
+    mctx.fillStyle='rgba(255,255,255,0.9)';
     mctx.strokeStyle='#3a3020';
     mctx.lineWidth=2;
     mctx.fillRect(nyuX, nyuY - NYU_NS*ms, NYU_EW*ms, NYU_NS*ms);
