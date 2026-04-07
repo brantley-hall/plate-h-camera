@@ -482,7 +482,7 @@ function drawPlan(){
   // cone edges
   pctx.setLineDash([5,3]);pctx.lineWidth=1.5;pctx.strokeStyle='rgba(0,210,255,0.9)';
   pctx.beginPath();pctx.moveTo(cx,cy);pctx.lineTo(rv1.x,rv1.y);pctx.moveTo(cx,cy);pctx.lineTo(rv2.x,rv2.y);pctx.stroke();
-  pctx.setLineDash([]);pctx.lineWidth=1.5;
+  pctx.setLineDash([]);pctx.lineWidth=1.5;pctx.strokeStyle='rgba(255,0,0,1)'; // Bright red for middle line
   pctx.beginPath();pctx.moveTo(cx,cy);pctx.lineTo(cx+Math.cos(ca)*120,cy+Math.sin(ca)*120);pctx.stroke();
 
   // NYU
