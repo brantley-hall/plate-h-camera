@@ -970,7 +970,7 @@ function updatePlate(){
   const PW=plateStrip.width, PH=plateStrip.height;
   const fovDeg=getFovDeg();
   const vFovDeg=fovDeg*(3.0/2.5);  // portrait: 2.5in wide, 3.0in tall → V-FOV = 16.8° at 14° H
-  const aimRad=getCamAngle();
+  const aimRad=-getCamAngle();
   const halfH=fovDeg/2*Math.PI/180;
   const halfV=vFovDeg/2*Math.PI/180;
   const CAM_H=5;
