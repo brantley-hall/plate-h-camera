@@ -382,8 +382,8 @@ plan.addEventListener('touchend',()=>pDrag=false);
 // ── Geometry helpers ──────────────────────────────────────────────────────
 function getFovDeg(){return parseInt(document.getElementById('fov').value);}
 // Convert rotation degrees (-90 to +90) to canvas math angle (0=east, CCW positive)
-// Rotation 0° = east, +90° = north, -90° = south
-function getCamAngle(){ return camRotation * Math.PI / 180; }
+// Rotation 0° = east, +90° = south (clockwise), -90° = north (counter-clockwise)
+function getCamAngle(){ return -camRotation * Math.PI / 180; }
 
 function getConeParams(s, ox, oy){
   const cx=ox+camFtX*s, cy=oy-camFtY*s;
@@ -846,7 +846,7 @@ function speakInstruction(topic) {
   const instructions = {
     'camera-position': 'Camera Position: Use the X and Y sliders to move the camera east-west and north-south. The camera stays in the western quadrant, which means negative X values and positive Y values. This positions the camera west of NYU and north of the reference point.',
     
-    'camera-rotation': 'Camera Rotation: Adjust the rotation slider to point the camera in different directions. Zero degrees points east toward NYU. Plus 90 degrees points north. Minus 90 degrees points south. This controls what the camera is looking at.',
+    'camera-rotation': 'Camera Rotation: Adjust the rotation slider to point the camera in different directions. Zero degrees points east toward NYU. Positive values rotate clockwise (to the right), negative values rotate counter-clockwise (to the left). This controls what the camera is looking at.',
     
     'field-of-view': 'Field of View: Change the FOV angle between 10 and 100 degrees. Wider angles show more of the scene but with less detail. Narrower angles focus on specific areas with more detail. This simulates different camera lenses.',
     
@@ -970,7 +970,7 @@ function updatePlate(){
   const PW=plateStrip.width, PH=plateStrip.height;
   const fovDeg=getFovDeg();
   const vFovDeg=fovDeg*(3.0/2.5);  // portrait: 2.5in wide, 3.0in tall → V-FOV = 16.8° at 14° H
-  const aimRad=camRotation*Math.PI/180;
+  const aimRad=-camRotation*Math.PI/180;
   const halfH=fovDeg/2*Math.PI/180;
   const halfV=vFovDeg/2*Math.PI/180;
   const CAM_H=5;
