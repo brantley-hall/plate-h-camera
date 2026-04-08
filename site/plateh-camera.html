@@ -383,7 +383,7 @@ plan.addEventListener('touchend',()=>pDrag=false);
 function getFovDeg(){return parseInt(document.getElementById('fov').value);}
 // Convert rotation degrees (-90 to +90) to canvas math angle (0=east, CCW positive)
 // Rotation 0° = east, +90° = north, -90° = south
-function getCamAngle(){ return -camRotation * Math.PI / 180; }
+function getCamAngle(){ return camRotation * Math.PI / 180; }
 
 function getConeParams(s, ox, oy){
   const cx=ox+camFtX*s, cy=oy-camFtY*s;
