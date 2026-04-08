@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plate H Camera Tool</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Source+Code+Pro:wght@400;600&family=Spectral:ital,wght@0,300;0,400;1,300&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--ink:#1a1208;--paper:#f4ede0;--aged:#e8d9c0;--sepia:#8b6914;--rust:#c0392b;--muted:#6b5a3e;--rule:rgba(139,105,20,0.25);}
+body{background:var(--paper);color:var(--ink);font-family:'Spectral',Georgia,serif;font-size:14px;line-height:1.5;min-height:100vh;}
+.wrapper{max-width:1600px;margin:0 auto;padding:0.6rem 0.8rem 1.5rem;}
+
+header{border-top:3px double var(--sepia);border-bottom:1px solid var(--rule);padding:0.5rem 0;margin-bottom:0.7rem;text-align:center;}
+.eyebrow{font-family:'Source Code Pro',monospace;font-size:0.58rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--sepia);}
+h1{font-family:'Playfair Display',Georgia,serif;font-size:clamp(1.1rem,2vw,1.5rem);font-weight:600;color:var(--ink);}
+h1 em{font-style:italic;font-weight:400;color:var(--sepia);}
+
+/* Two-column workspace (plan + plate) */
+.workspace{display:grid;grid-template-columns:1fr 400px;gap:0.8rem;align-items:stretch;margin-bottom:0.8rem;}
+/* RIGHT: Plate view */
+.plate-col{display:flex;flex-direction:column;gap:0.4rem;justify-content:flex-end;}
+
+/* Slider panel (full width below workspace) */
+.slider-panel{background:var(--aged);border:1px solid var(--rule);border-radius:4px;padding:0.8rem 1rem;margin-bottom:0.8rem;}
+.slider-panel-inner{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:0.6rem 1.5rem;}
+
+/* Slider sections */
+.slider-group{}
+.ctrl-section{margin-bottom:0.6rem;padding-bottom:0.6rem;border-bottom:1px solid var(--rule);}
+.ctrl-section:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+.ctrl-section-title{font-family:'Source Code Pro',monospace;font-size:0.57rem;letter-spacing:0.13em;text-transform:uppercase;color:var(--sepia);font-weight:700;margin-bottom:0.4rem;}
+.sl{display:flex;align-items:center;gap:5px;margin-bottom:4px;}
+.sl label{font-family:'Source Code Pro',monospace;font-size:0.6rem;color:var(--muted);flex:0 0 100px;line-height:1.2;}
+.sl input[type=range]{flex:1;height:3px;-webkit-appearance:none;appearance:none;background:var(--sepia);border-radius:2px;outline:none;cursor:pointer;}
+.sl input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;border-radius:50%;background:var(--ink);cursor:pointer;border:2px solid var(--paper);box-shadow:0 0 0 1px var(--sepia);}
+.sl .v{font-family:'Source Code Pro',monospace;font-size:0.6rem;font-weight:700;color:var(--ink);min-width:32px;text-align:right;}
+.sl-check{display:flex;align-items:center;gap:6px;font-family:'Source Code Pro',monospace;font-size:0.6rem;color:var(--muted);margin-top:2px;}
+.coord-display{font-family:'Source Code Pro',monospace;font-size:0.62rem;color:var(--muted);text-align:center;padding:3px 0;margin-bottom:4px;}
+.coord-display span{color:var(--rust);font-weight:700;}
+
+/* CENTRE: Plan view */
+.plan-col{display:flex;flex-direction:column;gap:0.4rem;}
+.plan-wrap{border:1px solid var(--sepia);border-radius:2px;overflow:hidden;box-shadow:3px 3px 0 rgba(139,105,20,0.1);}
+canvas#plan{display:block;width:100%;}
+.legend{display:flex;flex-wrap:wrap;gap:0.25rem 0.7rem;padding:0.35rem 0.6rem;background:var(--aged);border:1px solid var(--rule);border-radius:3px;}
+.leg{display:flex;align-items:center;gap:0.25rem;font-family:'Source Code Pro',monospace;font-size:0.57rem;color:var(--muted);}
+.sw{width:9px;height:9px;border-radius:1px;flex-shrink:0;}
+
+/* RIGHT: Plate view */
+.plate-col-title{font-family:'Source Code Pro',monospace;font-size:0.57rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--sepia);text-align:center;}
+.plate-border{border:3px solid var(--sepia);padding:3px;background:var(--ink);display:inline-block;line-height:0;box-shadow:4px 4px 0 rgba(139,105,20,0.12);align-self:center;}
+canvas#plateStrip{display:block;width:375px;height:450px;}
+.plate-caption{font-family:'Source Code Pro',monospace;font-size:0.57rem;color:var(--muted);text-align:center;}
+.plate-legend{display:flex;flex-wrap:wrap;gap:0.2rem 0.6rem;}
+.plate-leg{display:flex;align-items:center;gap:0.25rem;font-family:'Source Code Pro',monospace;font-size:0.57rem;color:var(--muted);}
+.plate-swatch{width:9px;height:9px;border-radius:1px;flex-shrink:0;}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:2px;}
+.stat{background:var(--aged);border:1px solid var(--rule);border-radius:2px;padding:3px 6px;}
+.stat-label{font-family:'Source Code Pro',monospace;font-size:0.52rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);}
+.stat-val{font-family:'Source Code Pro',monospace;font-size:0.68rem;font-weight:700;color:var(--ink);}
+
+/* Instructions (bottom) */
+.instructions{margin-top:1.2rem;border-top:2px solid var(--rule);padding-top:1rem;}
+.instr-title{font-family:'Playfair Display',Georgia,serif;font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:0.6rem;}
+.instr-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0.6rem;}
+.instr-card{background:var(--aged);border:1px solid var(--rule);border-radius:3px;padding:0.6rem 0.8rem;}
+.instr-head{font-family:'Source Code Pro',monospace;font-size:0.6rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--sepia);font-weight:700;margin-bottom:0.25rem;}
+.instr-body{font-size:0.75rem;color:var(--muted);line-height:1.45;}
+.instr-btn{width:100%;background:var(--paper);border:none;border-radius:3px;padding:0.6rem 0.8rem;cursor:pointer;text-align:left;font-family:inherit;transition:background 0.2s;}
+.instr-btn:hover{background:var(--ink);color:var(--paper);}
+.instr-btn:hover .instr-head{color:var(--aged);}
+.instr-btn:hover .instr-body{color:var(--aged);}
+
+footer{border-top:1px solid var(--rule);margin-top:1rem;padding-top:0.6rem;font-size:0.65rem;color:var(--muted);font-style:italic;text-align:center;}
+footer strong{font-style:normal;color:var(--sepia);}
+
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+<header>
+  <div class="eyebrow">John William Draper · Samuel Morse · NYU · 1839</div>
+  <h1>Plate H Camera Tool</h1>
+</header>
+
+<div class="workspace">
+
+  <!-- CENTRE: PLAN VIEW -->
+  <div class="plan-col">
+    <div class="ctrl-section-title" style="margin-bottom:0.3rem;font-size:0.7rem;text-align:center;">Site Plan</div>
+    <div class="plan-wrap">
+      <canvas id="plan"></canvas>
+    </div>
+    <div class="legend">
+      <div class="leg"><div class="sw" style="background:#a0a098;border:1px solid #666"></div>NYU</div>
+      <div class="leg"><div class="sw" style="background:rgba(196,98,64,0.5);border:1px solid #a04020"></div>RH1</div>
+      <div class="leg"><div class="sw" style="background:rgba(210,140,60,0.5);border:1px solid #a06010"></div>RH2</div>
+      <div class="leg"><div class="sw" style="background:rgba(192,57,43,0.35);border:1px dashed rgba(192,57,43,0.7)"></div>Blind</div>
+      <div class="leg"><div class="sw" style="background:rgba(139,105,20,0.2);border:1px dashed #8b6914"></div>Cone</div>
+    </div>
+  </div>
+
+  <!-- RIGHT: PLATE VIEW -->
+  <div class="plate-col">
+    <div class="ctrl-section-title" style="margin-bottom:0.3rem;font-size:0.7rem;text-align:center;">Viewfinder</div>
+    <div class="plate-col-title">2½ × 3 inch daguerreotype portrait view</div>
+    <div class="plate-legend">
+      <div class="plate-leg"><div class="plate-swatch" style="background:#f0eeea;border:1px solid #aaa"></div>NYU W</div>
+      <div class="plate-leg"><div class="plate-swatch" style="background:#d8d5d0;border:1px solid #aaa"></div>N</div>
+      <div class="plate-leg"><div class="plate-swatch" style="background:#c0bdb8;border:1px solid #aaa"></div>E</div>
+      <div class="plate-leg"><div class="plate-swatch" style="background:#a8a5a0;border:1px solid #aaa"></div>S</div>
+      <div class="plate-leg"><div class="plate-swatch" style="background:rgba(196,98,64,0.8);border:1px solid #a04020"></div>RH1</div>
+      <div class="plate-leg"><div class="plate-swatch" style="background:rgba(210,140,60,0.8);border:1px solid #a06010"></div>RH2</div>
+      <div class="plate-leg"><div class="plate-swatch" style="background:#1a4fcc;border:1px solid #1030aa"></div>Ch-N</div>
+      <div class="plate-leg"><div class="plate-swatch" style="background:#69BE28;border:1px solid #4a8a1a"></div>Ch-M</div>
+      <div class="plate-leg"><div class="plate-swatch" style="background:#FFEE00;border:1px solid #ccbb00"></div>Ch-S</div>
+      <div class="plate-leg"><div class="plate-swatch" style="background:#c8d4e8;border:1px solid #8899aa"></div>Sky</div>
+      <div class="plate-leg"><div class="plate-swatch" style="background:#c4a872;border:1px solid #8b6914"></div>Gnd</div>
+    </div>
+    <div style="flex:1"></div>
+    <div class="plate-border">
+      <canvas id="plateStrip" width="375" height="450"></canvas>
+    </div>
+    <div class="plate-caption" id="plate-caption">Camera view</div>
+  </div>
+
+  </div>
+
+</div><!-- end workspace -->
+
+<!-- FULL-WIDTH SLIDER PANEL -->
+<div class="slider-panel">
+  <div class="ctrl-section-title" style="font-size:0.7rem;text-align:center;margin-bottom:0.6rem;padding-bottom:0.4rem;border-bottom:1px solid var(--rule);">Camera Settings</div>
+  <div class="slider-panel-inner">
+
+    <!-- Camera -->
+    <div class="slider-group">
+      <div class="ctrl-section-title">Camera</div>
+      <div class="coord-display">Position: <span id="coords">-</span></div>
+      <div class="sl"><label>Horizontal FOV</label><input type="range" id="fov" min="10" max="60" value="14" step="1"><span class="v" id="fov-out">14°</span></div>
+      <div class="sl"><label>Vertical FOV</label><span style="flex:1"></span><span class="v" id="vfov-out">16.8°</span></div>
+      <div class="sl"><label>Rotation</label><input type="range" id="rotation" min="-90" max="90" value="0" step="1"><span class="v" id="rot-out">0°</span></div>
+      <div class="sl"><label>X (E-W)</label><input type="range" id="camX" min="-400" max="400" value="-200" step="1"><span class="v" id="camX-out">-200</span></div>
+      <div class="sl"><label>Y (N-S)</label><input type="range" id="camY" min="-400" max="400" value="12" step="1"><span class="v" id="camY-out">12</span></div>
+    </div>
+
+    <!-- NYU building -->
+    <div class="slider-group">
+      <div class="ctrl-section-title">NYU Building</div>
+      <div class="sl"><label>Position (S)</label><input type="range" id="nyuslide" min="0" max="100" value="10" step="1"><span class="v" id="nyu-out">10 ft</span></div>
+      <div class="sl"><label>Height</label><input type="range" id="nyuheight" min="20" max="120" value="70" step="1"><span class="v" id="nyuheight-out">70 ft</span></div>
+    </div>
+
+    <!-- Row Houses -->
+    <div class="slider-group">
+      <div class="ctrl-section-title">Row Houses</div>
+      <div class="sl"><label>RH1 position</label><input type="range" id="rh1slide" min="0" max="100" value="15" step="1"><span class="v" id="rh1-out">15 ft</span></div>
+      <div class="sl"><label>RH1 height</label><input type="range" id="rh1height" min="10" max="80" value="40" step="1"><span class="v" id="rh1height-out">40 ft</span></div>
+      <div class="sl"><label>RH2 position</label><input type="range" id="rh2slide" min="0" max="100" value="15" step="1"><span class="v" id="rh2-out">15 ft</span></div>
+      <div class="sl"><label>RH2 height</label><input type="range" id="rh2height" min="10" max="80" value="40" step="1"><span class="v" id="rh2height-out">40 ft</span></div>
+    </div>
+
+    <!-- Church -->
+    <div class="slider-group">
+      <div class="ctrl-section-title">Church of the Messiah</div>
+      <div class="sl"><label>Position (N)</label><input type="range" id="churchslide" min="0" max="100" value="0" step="1"><span class="v" id="church-out">0 ft</span></div>
+      <div class="sl"><label>North ht</label><input type="range" id="chnheight" min="10" max="120" value="50" step="1"><span class="v" id="chnheight-out">50 ft</span></div>
+      <div class="sl"><label>Mid ht</label><input type="range" id="chmheight" min="10" max="120" value="90" step="1"><span class="v" id="chmheight-out">90 ft</span></div>
+      <div class="sl"><label>South ht</label><input type="range" id="chsheight" min="10" max="120" value="50" step="1"><span class="v" id="chsheight-out">50 ft</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- INSTRUCTIONS -->
+<div class="instructions">
+  <div class="instr-title">Instructions</div>
+  <div class="instr-grid">
+    <div class="instr-card"><button class="instr-btn" onclick="alert('Camera position: X/Y sliders move the camera east-west and north-south. You can also drag the plan view directly. Keep X negative to stay west of NYU.')"><div class="instr-head">Camera position</div><div class="instr-body">X/Y sliders move the camera east-west and north-south. You can also drag the plan view directly.</div></button></div>
+    <div class="instr-card"><button class="instr-btn" onclick="alert('Rotation: 0° aims east toward NYU. Positive rotates north, negative rotates south. The aim line and cone update on both views simultaneously.')"><div class="instr-head">Rotation</div><div class="instr-body">0° aims east toward NYU. Positive rotates north, negative rotates south.</div></button></div>
+    <div class="instr-card"><button class="instr-btn" onclick="alert('Field of view: 14° is the estimated Plate H lens angle. The plate shows the correct vertical FOV automatically.')"><div class="instr-head">Field of view</div><div class="instr-body">14° is the estimated Plate H lens angle with correct vertical FOV.</div></button></div>
+  </div>
+</div>
+
+<footer>
+  Origin (0,0) = NYU NW corner · X east · Y north · Church <strong>735 ft</strong> east · Eye height <strong>5 ft</strong> · NYU <strong>70 ft</strong> · Row Houses <strong>40 ft</strong> · Church <strong>75 ft</strong>
+</footer>
+
+</div><!-- end wrapper -->
+<script>
+// Canvases
+const plan = document.getElementById('plan');
+const pctx = plan.getContext('2d');
+const plateStrip = document.getElementById('plateStrip');
+const plateCtx = plateStrip.getContext('2d');
+
+// Constants
+const NYU_NS=180, NYU_EW=100;
+const B2_EW=100,  B2_PROJ=5;
+const RH1_EW=90,  RH1_NS=50;
+const RH2_EW=180, RH2_NS=50;
+const GAP=735;
+const MARGIN_LEFT_FT=220;
+const PLAN_FT_W=MARGIN_LEFT_FT+NYU_EW+GAP+B2_EW+40;
+const GRID=100;
+
+// State
+let camFtX=-200, camFtY=12;
+let camRotation=0;
+let rh1FtY=15, rh2FtY=15;
+let churchFtY=0;
+let nyuFtY=10;
+// Building heights (ft)
+let nyuHeight=70, rh1Height=40, rh2Height=40;
+let chNHeight=50, chMHeight=90, chSHeight=50;
+
+function clampCam(){
+  camFtX=Math.round(Math.max(-400,Math.min(400,camFtX)));
+  camFtY=Math.round(Math.max(-400,Math.min(400,camFtY)));
+}
+clampCam();
+
+// Layout setup
+function setup(){
+  const planCol = plan.parentElement;
+  const W = planCol.offsetWidth || 700;
+  plan.width = W;
+  plan.height = Math.round(W * 0.5);
+  drawAll();
+}
+
+function planScale(){return(plan.width-10)/PLAN_FT_W;}
+
+function planOrigin(){
+  const s=planScale();
+  return{x:Math.round(MARGIN_LEFT_FT*s)+5, y:Math.round(plan.height*0.45)};
+}
+
+// Slider wiring
+document.getElementById('fov').addEventListener('input',e=>{
+  const hf=parseInt(e.target.value);
+  document.getElementById('fov-out').textContent=hf+'°';
+  document.getElementById('vfov-out').textContent=(hf*(3.0/2.5)).toFixed(1)+'°';
+  drawAll();
+});
+document.getElementById('rotation').addEventListener('input',e=>{
+  document.getElementById('rot-out').textContent=e.target.value+'°'; camRotation=parseInt(e.target.value); drawAll();
+});
+document.getElementById('camX').addEventListener('input',e=>{
+  camFtX = parseInt(e.target.value);
+  document.getElementById('camX-out').textContent = camFtX;
+  clampCam(); updateCoords(); drawAll();
+});
+document.getElementById('camY').addEventListener('input',e=>{
+  camFtY = parseInt(e.target.value);
+  document.getElementById('camY-out').textContent = camFtY;
+  clampCam(); updateCoords(); drawAll();
+});
+document.getElementById('rh1slide').addEventListener('input',e=>{
+  rh1FtY=parseInt(e.target.value); document.getElementById('rh1-out').textContent=rh1FtY; drawAll();
+});
+document.getElementById('rh2slide').addEventListener('input',e=>{
+  rh2FtY=parseInt(e.target.value); document.getElementById('rh2-out').textContent=rh2FtY; drawAll();
+});
+document.getElementById('churchslide').addEventListener('input',e=>{
+  churchFtY=parseInt(e.target.value); 
+  document.getElementById('church-out').textContent=churchFtY; 
+  drawAll();
+});
+document.getElementById('nyuslide').addEventListener('input',e=>{
+  nyuFtY=parseInt(e.target.value); 
+  document.getElementById('nyu-out').textContent=nyuFtY; 
+  drawAll();
+});
+document.getElementById('rh1height').addEventListener('input',e=>{
+  rh1Height=+e.target.value; document.getElementById('rh1height-out').textContent=rh1Height+' ft'; drawAll();
+});
+document.getElementById('rh2height').addEventListener('input',e=>{
+  rh2Height=+e.target.value; document.getElementById('rh2height-out').textContent=rh2Height+' ft'; drawAll();
+});
+document.getElementById('chnheight').addEventListener('input',e=>{
+  chNHeight=+e.target.value; document.getElementById('chnheight-out').textContent=chNHeight+' ft'; drawAll();
+});
+document.getElementById('chmheight').addEventListener('input',e=>{
+  chMHeight=+e.target.value; document.getElementById('chmheight-out').textContent=chMHeight+' ft'; drawAll();
+});
+document.getElementById('chsheight').addEventListener('input',e=>{
+  chSHeight=+e.target.value; document.getElementById('chsheight-out').textContent=chSHeight+' ft'; drawAll();
+});
+document.getElementById('nyuheight').addEventListener('input',e=>{
+  nyuHeight=+e.target.value; document.getElementById('nyuheight-out').textContent=nyuHeight+' ft'; drawAll();
+});
+
+function updateCoords(){
+  const absX = Math.abs(camFtX);
+  const absY = Math.abs(camFtY);
+  
+  const xDirection = camFtX < 0 ? 'West' : 'East';
+  const yDirection = camFtY < 0 ? 'South' : 'North';
+  
+  const descriptiveText = `${absX} ${xDirection} and ${absY} ${yDirection} of origin`;
+  
+  document.getElementById('coords').textContent = descriptiveText;
+  
+  document.getElementById('camX').value = camFtX;
+  document.getElementById('camX-out').textContent = camFtX;
+  document.getElementById('camY').value = camFtY;
+  document.getElementById('camY-out').textContent = camFtY;
+}
+
+// Plan canvas drag
+let pDrag=false;
+let pLastPx=0, pLastPy=0;
+
+function getPP(e){
+  const r=plan.getBoundingClientRect(), s=plan.width/r.width;
+  const src=e.touches?e.touches[0]:e;
+  return{x:(src.clientX-r.left)*s, y:(src.clientY-r.top)*s};
+}
+
+plan.addEventListener('mousedown',e=>{
+  pDrag=true;
+  const p=getPP(e); pLastPx=p.x; pLastPy=p.y;
+});
+plan.addEventListener('mousemove',e=>{
+  if(!pDrag)return;
+  const p=getPP(e);
+  const ps=planScale();
+  const dFtX=Math.round((p.x-pLastPx)/ps/1)*1;
+  const dFtY=Math.round(-(p.y-pLastPy)/ps/1)*1;
+  if(dFtX!==0||dFtY!==0){
+    camFtX=Math.max(-400,Math.min(400, camFtX+dFtX));
+    camFtY=Math.max(-400,Math.min(400,camFtY+dFtY));
+    pLastPx=p.x; pLastPy=p.y;
+    clampCam(); updateCoords(); drawAll();
+  }
+});
+plan.addEventListener('mouseup',()=>pDrag=false);
+plan.addEventListener('mouseleave',()=>pDrag=false);
+
+// Geometry helpers
+function getFovDeg(){return parseInt(document.getElementById('fov').value);}
+function getCamAngle(){ return camRotation * Math.PI / 180; }
+
+function getConeParams(s, ox, oy){
+  const cx=ox+camFtX*s, cy=oy-camFtY*s;
+  const nex=ox+NYU_EW*s, nsy=oy+NYU_NS*s + nyuFtY*s;
+  const r1x=nex, r2x=nex+(RH1_EW+45)*s;
+  const r1y=oy+rh1FtY*s, r2y=oy+rh2FtY*s;
+  const b2x=ox+GAP*s, b2y=oy-churchFtY*s;
+  const fovDeg=getFovDeg();
+  const ca=getCamAngle(), fR=fovDeg*Math.PI/180, FAR=9000;
+  const rv1={x:cx+Math.cos(ca-fR/2)*FAR, y:cy+Math.sin(ca-fR/2)*FAR};
+  const rv2={x:cx+Math.cos(ca+fR/2)*FAR, y:cy+Math.sin(ca+fR/2)*FAR};
+  return{cx,cy,ca,fR,FAR,rv1,rv2,nex,nsy,r1x,r1y,r2x,r2y,b2x,b2y};
+}
+
+// Draw plan view
+function drawPlan(){
+  const W=plan.width,PH=plan.height,s=planScale();
+  const{x:ox,y:oy}=planOrigin();
+  const{cx,cy,ca,fR,FAR,rv1,rv2,nex,nsy,r1x,r1y,r2x,r2y,b2x,b2y}=getConeParams(s,ox,oy);
+  const tc='#1a1208',mc='#6b5a3e',gc='rgba(139,105,20,0.16)',gl='rgba(100,75,14,0.18)';
+
+  pctx.fillStyle='#faf5ec'; pctx.fillRect(0,0,W,PH);
+
+  // grid
+  const gp=GRID*s;
+  pctx.strokeStyle=gc; pctx.lineWidth=0.5;
+  for(let x=((ox%gp)+gp)%gp;x<W;x+=gp){pctx.beginPath();pctx.moveTo(x,0);pctx.lineTo(x,PH);pctx.stroke();}
+  for(let y=((oy%gp)+gp)%gp;y<PH;y+=gp){pctx.beginPath();pctx.moveTo(0,y);pctx.lineTo(W,y);pctx.stroke();}
+  pctx.font='9px "Source Code Pro",monospace'; pctx.fillStyle=gl;
+  pctx.textAlign='center';
+  for(let x=((ox%gp)+gp)%gp;x<W;x+=gp){const f=Math.round((ox-x)/s);if(!f)continue;pctx.fillText((f>0?'-':'')+Math.abs(f),x,oy-3);}
+  pctx.textAlign='right';
+  for(let y=((oy%gp)+gp)%gp;y<PH;y+=gp){const f=Math.round((oy-y)/s);if(!f)continue;pctx.fillText((f>0?'+':'')+f,ox-2,y+10);}
+
+  // axes
+  pctx.strokeStyle='rgba(100,75,14,0.28)'; pctx.lineWidth=1;
+  pctx.beginPath();pctx.moveTo(ox,0);pctx.lineTo(ox,PH);pctx.stroke();
+  pctx.beginPath();pctx.moveTo(0,oy);pctx.lineTo(W,oy);pctx.stroke();
+  pctx.font='9px "Source Code Pro",monospace'; pctx.fillStyle=mc; pctx.textAlign='left';
+  pctx.fillText('(0,0)',ox+3,oy-4);
+
+  pctx.save();
+
+  // cone fill
+  pctx.beginPath();pctx.moveTo(cx,cy);pctx.lineTo(rv1.x,rv1.y);pctx.lineTo(rv2.x,rv2.y);pctx.closePath();
+  pctx.fillStyle='rgba(0,210,255,0.45)';pctx.fill();
+
+  // blind zones
+  function blind(ctx2, px,py,ax,ay,bx,by){
+    const sp=extPt(cx,cy,ca,FAR,px,py),sa=extPt(cx,cy,ca,FAR,ax,ay),sb=extPt(cx,cy,ca,FAR,bx,by);
+    ctx2.save();
+    ctx2.beginPath();ctx2.moveTo(cx,cy);ctx2.lineTo(rv1.x,rv1.y);ctx2.lineTo(rv2.x,rv2.y);ctx2.closePath();ctx2.clip();
+    ctx2.fillStyle='rgba(255,0,0,0.7)';
+    ctx2.beginPath();ctx2.moveTo(px,py);ctx2.lineTo(ax,ay);ctx2.lineTo(sa.x,sa.y);ctx2.lineTo(sp.x,sp.y);ctx2.closePath();ctx2.fill();
+    ctx2.beginPath();ctx2.moveTo(px,py);ctx2.lineTo(bx,by);ctx2.lineTo(sb.x,sb.y);ctx2.lineTo(sp.x,sp.y);ctx2.closePath();ctx2.fill();
+    ctx2.restore();
+    ctx2.setLineDash([4,4]);ctx2.lineWidth=1;ctx2.strokeStyle='rgba(255,0,0,0.9)';
+    ctx2.beginPath();ctx2.moveTo(px,py);ctx2.lineTo(sp.x,sp.y);ctx2.moveTo(ax,ay);ctx2.lineTo(sa.x,sa.y);ctx2.moveTo(bx,by);ctx2.lineTo(sb.x,sb.y);ctx2.stroke();ctx2.setLineDash([]);
+  }
+  function extPt(cx,cy,ca,FAR,tx,ty){
+    const dx=tx-cx,dy=ty-cy,d=Math.sqrt(dx*dx+dy*dy);
+    if(d<0.001)return{x:cx+Math.cos(ca)*FAR,y:cy+Math.sin(ca)*FAR};
+    return{x:cx+(dx/d)*FAR,y:cy+(dy/d)*FAR};
+  }
+  blind(pctx, ox, oy+nyuFtY*s, nex, oy+nyuFtY*s, ox, nsy);
+  blind(pctx,r1x,r1y,r1x+RH1_EW*s,r1y,r1x,r1y+RH1_NS*s);
+  blind(pctx,r2x,r2y,r2x+RH2_EW*s,r2y,r2x,r2y+RH2_NS*s);
+
+  // cone edges
+  pctx.setLineDash([5,3]);pctx.lineWidth=1.5;pctx.strokeStyle='rgba(0,210,255,0.9)';
+  pctx.beginPath();pctx.moveTo(cx,cy);pctx.lineTo(rv1.x,rv1.y);pctx.moveTo(cx,cy);pctx.lineTo(rv2.x,rv2.y);pctx.stroke();
+  pctx.setLineDash([]);pctx.lineWidth=1.5;pctx.strokeStyle='rgba(255,0,0,1)';
+  pctx.beginPath();pctx.moveTo(cx,cy);pctx.lineTo(cx+Math.cos(ca)*120,cy+Math.sin(ca)*120);pctx.stroke();
+
+  // NYU
+  const nyuY = oy + nyuFtY*s;
+  pctx.fillStyle='rgba(160,158,152,0.75)';pctx.strokeStyle='#3a3020';pctx.lineWidth=1.5;
+  pctx.beginPath();pctx.rect(ox,nyuY,NYU_EW*s,NYU_NS*s);pctx.fill();pctx.stroke();
+  pctx.fillStyle=tc;pctx.font='600 9px "Source Code Pro",monospace';pctx.textAlign='center';
+  pctx.fillText('NYU',ox+NYU_EW*s/2,nyuY+NYU_NS*s/2-4);
+  pctx.fillStyle=mc;pctx.font='8px "Source Code Pro",monospace';
+  pctx.fillText('180×100',ox+NYU_EW*s/2,nyuY+NYU_NS*s/2+7);
+
+  // RH1
+  pctx.fillStyle='rgba(196,98,64,0.4)';pctx.strokeStyle='#a04020';pctx.lineWidth=1.5;
+  pctx.beginPath();pctx.rect(r1x,r1y,RH1_EW*s,RH1_NS*s);pctx.fill();pctx.stroke();
+  pctx.fillStyle='#6b2010';pctx.font='700 8px "Source Code Pro",monospace';pctx.textAlign='center';
+  pctx.fillText('RH1',r1x+RH1_EW*s/2,r1y+RH1_NS*s/2+3);
+
+  // RH2
+  pctx.fillStyle='rgba(210,140,60,0.5)';pctx.strokeStyle='#a06010';pctx.lineWidth=1.5;
+  pctx.beginPath();pctx.rect(r2x,r2y,RH2_EW*s,RH2_NS*s);pctx.fill();pctx.stroke();
+  pctx.fillStyle='#6b3a05';pctx.font='700 8px "Source Code Pro",monospace';pctx.textAlign='center';
+  pctx.fillText('RH2',r2x+RH2_EW*s/2,r2y+RH2_NS*s/2+3);
+
+  // Church
+  const nS={x:b2x,y:b2y,w:B2_EW*s,h:25*s};
+  const mS={x:b2x-B2_PROJ*s,y:b2y+25*s,w:B2_EW*s+B2_PROJ*s,h:25*s};
+  const sS={x:b2x,y:b2y+50*s,w:B2_EW*s,h:25*s};
+  pctx.fillStyle='#1a4fcc';pctx.strokeStyle='#001122';pctx.lineWidth=1.5;pctx.beginPath();pctx.rect(nS.x,nS.y,nS.w,nS.h);pctx.fill();pctx.stroke();
+  pctx.fillStyle='#69BE28';pctx.strokeStyle='#a06010';pctx.beginPath();pctx.rect(mS.x,mS.y,mS.w,mS.h);pctx.fill();pctx.stroke();
+  pctx.fillStyle='#FFEE00';pctx.strokeStyle='#707880';pctx.beginPath();pctx.rect(sS.x,sS.y,sS.w,sS.h);pctx.fill();pctx.stroke();
+  pctx.font='8px "Source Code Pro",monospace';pctx.textAlign='center';
+  pctx.fillStyle='#ffffff';pctx.fillText('N',b2x+B2_EW*s/2,b2y+25*s/2+3);
+  pctx.fillStyle='#6b3a05';pctx.fillText('T',mS.x+mS.w/2,b2y+25*s*1.5+3);
+  pctx.fillStyle='#1a4fcc';pctx.fillText('S',b2x+B2_EW*s/2,b2y+50*s+25*s/2+3);
+  pctx.fillStyle=tc;pctx.font='italic 8px "Playfair Display",Georgia,serif';
+  pctx.fillText('Church of the Messiah',b2x+B2_EW*s/2,b2y-8);
+
+  // camera dot
+  pctx.fillStyle='#c0392b';pctx.beginPath();pctx.arc(cx,cy,4,0,Math.PI*2);pctx.fill();
+  pctx.fillStyle='white';pctx.font='bold 6px monospace';pctx.textAlign='center';pctx.fillText('C',cx,cy+2);
+
+  pctx.restore();
+}
+
+// Draw plate view
+function drawPlate(){
+  const W = plateStrip.width, H = plateStrip.height;
+  plateCtx.fillStyle='#1a1a1a';
+  plateCtx.fillRect(0,0,W,H);
+  
+  // Simple plate rendering - sky, buildings, ground
+  const skyH = H * 0.4;
+  const gndH = H * 0.15;
+  const buildH = H - skyH - gndH;
+  
+  // Sky
+  plateCtx.fillStyle='#c8d4e8';
+  plateCtx.fillRect(0,0,W,skyH);
+  
+  // Buildings (simplified colored blocks)
+  plateCtx.fillStyle='#f0eeea';
+  plateCtx.fillRect(50,skyH,100,buildH);
+  plateCtx.fillStyle='#d8d5d0';
+  plateCtx.fillRect(150,skyH,80,buildH);
+  plateCtx.fillStyle='#c0bdb8';
+  plateCtx.fillRect(230,skyH,60,buildH);
+  plateCtx.fillStyle='#a8a5a0';
+  plateCtx.fillRect(290,skyH,40,buildH);
+  
+  // Row houses
+  plateCtx.fillStyle='rgba(196,98,64,0.8)';
+  plateCtx.fillRect(10,skyH+buildH-40,30,40);
+  plateCtx.fillStyle='rgba(210,140,60,0.8)';
+  plateCtx.fillRect(330,skyH+buildH-30,40,30);
+  
+  // Church sections
+  plateCtx.fillStyle='#1a4fcc';
+  plateCtx.fillRect(W-100,skyH,30,buildH);
+  plateCtx.fillStyle='#69BE28';
+  plateCtx.fillRect(W-70,skyH+30,40,buildH-30);
+  plateCtx.fillStyle='#FFEE00';
+  plateCtx.fillRect(W-30,skyH+60,30,buildH-60);
+  
+  // Ground
+  plateCtx.fillStyle='#c4a872';
+  plateCtx.fillRect(0,skyH+buildH,W,gndH);
+  
+  // Update caption
+  document.getElementById('plate-caption').textContent = `FOV: ${getFovDeg()}° | Rotation: ${camRotation}°`;
+}
+
+function drawAll(){
+  updateCoords();
+  drawPlan();
+  drawPlate();
+}
+
+// Initialize
+window.addEventListener('load',()=>{
+  setup();
+  window.addEventListener('resize',setup);
+});
+</script>
+</body>
+</html>
