@@ -268,7 +268,7 @@ document.getElementById('fov').addEventListener('input',e=>{
   document.getElementById('vfov-out').textContent=(hf*(3.0/2.5)).toFixed(1)+'°';
   drawAll();});
 document.getElementById('rotation').addEventListener('input',e=>{
-  document.getElementById('rot-out').textContent=e.target.value+'°'; camRotation=-parseInt(e.target.value); drawAll();});
+  document.getElementById('rot-out').textContent=e.target.value+'°'; camRotation=parseInt(e.target.value); drawAll();});
 document.getElementById('camX').addEventListener('input',e=>{
   camFtX = parseInt(e.target.value);
   document.getElementById('camX-out').textContent = camFtX;
@@ -383,7 +383,7 @@ plan.addEventListener('touchend',()=>pDrag=false);
 function getFovDeg(){return parseInt(document.getElementById('fov').value);}
 // Convert rotation degrees (-90 to +90) to canvas math angle (0=east, CCW positive)
 // Rotation 0° = east, +90° = north, -90° = south
-function getCamAngle(){ return camRotation * Math.PI / 180; }
+function getCamAngle(){ return -camRotation * Math.PI / 180; }
 
 function getConeParams(s, ox, oy){
   const cx=ox+camFtX*s, cy=oy-camFtY*s;
@@ -393,7 +393,7 @@ function getConeParams(s, ox, oy){
   const b2x=ox+GAP*s, b2y=oy-churchFtY*s;
   const sec=25*s, proj=B2_PROJ*s;
   const fovDeg=getFovDeg();
-  const ca=camRotation*Math.PI/180, fR=fovDeg*Math.PI/180, FAR=9000;
+  const ca=getCamAngle(), fR=fovDeg*Math.PI/180, FAR=9000;
   const rv1={x:cx+Math.cos(ca-fR/2)*FAR, y:cy+Math.sin(ca-fR/2)*FAR};
   const rv2={x:cx+Math.cos(ca+fR/2)*FAR, y:cy+Math.sin(ca+fR/2)*FAR};
   return{cx,cy,ca,fR,FAR,rv1,rv2,nex,nsy,r1x,r1y,r2x,r2y,b2x,b2y,sec,proj};
@@ -660,7 +660,7 @@ function drawZoom(){
   // Draw cone of sight
   zctx.save();
   const fovDeg=getFovDeg();
-  const ca=camRotation*Math.PI/180, fR=fovDeg*Math.PI/180, FAR=9000;
+  const ca=getCamAngle(), fR=fovDeg*Math.PI/180, FAR=9000;
   const zrv1={x:cx+Math.cos(ca-fR/2)*FAR,y:cy+Math.sin(ca-fR/2)*FAR};
   const zrv2={x:cx+Math.cos(ca+fR/2)*FAR,y:cy+Math.sin(ca+fR/2)*FAR};
 
@@ -970,7 +970,7 @@ function updatePlate(){
   const PW=plateStrip.width, PH=plateStrip.height;
   const fovDeg=getFovDeg();
   const vFovDeg=fovDeg*(3.0/2.5);  // portrait: 2.5in wide, 3.0in tall → V-FOV = 16.8° at 14° H
-  const aimRad=-camRotation*Math.PI/180;
+  const aimRad=camRotation*Math.PI/180;
   const halfH=fovDeg/2*Math.PI/180;
   const halfV=vFovDeg/2*Math.PI/180;
   const CAM_H=5;
