@@ -268,7 +268,7 @@ document.getElementById('fov').addEventListener('input',e=>{
   document.getElementById('vfov-out').textContent=(hf*(3.0/2.5)).toFixed(1)+'°';
   drawAll();});
 document.getElementById('rotation').addEventListener('input',e=>{
-  document.getElementById('rot-out').textContent=e.target.value+'°'; camRotation=-parseInt(e.target.value); drawAll();});
+  document.getElementById('rot-out').textContent=e.target.value+'°'; camRotation=parseInt(e.target.value)+180; drawAll();});
 document.getElementById('camX').addEventListener('input',e=>{
   camFtX = parseInt(e.target.value);
   document.getElementById('camX-out').textContent = camFtX;
