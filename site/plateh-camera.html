@@ -383,7 +383,7 @@ plan.addEventListener('touchend',()=>pDrag=false);
 function getFovDeg(){return parseInt(document.getElementById('fov').value);}
 // Convert rotation degrees (-90 to +90) to canvas math angle (0=east, CCW positive)
 // Rotation 0° = east, +90° = north, -90° = south
-function getCamAngle(){ return camRotation * Math.PI / 180; }
+function getCamAngle(){ return (360 - camRotation) * Math.PI / 180; }
 
 function getConeParams(s, ox, oy){
   const cx=ox+camFtX*s, cy=oy-camFtY*s;
@@ -394,15 +394,15 @@ function getConeParams(s, ox, oy){
   const sec=25*s, proj=B2_PROJ*s;
   const fovDeg=getFovDeg();
   const ca=getCamAngle(), fR=fovDeg*Math.PI/180, FAR=9000;
-  const rv1={x:cx-Math.cos(ca-fR/2)*FAR, y:cy+Math.sin(ca-fR/2)*FAR};
-  const rv2={x:cx-Math.cos(ca+fR/2)*FAR, y:cy+Math.sin(ca+fR/2)*FAR};
+  const rv1={x:cx+Math.cos(ca-fR/2)*FAR, y:cy+Math.sin(ca-fR/2)*FAR};
+  const rv2={x:cx+Math.cos(ca+fR/2)*FAR, y:cy+Math.sin(ca+fR/2)*FAR};
   return{cx,cy,ca,fR,FAR,rv1,rv2,nex,nsy,r1x,r1y,r2x,r2y,b2x,b2y,sec,proj};
 }
 
 function extPt(cx,cy,ca,FAR,tx,ty){
   const dx=tx-cx,dy=ty-cy,d=Math.sqrt(dx*dx+dy*dy);
-  if(d<0.001)return{x:cx-Math.cos(ca)*FAR,y:cy+Math.sin(ca)*FAR};
-  return{x:cx-(dx/d)*FAR,y:cy+(dy/d)*FAR};
+  if(d<0.001)return{x:cx+Math.cos(ca)*FAR,y:cy+Math.sin(ca)*FAR};
+  return{x:cx+(dx/d)*FAR,y:cy+(dy/d)*FAR};
 }
 
 // ── Draw plan view ────────────────────────────────────────────────────────
@@ -501,7 +501,7 @@ function drawPlan(){
   pctx.setLineDash([5,3]);pctx.lineWidth=1.5;pctx.strokeStyle='rgba(0,210,255,0.9)';
   pctx.beginPath();pctx.moveTo(cx,cy);pctx.lineTo(rv1.x,rv1.y);pctx.moveTo(cx,cy);pctx.lineTo(rv2.x,rv2.y);pctx.stroke();
   pctx.setLineDash([]);pctx.lineWidth=1.5;pctx.strokeStyle='rgba(255,0,0,1)'; // Bright red for middle line
-  pctx.beginPath();pctx.moveTo(cx,cy);pctx.lineTo(cx-Math.cos(ca)*120,cy+Math.sin(ca)*120);pctx.stroke();
+  pctx.beginPath();pctx.moveTo(cx,cy);pctx.lineTo(cx+Math.cos(ca)*120,cy+Math.sin(ca)*120);pctx.stroke();
 
   // NYU
   const nyuY = oy + nyuFtY*s; // Apply NYU north-south movement (southward)
@@ -974,7 +974,7 @@ function updatePlate(){
   const halfH=fovDeg/2*Math.PI/180;
   const halfV=vFovDeg/2*Math.PI/180;
   const CAM_H=5;
-  const aimDx=-Math.cos(aimRad),aimDy=Math.sin(aimRad);
+  const aimDx=Math.cos(aimRad),aimDy=Math.sin(aimRad);
   const rightDx=Math.sin(aimRad),rightDy=-Math.cos(aimRad);
   const blds=getBuildings();
   const imgData=psctx.createImageData(PW,PH);
