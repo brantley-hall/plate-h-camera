@@ -126,6 +126,12 @@ footer strong{font-style:normal;color:var(--sepia);}
           <input type="range" id="mandist" min="50" max="500" value="200" step="10" style="width:80px">
           <span class="val" id="man-out">200</span>
         </div>
+        <div class="fov-row">
+          <label style="display:flex; align-items:center; gap:8px;">
+            <input type="checkbox" id="manshow" checked style="width:auto;">
+            <span>Show Man</span>
+          </label>
+        </div>
 
       <div class="panel-hdr">
         <span>Camera control — drag to position (variable increments)</span>
@@ -237,6 +243,8 @@ let churchFtY=0;
 let nyuFtY=0;
 // Man in garden distance from camera (50-500 ft)
 let manDistFt=200;
+// Man visibility toggle
+let manShow=true;
 
 function clampCam(){
   camFtX=Math.round(Math.max(-400,Math.min(400,camFtX)));
@@ -298,6 +306,10 @@ document.getElementById('nyuslide').addEventListener('input',e=>{
 document.getElementById('mandist').addEventListener('input',e=>{
   manDistFt=parseInt(e.target.value); 
   document.getElementById('man-out').textContent=manDistFt; 
+  drawAll();
+});
+document.getElementById('manshow').addEventListener('change',e=>{
+  manShow=e.target.checked; 
   drawAll();
 });
 
@@ -537,26 +549,28 @@ function drawPlan(){
   pctx.fillText('Church of the Messiah',b2x+B2_EW*s/2,b2y-8);
 
   // Man in garden - positioned at specified distance from camera along camera angle
-  const manX = cx + Math.cos(ca) * manDistFt * s;
-  const manY = cy + Math.sin(ca) * manDistFt * s;
-  pctx.fillStyle='#8B4513'; // Brown color for man
-  pctx.strokeStyle='#654321'; // Darker brown for outline
-  pctx.lineWidth=1;
-  
-  // Draw simple sitting man icon (head, body, legs)
-  // Head
-  pctx.beginPath();pctx.arc(manX, manY-8*s, 3*s, 0, Math.PI*2);pctx.fill();pctx.stroke();
-  // Body (sitting)
-  pctx.beginPath();pctx.moveTo(manX, manY-5*s);pctx.lineTo(manX, manY+3*s);pctx.stroke();
-  // Arms (sitting position)
-  pctx.beginPath();pctx.moveTo(manX-4*s, manY-2*s);pctx.lineTo(manX+4*s, manY-2*s);pctx.stroke();
-  // Legs (sitting, bent)
-  pctx.beginPath();pctx.moveTo(manX, manY+3*s);pctx.lineTo(manX-3*s, manY+8*s);pctx.stroke();
-  pctx.beginPath();pctx.moveTo(manX, manY+3*s);pctx.lineTo(manX+3*s, manY+8*s);pctx.stroke();
-  
-  // Label
-  pctx.fillStyle=tc;pctx.font='8px "Source Code Pro",monospace';pctx.textAlign='center';
-  pctx.fillText('Man', manX, manY+12*s);
+  if(manShow){
+    const manX = cx + Math.cos(ca) * manDistFt * s;
+    const manY = cy + Math.sin(ca) * manDistFt * s;
+    pctx.fillStyle='#8B4513'; // Brown color for man
+    pctx.strokeStyle='#654321'; // Darker brown for outline
+    pctx.lineWidth=1;
+    
+    // Draw simple sitting man icon (head, body, legs)
+    // Head
+    pctx.beginPath();pctx.arc(manX, manY-8*s, 3*s, 0, Math.PI*2);pctx.fill();pctx.stroke();
+    // Body (sitting)
+    pctx.beginPath();pctx.moveTo(manX, manY-5*s);pctx.lineTo(manX, manY+3*s);pctx.stroke();
+    // Arms (sitting position)
+    pctx.beginPath();pctx.moveTo(manX-4*s, manY-2*s);pctx.lineTo(manX+4*s, manY-2*s);pctx.stroke();
+    // Legs (sitting, bent)
+    pctx.beginPath();pctx.moveTo(manX, manY+3*s);pctx.lineTo(manX-3*s, manY+8*s);pctx.stroke();
+    pctx.beginPath();pctx.moveTo(manX, manY+3*s);pctx.lineTo(manX+3*s, manY+8*s);pctx.stroke();
+    
+    // Label
+    pctx.fillStyle=tc;pctx.font='8px "Source Code Pro",monospace';pctx.textAlign='center';
+    pctx.fillText('Man', manX, manY+12*s);
+  }
 
   // 735 ft arrow
   pctx.strokeStyle=mc;pctx.lineWidth=0.7;pctx.setLineDash([2,3]);
@@ -811,29 +825,31 @@ function drawMagnified(){
   mctx.fillStyle='white';mctx.font='bold 12px monospace';mctx.textAlign='center';mctx.fillText('C',cx,cy+3);
   
   // Man in garden - positioned at specified distance from camera along camera angle
-  const manMX = cx + Math.cos(ca) * manDistFt * ms;
-  const manMY = cy + Math.sin(ca) * manDistFt * ms;
-  
-  // Only draw if within view bounds
-  if(manMX > sceneLeft && manMX < sceneRight && manMY > sceneTop && manMY < sceneBottom){
-    mctx.fillStyle='#8B4513'; // Brown color for man
-    mctx.strokeStyle='#654321'; // Darker brown for outline
-    mctx.lineWidth=1;
+  if(manShow){
+    const manMX = cx + Math.cos(ca) * manDistFt * ms;
+    const manMY = cy + Math.sin(ca) * manDistFt * ms;
     
-    // Draw simple sitting man icon (larger in magnified view)
-    // Head
-    mctx.beginPath();mctx.arc(manMX, manMY-8*ms, 4*ms, 0, Math.PI*2);mctx.fill();mctx.stroke();
-    // Body (sitting)
-    mctx.beginPath();mctx.moveTo(manMX, manMY-6*ms);mctx.lineTo(manMX, manMY+4*ms);mctx.stroke();
-    // Arms (sitting position)
-    mctx.beginPath();mctx.moveTo(manMX-5*ms, manMY-2*ms);mctx.lineTo(manMX+5*ms, manMY-2*ms);mctx.stroke();
-    // Legs (sitting, bent)
-    mctx.beginPath();mctx.moveTo(manMX, manMY+4*ms);mctx.lineTo(manMX-4*ms, manMY+10*ms);mctx.stroke();
-    mctx.beginPath();mctx.moveTo(manMX, manMY+4*ms);mctx.lineTo(manMX+4*ms, manMY+10*ms);mctx.stroke();
-    
-    // Label
-    mctx.fillStyle='#1a1208';mctx.font='bold 10px "Source Code Pro",monospace';mctx.textAlign='center';
-    mctx.fillText('Man', manMX, manMY+15*ms);
+    // Only draw if within view bounds
+    if(manMX > sceneLeft && manMX < sceneRight && manMY > sceneTop && manMY < sceneBottom){
+      mctx.fillStyle='#8B4513'; // Brown color for man
+      mctx.strokeStyle='#654321'; // Darker brown for outline
+      mctx.lineWidth=1;
+      
+      // Draw simple sitting man icon (larger in magnified view)
+      // Head
+      mctx.beginPath();mctx.arc(manMX, manMY-8*ms, 4*ms, 0, Math.PI*2);mctx.fill();mctx.stroke();
+      // Body (sitting)
+      mctx.beginPath();mctx.moveTo(manMX, manMY-6*ms);mctx.lineTo(manMX, manMY+4*ms);mctx.stroke();
+      // Arms (sitting position)
+      mctx.beginPath();mctx.moveTo(manMX-5*ms, manMY-2*ms);mctx.lineTo(manMX+5*ms, manMY-2*ms);mctx.stroke();
+      // Legs (sitting, bent)
+      mctx.beginPath();mctx.moveTo(manMX, manMY+4*ms);mctx.lineTo(manMX-4*ms, manMY+10*ms);mctx.stroke();
+      mctx.beginPath();mctx.moveTo(manMX, manMY+4*ms);mctx.lineTo(manMX+4*ms, manMY+10*ms);mctx.stroke();
+      
+      // Label
+      mctx.fillStyle='#1a1208';mctx.font='bold 10px "Source Code Pro",monospace';mctx.textAlign='center';
+      mctx.fillText('Man', manMX, manMY+15*ms);
+    }
   }
   
   // Scale indicator
