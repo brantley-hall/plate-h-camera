@@ -917,7 +917,7 @@ function getBuildings(){
   const ch1S = churchFtY - 25;   // north section bottom
   const ch2S = churchFtY - 50;   // middle section bottom
   const ch3S = churchFtY - 75;   // south section bottom
-  const chX0 = GAP - B2_EW/2, chX1 = GAP + B2_EW/2;
+  const chX0 = churchDistance - B2_EW/2, chX1 = churchDistance + B2_EW/2;
   const chMX0 = chX0 - B2_PROJ, chMX1 = chX1; // middle section slightly wider
   return [
     // NYU — face colors assigned in rayAABB via faceColors map
