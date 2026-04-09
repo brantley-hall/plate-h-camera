@@ -168,6 +168,7 @@ footer strong{font-style:normal;color:var(--sepia);}
     <!-- Church -->
     <div class="slider-group">
       <div class="ctrl-section-title">Church of the Messiah</div>
+      <div class="sl"><label>Distance</label><input type="range" id="churchdist" min="750" max="900" value="800" step="10"><span class="v" id="churchdist-out">800 ft</span></div>
       <div class="sl"><label>Position (N)</label><input type="range" id="churchslide" min="0" max="100" value="0" step="1"><span class="v" id="church-out">0 ft</span></div>
       <div class="sl"><label>North ht</label><input type="range" id="chnheight" min="10" max="120" value="50" step="1"><span class="v" id="chnheight-out">50 ft</span></div>
       <div class="sl"><label>Mid ht</label><input type="range" id="chmheight" min="10" max="120" value="90" step="1"><span class="v" id="chmheight-out">90 ft</span></div>
@@ -220,7 +221,8 @@ const NYU_NS=180, NYU_EW=100;
 const B2_EW=100,  B2_PROJ=5;
 const RH1_EW=90,  RH1_NS=50;
 const RH2_EW=180, RH2_NS=50;
-const GAP=735;
+let churchDistance=800;
+const GAP=churchDistance;
 const MARGIN_LEFT_FT=220;
 const PLAN_FT_W=MARGIN_LEFT_FT+NYU_EW+GAP+B2_EW+40;
 const GRID=100;
