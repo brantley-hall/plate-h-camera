@@ -199,12 +199,12 @@ footer strong{font-style:normal;color:var(--sepia);}
     <div class="instr-card"><button class="instr-btn" onclick="speakInstruction('field-of-view')"><div class="instr-head">Field of view</div><div class="instr-body">14° is the estimated Plate H lens angle. The plate shows the correct vertical FOV automatically — 11.7° at 14° horizontal, maintaining the 3×2½ ratio.</div></button></div>
     <div class="instr-card"><button class="instr-btn" onclick="speakInstruction('building-movement')"><div class="instr-head">Building positions</div><div class="instr-body">Shift buildings north or south. Changes appear instantly in both the plan view and the plate rendering. Use to test historical placement hypotheses.</div></button></div>
     <div class="instr-card"><button class="instr-btn" onclick="speakInstruction('sight-analysis')"><div class="instr-head">Sight analysis</div><div class="instr-body">The cone of sight and blind zones on the plan correspond directly to the color blocks in the plate view. Rotate to see how aim direction affects coverage.</div></button></div>
-    <div class="instr-card"><button class="instr-btn" onclick="speakInstruction('historical-map')"><div class="instr-head">Historical map</div><div class="instr-body">The 1852 Perris map underlies the plan at georeferenced scale. Origin (0,0) is the NYU NW corner. The Church of the Messiah is 735 ft to the east.</div></button></div>
+    <div class="instr-card"><button class="instr-btn" onclick="speakInstruction('historical-map')"><div class="instr-head">Historical map</div><div class="instr-body">The 1852 Perris map underlies the plan at georeferenced scale. Origin (0,0) is the NYU NW corner. The Church of the Messiah is <span id="instruction-distance">800</span> ft to the east.</div></button></div>
   </div>
 </div>
 
 <footer>
-  Origin (0,0) = NYU NW corner &nbsp;·&nbsp; X east · Y north &nbsp;·&nbsp; Church <strong>735 ft</strong> east &nbsp;·&nbsp; Eye height <strong>5 ft</strong> · NYU <strong>70 ft</strong> · Row Houses <strong>40 ft</strong> · Church <strong>75 ft</strong>
+  Origin (0,0) = NYU NW corner &nbsp;·&nbsp; X east · Y north &nbsp;·&nbsp; Church <strong id="church-distance">800 ft</strong> east &nbsp;·&nbsp; Eye height <strong>5 ft</strong> · NYU <strong>70 ft</strong> · Row Houses <strong>40 ft</strong> · Church <strong>75 ft</strong>
 </footer>
 
 </div><!-- end wrapper -->
@@ -224,7 +224,7 @@ const RH2_EW=180, RH2_NS=50;
 let churchDistance=800;
 const GAP=churchDistance;
 const MARGIN_LEFT_FT=220;
-const PLAN_FT_W=MARGIN_LEFT_FT+NYU_EW+GAP+B2_EW+40;
+function getPlanFtW(){return MARGIN_LEFT_FT+NYU_EW+GAP+B2_EW+40;}
 const GRID=100;
 
 // Zoom window: 15 ft wide × 15 ft tall centered on camera (40x plan scale)
@@ -255,7 +255,7 @@ function setup(){
   drawAll();
 }
 
-function planScale(){return(plan.width-10)/PLAN_FT_W;}
+function planScale(){return(plan.width-10)/getPlanFtW();}
 
 // Plan pixel coords of NYU NW corner
 function planOrigin(){
@@ -289,6 +289,14 @@ document.getElementById('churchslide').addEventListener('input',e=>{
   churchFtY=parseInt(e.target.value); 
   document.getElementById('church-out').textContent=churchFtY; 
   console.log('Church slider moved to:', churchFtY);
+  drawAll();
+});
+document.getElementById('churchdist').addEventListener('input',e=>{
+  churchDistance=parseInt(e.target.value); 
+  document.getElementById('churchdist-out').textContent=churchDistance+' ft'; 
+  document.getElementById('church-distance').textContent=churchDistance+' ft'; 
+  document.getElementById('instruction-distance').textContent=churchDistance; 
+  console.log('Church distance moved to:', churchDistance);
   drawAll();
 });
 document.getElementById('nyuslide').addEventListener('input',e=>{
