@@ -301,7 +301,7 @@ function getConeParams(s, ox, oy){
   const nex=ox+NYU_EW*s, nsy=oy+NYU_NS*s + nyuFtY*s;
   const r1x=nex, r2x=nex+(RH1_EW+45)*s;
   const r1y=oy+rh1FtY*s, r2y=oy+rh2FtY*s;
-  const b2x=ox+GAP*s, b2y=oy-churchFtY*s;
+  const b2x=ox+churchDistance*s, b2y=oy-churchFtY*s;
   const sec=25*s, proj=B2_PROJ*s;
   const fovDeg=getFovDeg();
   const ca=getCamAngle(), fR=fovDeg*Math.PI/180, FAR=9000;
