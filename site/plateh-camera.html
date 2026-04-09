@@ -551,12 +551,6 @@ function drawPlan(){
   pctx.fillStyle=tc;pctx.font='italic 8px "Playfair Display",Georgia,serif';
   pctx.fillText('Church of the Messiah',b2x+B2_EW*s/2,b2y-8);
 
-  // 735 ft arrow
-  pctx.strokeStyle=mc;pctx.lineWidth=0.7;pctx.setLineDash([2,3]);
-  pctx.beginPath();pctx.moveTo(ox,oy-14);pctx.lineTo(b2x,oy-14);pctx.stroke();pctx.setLineDash([]);
-  pctx.beginPath();pctx.moveTo(ox+3,oy-18);pctx.lineTo(ox,oy-14);pctx.lineTo(ox+3,oy-10);pctx.moveTo(b2x-3,oy-18);pctx.lineTo(b2x,oy-14);pctx.lineTo(b2x-3,oy-10);pctx.stroke();
-  pctx.fillStyle=mc;pctx.font='8px "Source Code Pro",monospace';pctx.textAlign='center';pctx.fillText('735 ft',(ox+b2x)/2,oy-18);
-
   // corner dots
   pctx.fillStyle='#3a3020';
   pctx.beginPath();pctx.arc(ox,oy,3,0,Math.PI*2);pctx.fill();
