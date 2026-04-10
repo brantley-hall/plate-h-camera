@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NYU Photos - Washington Square 1839</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Code+Pro:wght@400;600&family=Crimson+Text:wght@400;600&display=swap');
+
+:root {
+  --ink: #1a1208;
+  --paper: #faf8f5;
+  --aged: #f4ede0;
+  --sepia: #8b6914;
+  --rust: #c0392b;
+  --muted: #6b5a3e;
+  --gold: #d4a574;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Crimson Text', Georgia, serif;
+  font-size: 18px;
+  line-height: 1.7;
+  min-height: 100vh;
+}
+
+/* Header */
+header {
+  background: var(--aged);
+  border-bottom: 2px solid var(--sepia);
+  padding: 2rem 0;
+  text-align: center;
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  font-family: 'Source Code Pro', monospace;
+  font-size: 1rem;
+  color: var(--sepia);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Navigation */
+nav {
+  background: var(--ink);
+  padding: 1rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.nav-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+}
+
+.nav-links a {
+  color: var(--paper);
+  text-decoration: none;
+  font-family: 'Source Code Pro', monospace;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.nav-links a:hover {
+  color: var(--gold);
+}
+
+/* Main Content */
+main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.section-header h1 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 2.5rem;
+  color: var(--ink);
+  margin-bottom: 1rem;
+}
+
+.section-header p {
+  font-size: 1.2rem;
+  color: var(--muted);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Image Gallery */
+.gallery-container {
+  margin-bottom: 4rem;
+}
+
+.gallery-section {
+  margin-bottom: 3rem;
+}
+
+.gallery-section h2 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.8rem;
+  color: var(--ink);
+  margin-bottom: 2rem;
+  text-align: center;
+  border-bottom: 2px solid var(--sepia);
+  padding-bottom: 0.5rem;
+}
+
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.image-card {
+  background: var(--aged);
+  border: 3px solid var(--sepia);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.image-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.3);
+}
+
+.image-frame {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  overflow: hidden;
+  background: var(--paper);
+}
+
+.image-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.image-card:hover .image-frame img {
+  transform: scale(1.05);
+}
+
+.frame-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 8px solid transparent;
+  border-image: linear-gradient(45deg, var(--sepia), var(--gold), var(--sepia)) 1;
+  pointer-events: none;
+}
+
+.image-info {
+  padding: 1.5rem;
+}
+
+.image-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.3rem;
+  color: var(--ink);
+  margin-bottom: 0.5rem;
+}
+
+.image-caption {
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.caption-edit {
+  display: none;
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--sepia);
+  border-radius: 4px;
+  font-family: 'Crimson Text', Georgia, serif;
+  font-size: 1rem;
+  background: var(--paper);
+  color: var(--ink);
+  resize: vertical;
+  min-height: 60px;
+}
+
+.edit-controls {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.edit-btn, .save-btn, .cancel-btn, .source-btn {
+  padding: 0.3rem 0.8rem;
+  border: 1px solid var(--sepia);
+  border-radius: 4px;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Source Code Pro', monospace;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.edit-btn:hover, .save-btn:hover, .cancel-btn:hover, .source-btn:hover {
+  background: var(--sepia);
+  color: var(--paper);
+}
+
+.save-btn {
+  background: var(--gold);
+  color: var(--ink);
+}
+
+.cancel-btn {
+  background: var(--rust);
+  color: var(--paper);
+}
+
+.source-btn {
+  background: var(--aged);
+  color: var(--ink);
+  text-decoration: none;
+  display: inline-block;
+}
+
+.source-btn:hover {
+  background: var(--sepia);
+  color: var(--paper);
+}
+
+.image-meta {
+  font-family: 'Source Code Pro', monospace;
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--sepia);
+}
+
+/* Analysis Section */
+.analysis-section {
+  background: var(--aged);
+  border: 2px solid var(--sepia);
+  border-radius: 8px;
+  padding: 2rem;
+  margin-bottom: 3rem;
+}
+
+.analysis-section h2 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.8rem;
+  color: var(--ink);
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.analysis-content {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: var(--ink);
+}
+
+.analysis-content p {
+  margin-bottom: 1.5rem;
+}
+
+.analysis-content h3 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.4rem;
+  color: var(--sepia);
+  margin: 2rem 0 1rem 0;
+}
+
+.analysis-content ul {
+  margin-left: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.analysis-content li {
+  margin-bottom: 0.5rem;
+}
+
+/* Footer */
+footer {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 2rem 0;
+  text-align: center;
+  margin-top: 4rem;
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .title {
+    font-size: 2rem;
+  }
+  
+  .nav-links {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .image-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .section-header h1 {
+    font-size: 2rem;
+  }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-content">
+    <h1 class="title">Plate H Camera</h1>
+    <div class="subtitle">Washington Square 1839</div>
+  </div>
+</header>
+
+<nav>
+  <div class="nav-container">
+    <div class="nav-links">
+      <a href="index-new.html">Home</a>
+      <a href="maps.html">Maps</a>
+      <a href="nyu-photos.html">NYU Photos</a>
+      <a href="church-photos.html">Church Photos</a>
+      <a href="plate-photos.html">Plate H Photos</a>
+      <a href="essays.html">Essays</a>
+      <a href="tool/nyu-camera-v5.html">NYU Tool</a>
+      <a href="plateh-camera.html">Plate H Tool</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <div class="section-header">
+    <h1>NYU Building Photography Collection</h1>
+    <p>A comprehensive visual history of New York University's Gothic Revival building on Washington Square, from early architectural designs to 19th-century photographs documenting the structure that housed one of America's first photographic laboratories.</p>
+  </div>
+
+  <div class="analysis-section">
+    <h2>NYU Gothic Revival Building: Historical Analysis</h2>
+    <div class="analysis-content">
+      <p>The New York University Gothic Revival building, constructed between 1832-1836, served as the university's first permanent home on Washington Square. This remarkable structure not only housed the university's academic facilities but also became the site of some of America's earliest photographic experiments under Professor John William Draper.</p>
+      
+      <h3>Architectural Significance</h3>
+      <p>The building represented a significant departure from the prevailing architectural styles of early 19th-century New York. Its Gothic Revival design, characterized by pointed arches, ribbed vaults, and ornate detailing, reflected the romantic medieval revival that was gaining popularity in American academic architecture during the 1830s.</p>
+      
+      <h3>Photographic Historical Context</h3>
+      <p>The NYU building holds a unique place in photographic history as the location where Professor John William Draper conducted his pioneering daguerreotype experiments in 1839. From the rooftop of this building, Draper captured some of the earliest surviving photographic images in America, including the famous Plate H daguerreotype and his groundbreaking moon photograph of March 26, 1840.</p>
+      
+      <h3>Building Evolution</h3>
+      <p>The collection traces the building's evolution from initial architectural concepts through its various modifications and eventual documentation by early photographers. These images provide invaluable insight into both the development of American higher education and the early history of photography in the United States.</p>
+    </div>
+  </div>
+
+  <div class="gallery-container">
+    <div class="gallery-section">
+      <h2>Early Architectural Designs (1832-1836)</h2>
+      <div class="image-grid">
+        <div class="image-card">
+          <div class="image-frame">
+            <img src="images/photos/NYU/1832 Design of NYU.png" alt="1832 Design of NYU">
+            <div class="frame-overlay"></div>
+          </div>
+          <div class="image-info">
+            <h3 class="image-title">Original NYU Design - 1832</h3>
+            <div class="image-caption" id="caption-1">
+              The initial architectural design for New York University's Gothic Revival building, created in 1832. This early concept shows the foundational vision for what would become one of Washington Square's most distinctive structures.
+            </div>
+            <textarea class="caption-edit" id="edit-caption-1"></textarea>
+            <div class="edit-controls">
+              <button class="edit-btn" onclick="editCaption(1)">Edit Caption</button>
+              <button class="save-btn" onclick="saveCaption(1)" style="display:none;">Save</button>
+              <button class="cancel-btn" onclick="cancelEdit(1)" style="display:none;">Cancel</button>
+              <a href="https://findingaids.library.nyu.edu/archives/ua_os/contents/aspace_ref3/" target="_blank" class="source-btn">View Source</a>
+            </div>
+            <div class="image-meta">
+              Date: 1832 | Type: Architectural Design | Format: Drawing<br>
+              <strong>Source:</strong> NYU Archives Collection - University Building Plans<br>
+              <strong>Citation:</strong> "Series III: University Building, 1832-1894, inclusive" - New York University Archives Photograph Collection
+            </div>
+          </div>
+        </div>
+
+        <div class="image-card">
+          <div class="image-frame">
+            <img src="images/photos/NYU/1836 Design of NYU with Measurements .png" alt="1836 Design with Measurements">
+            <div class="frame-overlay"></div>
+          </div>
+          <div class="image-info">
+            <h3 class="image-title">Final Design with Measurements - 1836</h3>
+            <div class="image-caption" id="caption-2">
+              The refined architectural design incorporating detailed measurements and specifications. This drawing represents the finalized plans used for the construction of NYU's Washington Square building.
+            </div>
+            <textarea class="caption-edit" id="edit-caption-2"></textarea>
+            <div class="edit-controls">
+              <button class="edit-btn" onclick="editCaption(2)">Edit Caption</button>
+              <button class="save-btn" onclick="saveCaption(2)" style="display:none;">Save</button>
+              <button class="cancel-btn" onclick="cancelEdit(2)" style="display:none;">Cancel</button>
+              <a href="https://findingaids.library.nyu.edu/archives/ua_os/contents/aspace_ref3/" target="_blank" class="source-btn">View Source</a>
+            </div>
+            <div class="image-meta">
+              Date: 1836 | Type: Technical Drawing | Format: Blueprint<br>
+              <strong>Source:</strong> Town, Davis, Dakin & Douglas Architects<br>
+              <strong>Citation:</strong> NYU Archives "Elevation and Plan by Town, Davis, Dakin & Douglas" - 1836
+            </div>
+          </div>
+        </div>
+
+        <div class="image-card">
+          <div class="image-frame">
+            <img src="images/photos/NYU/Dimensions of NYU.png" alt="NYU Dimensions">
+            <div class="frame-overlay"></div>
+          </div>
+          <div class="image-info">
+            <h3 class="image-title">Building Dimensions</h3>
+            <div class="image-caption" id="caption-3">
+              Detailed dimensional analysis of the NYU Gothic Revival building, showing the precise measurements and proportions that defined the structure's distinctive appearance.
+            </div>
+            <textarea class="caption-edit" id="edit-caption-3"></textarea>
+            <div class="edit-controls">
+              <button class="edit-btn" onclick="editCaption(3)">Edit Caption</button>
+              <button class="save-btn" onclick="saveCaption(3)" style="display:none;">Save</button>
+              <button class="cancel-btn" onclick="cancelEdit(3)" style="display:none;">Cancel</button>
+              <a href="https://findingaids.library.nyu.edu/archives/ua_os/contents/aspace_ref3/" target="_blank" class="source-btn">View Source</a>
+            </div>
+            <div class="image-meta">
+              Date: 1836 | Type: Technical Drawing | Format: Dimensional Plan<br>
+              <strong>Source:</strong> NYU Building Construction Records<br>
+              <strong>Citation:</strong> "Series III: University Building" - NYU Archives Photograph Collection
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="gallery-section">
+      <h2>Early Photographs and Views (1836-1847)</h2>
+      <div class="image-grid">
+        <div class="image-card">
+          <div class="image-frame">
+            <img src="images/photos/NYU/NYU 1836.png" alt="NYU Building 1836">
+            <div class="frame-overlay"></div>
+          </div>
+          <div class="image-info">
+            <h3 class="image-title">NYU Building - 1836</h3>
+            <div class="image-caption" id="caption-4">
+              Early view of the completed NYU Gothic Revival building shortly after construction. This image captures the structure in its original form, before the modifications that would accommodate Draper's photographic experiments.
+            </div>
+            <textarea class="caption-edit" id="edit-caption-4"></textarea>
+            <div class="edit-controls">
+              <button class="edit-btn" onclick="editCaption(4)">Edit Caption</button>
+              <button class="save-btn" onclick="saveCaption(4)" style="display:none;">Save</button>
+              <button class="cancel-btn" onclick="cancelEdit(4)" style="display:none;">Cancel</button>
+              <a href="https://findingaids.library.nyu.edu/archives/photo_00001/contents/aspace_ref5329/" target="_blank" class="source-btn">View Source</a>
+            </div>
+            <div class="image-meta">
+              Date: 1836 | Type: Early Photograph | Format: Daguerreotype/Engraving<br>
+              <strong>Source:</strong> Samuel F.B. Morse Collection<br>
+              <strong>Citation:</strong> "Allegorical Landscape by Samuel F.B. Morse" - 1836, NYU Archives
+            </div>
+          </div>
+        </div>
+
+        <div class="image-card">
+          <div class="image-frame">
+            <img src="images/photos/NYU/1837 University Commencement Shot.jpg" alt="1837 Commencement">
+            <div class="frame-overlay"></div>
+          </div>
+          <div class="image-info">
+            <h3 class="image-title">University Commencement - 1837</h3>
+            <div class="image-caption" id="caption-5">
+              Commencement ceremony at NYU with the Gothic Revival building in the background. This early photograph captures academic life at the university during the period of Draper's early photographic experiments.
+            </div>
+            <textarea class="caption-edit" id="edit-caption-5"></textarea>
+            <div class="edit-controls">
+              <button class="edit-btn" onclick="editCaption(5)">Edit Caption</button>
+              <button class="save-btn" onclick="saveCaption(5)" style="display:none;">Save</button>
+              <button class="cancel-btn" onclick="cancelEdit(5)" style="display:none;">Cancel</button>
+              <a href="https://findingaids.library.nyu.edu/archives/photo_00001/contents/aspace_ref5329/" target="_blank" class="source-btn">View Source</a>
+            </div>
+            <div class="image-meta">
+              Date: 1837 | Type: Documentary Photograph | Format: Early Photography<br>
+              <strong>Source:</strong> NYU Commencement Records<br>
+              <strong>Citation:</strong> "University Publications & Printed Materials" - NYU Archives, July 20, 1837
+            </div>
+          </div>
+        </div>
+
+        <div class="image-card">
+          <div class="image-frame">
+            <img src="images/photos/NYU/1847 NYU.png" alt="NYU Building 1847">
+            <div class="frame-overlay"></div>
+          </div>
+          <div class="image-info">
+            <h3 class="image-title">NYU Building - 1847</h3>
+            <div class="image-caption" id="caption-6">
+              View of the NYU building a decade after construction, showing the structure as it appeared during the height of Draper's photographic experimentation period. The building served as both academic facility and photographic laboratory.
+            </div>
+            <textarea class="caption-edit" id="edit-caption-6"></textarea>
+            <div class="edit-controls">
+              <button class="edit-btn" onclick="editCaption(6)">Edit Caption</button>
+              <button class="save-btn" onclick="saveCaption(6)" style="display:none;">Save</button>
+              <button class="cancel-btn" onclick="cancelEdit(6)" style="display:none;">Cancel</button>
+              <a href="https://findingaids.library.nyu.edu/archives/photo_00001/contents/aspace_ref5329/" target="_blank" class="source-btn">View Source</a>
+            </div>
+            <div class="image-meta">
+              Date: 1847 | Type: Architectural Photograph | Format: Daguerreotype<br>
+              <strong>Source:</strong> C. Mason "Discourse" Publication<br>
+              <strong>Citation:</strong> "View From Discourse by C. Mason" - 1847, NYU Archives Collection
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="gallery-section">
+      <h2>Building Perspectives and Context</h2>
+      <div class="image-grid">
+        <div class="image-card">
+          <div class="image-frame">
+            <img src="images/photos/NYU/NYU Building from Row houses.png" alt="NYU from Row Houses">
+            <div class="frame-overlay"></div>
+          </div>
+          <div class="image-info">
+            <h3 class="image-title">NYU from Row Houses</h3>
+            <div class="image-caption" id="caption-7">
+              Perspective view of the NYU building as seen from the adjacent row houses on Washington Square. This view shows the building's relationship to the surrounding residential architecture that defined the neighborhood.
+            </div>
+            <textarea class="caption-edit" id="edit-caption-7"></textarea>
+            <div class="edit-controls">
+              <button class="edit-btn" onclick="editCaption(7)">Edit Caption</button>
+              <button class="save-btn" onclick="saveCaption(7)" style="display:none;">Save</button>
+              <button class="cancel-btn" onclick="cancelEdit(7)" style="display:none;">Cancel</button>
+              <a href="https://daytoninmanhattan.blogspot.com/2020/03/the-lost-university-building-washington.html" target="_blank" class="source-btn">View Source</a>
+            </div>
+            <div class="image-meta">
+              Date: c. 1840s | Type: Perspective View | Format: Drawing/Photograph<br>
+              <strong>Source:</strong> Rural Repository Publication<br>
+              <strong>Citation:</strong> "Rural Repository View" - 1846, Historical Periodical Collection
+            </div>
+          </div>
+        </div>
+
+        <div class="image-card">
+          <div class="image-frame">
+            <img src="images/photos/NYU/NYU Building from Left Facing Side on one of the Fancy Porches (1).png" alt="NYU from Left Side">
+            <div class="frame-overlay"></div>
+          </div>
+          <div class="image-info">
+            <h3 class="image-title">NYU from Left Side Porch</h3>
+            <div class="image-caption" id="caption-8">
+              Detailed view of the NYU building's left facade, showing the ornate Gothic architectural details and the distinctive porch elements that characterized the structure's design.
+            </div>
+            <textarea class="caption-edit" id="edit-caption-8"></textarea>
+            <div class="edit-controls">
+              <button class="edit-btn" onclick="editCaption(8)">Edit Caption</button>
+              <button class="save-btn" onclick="saveCaption(8)" style="display:none;">Save</button>
+              <button class="cancel-btn" onclick="cancelEdit(8)" style="display:none;">Cancel</button>
+              <a href="https://findingaids.library.nyu.edu/archives/ua_os/contents/aspace_ref3/" target="_blank" class="source-btn">View Source</a>
+            </div>
+            <div class="image-meta">
+              Date: c. 1840s | Type: Architectural Detail | Format: Detailed Drawing<br>
+              <strong>Source:</strong> NYU Architectural Documentation<br>
+              <strong>Citation:</strong> "University Building Exterior Details" - NYU Archives Collection
+            </div>
+          </div>
+        </div>
+
+        <div class="image-card">
+          <div class="image-frame">
+            <img src="images/photos/NYU/Waverly Street Row Across from NYU 1846.png" alt="Waverly Street Row Houses">
+            <div class="frame-overlay"></div>
+          </div>
+          <div class="image-info">
+            <h3 class="image-title">Waverly Street Row Houses - 1846</h3>
+            <div class="image-caption" id="caption-9">
+              View of the row houses across Waverly Street from NYU, showing the residential context that surrounded the university building. This perspective would have been similar to what Draper photographed from the NYU rooftop.
+            </div>
+            <textarea class="caption-edit" id="edit-caption-9"></textarea>
+            <div class="edit-controls">
+              <button class="edit-btn" onclick="editCaption(9)">Edit Caption</button>
+              <button class="save-btn" onclick="saveCaption(9)" style="display:none;">Save</button>
+              <button class="cancel-btn" onclick="cancelEdit(9)" style="display:none;">Cancel</button>
+              <a href="https://findingaids.library.nyu.edu/archives/photo_00001/contents/aspace_ref5329/" target="_blank" class="source-btn">View Source</a>
+            </div>
+            <div class="image-meta">
+              Date: 1846 | Type: Streetscape Photograph | Format: Early Photography<br>
+              <strong>Source:</strong> Rural Repository Publication<br>
+              <strong>Citation:</strong> "Waverly Street Row Houses" - 1846, Historical Streetscape Collection
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="gallery-section">
+      <h2>Later Documentation (1890s)</h2>
+      <div class="image-grid">
+        <div class="image-card">
+          <div class="image-frame">
+            <img src="images/photos/NYU/1891 Photograph.png" alt="NYU Building 1891">
+            <div class="frame-overlay"></div>
+          </div>
+          <div class="image-info">
+            <h3 class="image-title">NYU Building - 1891</h3>
+            <div class="image-caption" id="caption-10">
+              Late 19th-century photograph of the NYU Gothic Revival building, showing the structure over five decades after its construction. This image documents the building's appearance near the end of its tenure as NYU's primary facility.
+            </div>
+            <textarea class="caption-edit" id="edit-caption-10"></textarea>
+            <div class="edit-controls">
+              <button class="edit-btn" onclick="editCaption(10)">Edit Caption</button>
+              <button class="save-btn" onclick="saveCaption(10)" style="display:none;">Save</button>
+              <button class="cancel-btn" onclick="cancelEdit(10)" style="display:none;">Cancel</button>
+              <a href="https://findingaids.library.nyu.edu/archives/photo_00001/contents/aspace_ref5329/" target="_blank" class="source-btn">View Source</a>
+            </div>
+            <div class="image-meta">
+              Date: 1891 | Type: Historical Photograph | Format: Gelatin Silver Print<br>
+              <strong>Source:</strong> NYU Archives Photograph Collection<br>
+              <strong>Citation:</strong> "Number Five" - 1891, NYU Archives Photograph Collection
+            </div>
+          </div>
+        </div>
+
+        <div class="image-card">
+          <div class="image-frame">
+            <img src="images/photos/NYU/nyu-1893.jpg" alt="NYU Building 1893">
+            <div class="frame-overlay"></div>
+          </div>
+          <div class="image-info">
+            <h3 class="image-title">NYU Building - 1893</h3>
+            <div class="image-caption" id="caption-11">
+              Detailed 1893 photograph capturing the NYU building's Gothic architectural elements. This image provides a clear view of the building's distinctive features just before the university's relocation to University Heights.
+            </div>
+            <textarea class="caption-edit" id="edit-caption-11"></textarea>
+            <div class="edit-controls">
+              <button class="edit-btn" onclick="editCaption(11)">Edit Caption</button>
+              <button class="save-btn" onclick="saveCaption(11)" style="display:none;">Save</button>
+              <button class="cancel-btn" onclick="cancelEdit(11)" style="display:none;">Cancel</button>
+              <a href="https://findingaids.library.nyu.edu/archives/photo_00001/contents/aspace_ref5329/" target="_blank" class="source-btn">View Source</a>
+            </div>
+            <div class="image-meta">
+              Date: 1893 | Type: Architectural Documentation | Format: Gelatin Silver Print<br>
+              <strong>Source:</strong> Dr. D.W. Hering Photograph Collection<br>
+              <strong>Citation:</strong> "Roof of South Wing - Photo taken by Dr. D.W. Hering" - 1892-1893, NYU Archives
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="footer-container">
+    <p>&copy; 2024 Plate H Camera Project. Historical documentation of NYU's Gothic Revival building and early American photography.</p>
+  </div>
+</footer>
+
+<script>
+// Caption editing functionality
+function editCaption(id) {
+  const caption = document.getElementById(`caption-${id}`);
+  const editArea = document.getElementById(`edit-caption-${id}`);
+  const editBtn = document.querySelector(`.image-card:nth-child(${id}) .edit-btn`);
+  const saveBtn = document.querySelector(`.image-card:nth-child(${id}) .save-btn`);
+  const cancelBtn = document.querySelector(`.image-card:nth-child(${id}) .cancel-btn`);
+  
+  editArea.value = caption.textContent;
+  caption.style.display = 'none';
+  editArea.style.display = 'block';
+  editBtn.style.display = 'none';
+  saveBtn.style.display = 'inline-block';
+  cancelBtn.style.display = 'inline-block';
+  editArea.focus();
+}
+
+function saveCaption(id) {
+  const caption = document.getElementById(`caption-${id}`);
+  const editArea = document.getElementById(`edit-caption-${id}`);
+  const editBtn = document.querySelector(`.image-card:nth-child(${id}) .edit-btn`);
+  const saveBtn = document.querySelector(`.image-card:nth-child(${id}) .save-btn`);
+  const cancelBtn = document.querySelector(`.image-card:nth-child(${id}) .cancel-btn`);
+  
+  caption.textContent = editArea.value;
+  caption.style.display = 'block';
+  editArea.style.display = 'none';
+  editBtn.style.display = 'inline-block';
+  saveBtn.style.display = 'none';
+  cancelBtn.style.display = 'none';
+  
+  // Save to localStorage
+  localStorage.setItem(`nyu-caption-${id}`, editArea.value);
+}
+
+function cancelEdit(id) {
+  const caption = document.getElementById(`caption-${id}`);
+  const editArea = document.getElementById(`edit-caption-${id}`);
+  const editBtn = document.querySelector(`.image-card:nth-child(${id}) .edit-btn`);
+  const saveBtn = document.querySelector(`.image-card:nth-child(${id}) .save-btn`);
+  const cancelBtn = document.querySelector(`.image-card:nth-child(${id}) .cancel-btn`);
+  
+  caption.style.display = 'block';
+  editArea.style.display = 'none';
+  editBtn.style.display = 'inline-block';
+  saveBtn.style.display = 'none';
+  cancelBtn.style.display = 'none';
+}
+
+// Load saved captions on page load
+window.addEventListener('DOMContentLoaded', function() {
+  for (let i = 1; i <= 11; i++) {
+    const savedCaption = localStorage.getItem(`nyu-caption-${i}`);
+    if (savedCaption) {
+      document.getElementById(`caption-${i}`).textContent = savedCaption;
+    }
+  }
+});
+</script>
+
+</body>
+</html>

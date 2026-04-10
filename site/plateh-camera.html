@@ -305,6 +305,12 @@ document.getElementById('nyuslide').addEventListener('input',e=>{
   console.log('NYU slider moved to:', nyuFtY);
   drawAll();
 });
+document.getElementById('nyuheight').addEventListener('input',e=>{
+  nyuHeight=parseInt(e.target.value); 
+  document.getElementById('nyuheight-out').textContent=nyuHeight+' ft'; 
+  console.log('NYU height slider moved to:', nyuHeight);
+  drawAll();
+});
 document.getElementById('rh1height').addEventListener('input',e=>{
   rh1Height=+e.target.value; document.getElementById('rh1height-out').textContent=rh1Height+' ft'; drawAll();});
 document.getElementById('rh2height').addEventListener('input',e=>{

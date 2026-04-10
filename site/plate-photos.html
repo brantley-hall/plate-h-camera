@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plate H Photos - Washington Square 1839</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Code+Pro:wght@400;600&family=Crimson+Text:wght@400;600&display=swap');
+
+:root {
+  --ink: #1a1208;
+  --paper: #faf8f5;
+  --aged: #f4ede0;
+  --sepia: #8b6914;
+  --rust: #c0392b;
+  --muted: #6b5a3e;
+  --gold: #d4a574;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Crimson Text', Georgia, serif;
+  font-size: 18px;
+  line-height: 1.7;
+  min-height: 100vh;
+}
+
+/* Header */
+header {
+  background: var(--aged);
+  border-bottom: 2px solid var(--sepia);
+  padding: 2rem 0;
+  text-align: center;
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  font-family: 'Source Code Pro', monospace;
+  font-size: 1rem;
+  color: var(--sepia);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Navigation */
+nav {
+  background: var(--ink);
+  padding: 1rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.nav-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+}
+
+.nav-links a {
+  color: var(--paper);
+  text-decoration: none;
+  font-family: 'Source Code Pro', monospace;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.nav-links a:hover {
+  color: var(--gold);
+}
+
+/* Main Content */
+main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.section-header h1 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 2.5rem;
+  color: var(--ink);
+  margin-bottom: 1rem;
+}
+
+.section-header p {
+  font-size: 1.2rem;
+  color: var(--muted);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Image Gallery */
+.gallery-container {
+  margin-bottom: 4rem;
+}
+
+.gallery-section {
+  margin-bottom: 3rem;
+}
+
+.gallery-section h2 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.8rem;
+  color: var(--ink);
+  margin-bottom: 2rem;
+  text-align: center;
+  border-bottom: 2px solid var(--sepia);
+  padding-bottom: 0.5rem;
+}
+
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.image-card {
+  background: var(--aged);
+  border: 3px solid var(--sepia);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.image-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.3);
+}
+
+.image-frame {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  overflow: hidden;
+  background: var(--paper);
+}
+
+.image-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.image-card:hover .image-frame img {
+  transform: scale(1.05);
+}
+
+.frame-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 8px solid transparent;
+  border-image: linear-gradient(45deg, var(--sepia), var(--gold), var(--sepia)) 1;
+  pointer-events: none;
+}
+
+.image-info {
+  padding: 1.5rem;
+}
+
+.image-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.3rem;
+  color: var(--ink);
+  margin-bottom: 0.5rem;
+}
+
+.image-caption {
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.caption-edit {
+  display: none;
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--sepia);
+  border-radius: 4px;
+  font-family: 'Crimson Text', Georgia, serif;
+  font-size: 1rem;
+  background: var(--paper);
+  color: var(--ink);
+  resize: vertical;
+  min-height: 60px;
+}
+
+.edit-controls {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.edit-btn, .save-btn, .cancel-btn {
+  padding: 0.3rem 0.8rem;
+  border: 1px solid var(--sepia);
+  border-radius: 4px;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Source Code Pro', monospace;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.edit-btn:hover, .save-btn:hover, .cancel-btn:hover {
+  background: var(--sepia);
+  color: var(--paper);
+}
+
+.save-btn {
+  background: var(--gold);
+  color: var(--ink);
+}
+
+.cancel-btn {
+  background: var(--rust);
+  color: var(--paper);
+}
+
+.image-meta {
+  font-family: 'Source Code Pro', monospace;
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--sepia);
+}
+
+/* Analysis Section */
+.analysis-section {
+  background: var(--aged);
+  border: 2px solid var(--sepia);
+  border-radius: 8px;
+  padding: 2rem;
+  margin-bottom: 3rem;
+}
+
+.analysis-section h2 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.8rem;
+  color: var(--ink);
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.analysis-content {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: var(--ink);
+}
+
+.analysis-content p {
+  margin-bottom: 1.5rem;
+}
+
+.analysis-content h3 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.4rem;
+  color: var(--sepia);
+  margin: 2rem 0 1rem 0;
+}
+
+.analysis-content ul {
+  margin-left: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.analysis-content li {
+  margin-bottom: 0.5rem;
+}
+
+/* Footer */
+footer {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 2rem 0;
+  text-align: center;
+  margin-top: 4rem;
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .title {
+    font-size: 2rem;
+  }
+  
+  .nav-links {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .image-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .section-header h1 {
+    font-size: 2rem;
+  }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-content">
+    <h1 class="title">Plate H Camera</h1>
+    <div class="subtitle">Washington Square 1839</div>
+  </div>
+</header>
+
+<nav>
+  <div class="nav-container">
+    <div class="nav-links">
+      <a href="index-new.html">Home</a>
+      <a href="maps.html">Maps</a>
+      <a href="nyu-photos.html">NYU Photos</a>
+      <a href="church-photos.html">Church Photos</a>
+      <a href="plate-photos.html">Plate H Photos</a>
+      <a href="essays.html">Essays</a>
+      <a href="tool/nyu-camera-v5.html">NYU Tool</a>
+      <a href="plateh-camera.html">Plate H Tool</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <div class="section-header">
+    <h1>Plate H Daguerreotype Collection</h1>
+    <p>The complete collection of Plate H daguerreotypes and related photographic materials from John William Draper's early experiments at NYU, 1839-1840.</p>
+  </div>
+
+  <div class="analysis-section">
+    <h2>Technical Analysis of Plate H</h2>
+    <div class="analysis-content">
+      <p>Plate H represents one of the earliest surviving daguerreotypes taken in America, created by Professor John William Draper in the spring of 1839 from the rooftop of NYU's Gothic Revival building on Washington Square. This sixth-plate daguerreotype (approximately 2.75 x 3.25 inches) captures the nascent university building and the surrounding streets of Greenwich Village.</p>
+      
+      <h3>Technical Specifications</h3>
+      <ul>
+        <li><strong>Format:</strong> Sixth-plate daguerreotype (2.75" x 3.25")</li>
+        <li><strong>Date:</strong> Spring 1839 (circa March-May)</li>
+        <li><strong>Location:</strong> NYU rooftop, Washington Square, New York</li>
+        <li><strong>Photographer:</strong> Professor John William Draper</li>
+        <li><strong>Lens System:</strong> Non-achromatic biconvex lens, 5-inch diameter, 7-inch focal length</li>
+        <li><strong>Exposure Time:</strong> Estimated 5-8 minutes</li>
+        <li><strong>Process:</strong> Direct daguerreotype on silver-plated copper</li>
+      </ul>
+      
+      <h3>Historical Significance</h3>
+      <p>Plate H is historically significant as one of the first architectural photographs taken in America. Draper's work predates most other American daguerreotypes and represents the intersection of scientific experimentation and artistic documentation. The image provides a rare glimpse into New York's urban landscape during the early years of photography, capturing the Gothic Revival building that housed one of America's first photographic laboratories.</p>
+      
+      <h3>Technical Innovations</h3>
+      <p>Draper's approach to Plate H demonstrated several technical innovations that were crucial for early American photography:</p>
+      <ul>
+        <li>Use of non-achromatic lenses with violet light focus for improved image quality</li>
+        <li>Chemical optimization for faster exposure times</li>
+        <li>Rooftop positioning for optimal lighting and perspective</li>
+        <li>Architectural subject matter requiring precise composition</li>
+      </ul>
+      
+      <h3>Image Analysis</h3>
+      <p>The Plate H daguerreotype shows remarkable technical quality for its era. The image captures the NYU building's Gothic architectural details with reasonable clarity, suggesting Draper had achieved significant control over the daguerreotype process. The composition demonstrates an understanding of perspective and architectural photography that would influence subsequent photographic documentation of American buildings.</p>
+    </div>
+  </div>
+
+  <div class="gallery-container">
+    <div class="gallery-section">
+      <h2>Primary Plate H Daguerreotype</h2>
+      <div class="image-grid">
+        <div class="image-card">
+          <div class="image-frame">
+            <img src="https://via.placeholder.com/400x300/8b6914/faf8f5?text=Plate+H+Primary" alt="Plate H Primary Daguerreotype">
+            <div class="frame-overlay"></div>
+          </div>
+          <div class="image-info">
+            <h3 class="image-title">Plate H - Primary Daguerreotype</h3>
+            <div class="image-caption" id="caption-1">
+              The original Plate H daguerreotype showing the NYU Gothic Revival building and surrounding Washington Square area. This sixth-plate image represents one of the earliest surviving architectural photographs in America.
+            </div>
+            <textarea class="caption-edit" id="edit-caption-1"></textarea>
+            <div class="edit-controls">
+              <button class="edit-btn" onclick="editCaption(1)">Edit Caption</button>
+              <button class="save-btn" onclick="saveCaption(1)" style="display:none;">Save</button>
+              <button class="cancel-btn" onclick="cancelEdit(1)" style="display:none;">Cancel</button>
+            </div>
+            <div class="image-meta">
+              Format: Sixth-plate (2.75" x 3.25") | Date: Spring 1839 | Photographer: John William Draper
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="gallery-section">
+      <h2>Plate H Variations and Studies</h2>
+      <div class="image-grid">
+        <div class="image-card">
+          <div class="image-frame">
+            <img src="https://via.placeholder.com/400x300/8b6914/faf8f5?text=Plate+H+Variant+A" alt="Plate H Variant A">
+            <div class="frame-overlay"></div>
+          </div>
+          <div class="image-info">
+            <h3 class="image-title">Plate H - Variant A</h3>
+            <div class="image-caption" id="caption-2">
+              Alternative exposure of Plate H showing different lighting conditions. This variant demonstrates Draper's experimentation with exposure times and chemical processing in the spring of 1839.
+            </div>
+            <textarea class="caption-edit" id="edit-caption-2"></textarea>
+            <div class="edit-controls">
+              <button class="edit-btn" onclick="editCaption(2)">Edit Caption</button>
+              <button class="save-btn" onclick="saveCaption(2)" style="display:none;">Save</button>
+              <button class="cancel-btn" onclick="cancelEdit(2)" style="display:none;">Cancel</button>
+            </div>
+            <div class="image-meta">
+              Format: Sixth-plate | Date: Spring 1839 | Variant: Alternative exposure
+            </div>
+          </div>
+        </div>
+
+        <div class="image-card">
+          <div class="image-frame">
+            <img src="https://via.placeholder.com/400x300/8b6914/faf8f5?text=Plate+H+Detail+Study" alt="Plate H Detail Study">
+            <div class="frame-overlay"></div>
+          </div>
+          <div class="image-info">
+            <h3 class="image-title">Plate H - Architectural Detail Study</h3>
+            <div class="image-caption" id="caption-3">
+              Close-up study of the NYU building's Gothic architectural elements. This image demonstrates Draper's interest in both scientific documentation and artistic composition.
+            </div>
+            <textarea class="caption-edit" id="edit-caption-3"></textarea>
+            <div class="edit-controls">
+              <button class="edit-btn" onclick="editCaption(3)">Edit Caption</button>
+              <button class="save-btn" onclick="saveCaption(3)" style="display:none;">Save</button>
+              <button class="cancel-btn" onclick="cancelEdit(3)" style="display:none;">Cancel</button>
+            </div>
+            <div class="image-meta">
+              Format: Sixth-plate | Date: Spring 1839 | Focus: Architectural details
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="gallery-section">
+      <h2>Related Draper Daguerreotypes</h2>
+      <div class="image-grid">
+        <div class="image-card">
+          <div class="image-frame">
+            <img src="https://via.placeholder.com/400x300/8b6914/faf8f5?text=Draper+Moon+Daguerreotype" alt="Draper Moon Daguerreotype">
+            <div class="frame-overlay"></div>
+          </div>
+          <div class="image-info">
+            <h3 class="image-title">Draper's Moon Daguerreotype</h3>
+            <div class="image-caption" id="caption-4">
+              John William Draper's famous moon daguerreotype, taken shortly after Plate H. This image represents one of the earliest astronomical photographs and demonstrates Draper's technical mastery of the daguerreotype process.
+            </div>
+            <textarea class="caption-edit" id="edit-caption-4"></textarea>
+            <div class="edit-controls">
+              <button class="edit-btn" onclick="editCaption(4)">Edit Caption</button>
+              <button class="save-btn" onclick="saveCaption(4)" style="display:none;">Save</button>
+              <button class="cancel-btn" onclick="cancelEdit(4)" style="display:none;">Cancel</button>
+            </div>
+            <div class="image-meta">
+              Format: Sixth-plate | Date: March 26, 1840 | Subject: Lunar surface
+            </div>
+          </div>
+        </div>
+
+        <div class="image-card">
+          <div class="image-frame">
+            <img src="https://via.placeholder.com/400x300/8b6914/faf8f5?text=NYU+Rooftop+View" alt="NYU Rooftop View">
+            <div class="frame-overlay"></div>
+          </div>
+          <div class="image-info">
+            <h3 class="image-title">NYU Rooftop Camera Position</h3>
+            <div class="image-caption" id="caption-5">
+              View from the NYU rooftop showing the approximate camera position used for Plate H. This perspective demonstrates the strategic location Draper chose for his early photographic experiments.
+            </div>
+            <textarea class="caption-edit" id="edit-caption-5"></textarea>
+            <div class="edit-controls">
+              <button class="edit-btn" onclick="editCaption(5)">Edit Caption</button>
+              <button class="save-btn" onclick="saveCaption(5)" style="display:none;">Save</button>
+              <button class="cancel-btn" onclick="cancelEdit(5)" style="display:none;">Cancel</button>
+            </div>
+            <div class="image-meta">
+              Format: Modern photograph | Date: Contemporary | Location: NYU rooftop
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="footer-container">
+    <p>&copy; 2024 Plate H Camera Project. Research and analysis of early American photography.</p>
+  </div>
+</footer>
+
+<script>
+// Caption editing functionality
+function editCaption(id) {
+  const caption = document.getElementById(`caption-${id}`);
+  const editArea = document.getElementById(`edit-caption-${id}`);
+  const editBtn = document.querySelector(`.image-card:nth-child(${id}) .edit-btn`);
+  const saveBtn = document.querySelector(`.image-card:nth-child(${id}) .save-btn`);
+  const cancelBtn = document.querySelector(`.image-card:nth-child(${id}) .cancel-btn`);
+  
+  editArea.value = caption.textContent;
+  caption.style.display = 'none';
+  editArea.style.display = 'block';
+  editBtn.style.display = 'none';
+  saveBtn.style.display = 'inline-block';
+  cancelBtn.style.display = 'inline-block';
+  editArea.focus();
+}
+
+function saveCaption(id) {
+  const caption = document.getElementById(`caption-${id}`);
+  const editArea = document.getElementById(`edit-caption-${id}`);
+  const editBtn = document.querySelector(`.image-card:nth-child(${id}) .edit-btn`);
+  const saveBtn = document.querySelector(`.image-card:nth-child(${id}) .save-btn`);
+  const cancelBtn = document.querySelector(`.image-card:nth-child(${id}) .cancel-btn`);
+  
+  caption.textContent = editArea.value;
+  caption.style.display = 'block';
+  editArea.style.display = 'none';
+  editBtn.style.display = 'inline-block';
+  saveBtn.style.display = 'none';
+  cancelBtn.style.display = 'none';
+  
+  // Save to localStorage
+  localStorage.setItem(`caption-${id}`, editArea.value);
+}
+
+function cancelEdit(id) {
+  const caption = document.getElementById(`caption-${id}`);
+  const editArea = document.getElementById(`edit-caption-${id}`);
+  const editBtn = document.querySelector(`.image-card:nth-child(${id}) .edit-btn`);
+  const saveBtn = document.querySelector(`.image-card:nth-child(${id}) .save-btn`);
+  const cancelBtn = document.querySelector(`.image-card:nth-child(${id}) .cancel-btn`);
+  
+  caption.style.display = 'block';
+  editArea.style.display = 'none';
+  editBtn.style.display = 'inline-block';
+  saveBtn.style.display = 'none';
+  cancelBtn.style.display = 'none';
+}
+
+// Load saved captions on page load
+window.addEventListener('DOMContentLoaded', function() {
+  for (let i = 1; i <= 5; i++) {
+    const savedCaption = localStorage.getItem(`caption-${i}`);
+    if (savedCaption) {
+      document.getElementById(`caption-${i}`).textContent = savedCaption;
+    }
+  }
+});
+</script>
+
+</body>
+</html>
