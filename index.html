@@ -3,82 +3,441 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Plate H Camera — Washington Square 1839</title>
-<link rel="stylesheet" href="css/style.css">
+<title>Plate H Camera - Washington Square 1839</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Code+Pro:wght@400;600&family=Crimson+Text:wght@400;600&display=swap');
+
+:root {
+  --ink: #1a1208;
+  --paper: #faf8f5;
+  --aged: #f4ede0;
+  --sepia: #8b6914;
+  --rust: #c0392b;
+  --muted: #6b5a3e;
+  --gold: #d4a574;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Crimson Text', Georgia, serif;
+  font-size: 18px;
+  line-height: 1.7;
+  min-height: 100vh;
+}
+
+/* Header */
+header {
+  background: var(--aged);
+  border-bottom: 2px solid var(--sepia);
+  padding: 2rem 0;
+  text-align: center;
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  font-family: 'Source Code Pro', monospace;
+  font-size: 1rem;
+  color: var(--sepia);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Navigation */
+nav {
+  background: var(--ink);
+  padding: 1rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.nav-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+}
+
+.nav-links a {
+  color: var(--paper);
+  text-decoration: none;
+  font-family: 'Source Code Pro', monospace;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.nav-links a:hover {
+  color: var(--gold);
+}
+
+/* Hero Section */
+.hero {
+  background: linear-gradient(135deg, var(--aged) 0%, var(--paper) 100%);
+  padding: 4rem 0;
+  border-bottom: 1px solid var(--sepia);
+}
+
+.hero-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+}
+
+.hero-content h1 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
+}
+
+.hero-content .byline {
+  font-family: 'Source Code Pro', monospace;
+  font-size: 1rem;
+  color: var(--sepia);
+  margin-bottom: 2rem;
+  font-style: italic;
+}
+
+.hero-content p {
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+}
+
+.hero-image {
+  text-align: center;
+}
+
+.plate-image {
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+  border: 3px solid var(--sepia);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+  border-radius: 4px;
+}
+
+.image-caption {
+  font-family: 'Source Code Pro', monospace;
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 1rem;
+  text-align: center;
+}
+
+/* Section Navigation */
+.section-nav {
+  background: var(--paper);
+  padding: 3rem 0;
+  border-bottom: 1px solid var(--sepia);
+}
+
+.section-nav-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.section-nav h2 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 2rem;
+  color: var(--ink);
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.section-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.section-card {
+  background: var(--aged);
+  border: 1px solid var(--sepia);
+  border-radius: 8px;
+  padding: 2rem;
+  text-decoration: none;
+  color: var(--ink);
+  transition: all 0.3s ease;
+  display: block;
+}
+
+.section-card.highlight {
+  background: linear-gradient(135deg, var(--sepia) 0%, var(--gold) 100%);
+  border: 2px solid var(--sepia);
+  transform: scale(1.05);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+}
+
+.section-card.highlight:hover {
+  transform: scale(1.08) translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.2);
+  border-color: var(--rust);
+}
+
+.highlight-card {
+  margin-bottom: 3rem;
+}
+
+.section-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border-color: var(--gold);
+}
+
+.section-card h3 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.5rem;
+  color: var(--ink);
+  margin-bottom: 1rem;
+}
+
+.section-card p {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.section-card .icon {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+/* Footer */
+footer {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 2rem 0;
+  text-align: center;
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.footer-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.footer-section h4 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  color: var(--gold);
+}
+
+.footer-section a {
+  color: var(--paper);
+  text-decoration: none;
+  display: block;
+  margin-bottom: 0.5rem;
+  transition: color 0.3s ease;
+}
+
+.footer-section a:hover {
+  color: var(--gold);
+}
+
+.footer-bottom {
+  border-top: 1px solid var(--sepia);
+  padding-top: 1rem;
+  font-family: 'Source Code Pro', monospace;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .hero-container {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  
+  .title {
+    font-size: 2rem;
+  }
+  
+  .hero-content h1 {
+    font-size: 2rem;
+  }
+  
+  .nav-links {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .section-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
 </head>
 <body>
-<div class="wrapper">
 
-  <header>
-    <p class="eyebrow">Research Tool &nbsp;·&nbsp; Washington Square, New York &nbsp;·&nbsp; c. 1839–1895</p>
-    <h1>Plate H <em>Camera</em></h1>
-    <p class="tagline">A geometric and photographic analysis of the original NYU Gothic Revival building and its early documentation</p>
-  </header>
-
-  <div class="intro">
-    <strong>Working research site.</strong> This tool reconstructs the optical geometry of early photographs and engravings of the NYU University Building (1835–1895) at Washington Square East. Camera positions, sight lines, and plate projections are computed against a georeferenced 1852 plan.
+<header>
+  <div class="header-content">
+    <h1 class="title">Plate H Camera</h1>
+    <div class="subtitle">Washington Square 1839</div>
   </div>
+</header>
 
-  <p class="section-label">Interactive tool</p>
-
-  <div class="nav-grid">
-    <a href="tool/nyu-camera-v5.html" class="nav-card primary">
-      <p class="card-eyebrow">Plan view &nbsp;·&nbsp; Sight analysis &nbsp;·&nbsp; Building positioning</p>
-      <p class="card-title">NYU Camera Tool</p>
-      <p class="card-desc">Position the camera in Waverley Place, set bearing and field of view. The plan view shows the cone of sight against the 1852 Perris map with blind region analysis.</p>
-      <span class="card-arrow">Open tool</span>
-    </a>
-    <a href="plateh-camera.html" class="nav-card primary">
-      <p class="card-eyebrow">3D view &nbsp;·&nbsp; Daguerreotype simulation &nbsp;·&nbsp; Building heights</p>
-      <p class="card-title">Plate H 3D Tool</p>
-      <p class="card-desc">Advanced daguerreotype simulation with dual view (plan + plate), building height controls, and realistic camera projection for 1839 Plate H analysis.</p>
-      <span class="card-arrow">Open tool</span>
-    </a>
-    <a href="1893-study.html" class="nav-card">
-      <p class="card-eyebrow">1893 photograph &nbsp;·&nbsp; Camera analysis &nbsp;·&nbsp; Sight line reconstruction</p>
-      <p class="card-title">1893 Photo Study</p>
-      <p class="card-desc">Comprehensive analysis of the 1893 NYU photograph with zoom controls, camera position reconstruction, and sight line verification.</p>
-      <span class="card-arrow">View study</span>
-    </a>
+<nav>
+  <div class="nav-container">
+    <div class="nav-links">
+      <a href="#home">Home</a>
+      <a href="#maps">Maps</a>
+      <a href="#nyu-photos">NYU Photos</a>
+      <a href="#church-photos">Church Photos</a>
+      <a href="#plate-photos">Plate H Photos</a>
+      <a href="#essays">Essays</a>
+      <a href="tool/nyu-camera-v5.html">NYU Tool</a>
+      <a href="plateh-camera.html">Plate H Tool</a>
+      <a href="plateh-camera-overlay-copy.html">3D Overlay Tool</a>
+    </div>
   </div>
+</nav>
 
-  <p class="section-label">Historical record</p>
-
-  <div class="nav-grid">
-    <a href="photos.html" class="nav-card">
-      <p class="card-eyebrow">Photographs &amp; engravings</p>
-      <p class="card-title">Image Archive</p>
-      <p class="card-desc">Historical photographs and engravings of the NYU building, with notes on probable camera positions and dates.</p>
-      <span class="card-arrow">View archive →</span>
-    </a>
-    <a href="1893-photo-study.html" class="nav-card">
-      <p class="card-eyebrow">1893 photograph &nbsp;·&nbsp; Camera analysis &nbsp;·&nbsp; Sight line reconstruction</p>
-      <p class="card-title">1893 Photo Study</p>
-      <p class="card-desc">Detailed analysis of the 1893 NYU photograph with reconstructed camera position, field of view, and sight line verification.</p>
-      <span class="card-arrow">View study →</span>
-    </a>
-    <a href="studies.html" class="nav-card">
-      <p class="card-eyebrow">Camera position studies</p>
-      <p class="card-title">Sight Line Studies</p>
-      <p class="card-desc">Saved camera positions with analysis of what was visible at specific angles — matching known photographs to geometric reconstructions.</p>
-      <span class="card-arrow">View studies →</span>
-    </a>
+<section id="home" class="hero">
+  <div class="hero-container">
+    <div class="hero-content">
+      <h1>The Lost Daguerreotype of Washington Square</h1>
+      <p>In the spring of 1839, as the new art of photography spread across America, Professor John William Draper stood on the rooftop of NYU's Gothic Revival building on Washington Square. With his experimental daguerreotype camera, he captured what would become one of the earliest photographic images of New York City.</p>
+      <p>Among Draper's early experiments was a mysterious image known only as "Plate H" - a sixth-plate daguerreotype that captured the nascent university building and the surrounding streets of Greenwich Village. This remarkable image, preserved through the research of Howard R. McManus of The History Broker, offers us a rare glimpse into New York's photographic dawn.</p>
+      <p>Through careful analysis of Plate H and the historical record, we can reconstruct not just what Draper saw through his lens in 1839, but understand the technical innovations that made this image possible, and the urban landscape that surrounded one of America's first photographic laboratories.</p>
+    </div>
+    <div class="hero-image">
+      <img src="https://via.placeholder.com/400x500/8b6914/faf8f5?text=Plate+H+Daguerreotype" alt="Plate H Daguerreotype" class="plate-image">
+      <div class="image-caption">Plate H - Sixth-plate daguerreotype, circa 1839<br>Research and analysis by Howard R. McManus, The History Broker</div>
+    </div>
   </div>
+</section>
 
-  <p class="section-label">Coming next</p>
-
-  <div class="coming-soon">
-    <p>Pages to be added as the research develops:</p>
-    <div class="placeholder-item">1839 engraving - camera position reconstruction</div>
-    <div class="placeholder-item">Comparison: engraving vs daguerreotype vs photograph</div>
-    <div class="placeholder-item">Church of the Messiah - visibility analysis</div>
+<section class="section-nav">
+  <div class="section-nav-container">
+    <h2>Featured Tool</h2>
+    <div class="highlight-card">
+      <a href="plateh-camera.html" class="section-card highlight">
+        <div class="icon"> Plate H Camera Viewfinder</div>
+        <h3>Plate H Camera Viewfinder</h3>
+        <p>Advanced daguerreotype simulation with dual view (plan + plate), building height controls, and realistic camera projection for 1839 Plate H analysis. Experience the world through Professor John William Draper's lens.</p>
+      </a>
+    </div>
+    
+    <h2>Explore the Collection</h2>
+    <div class="section-grid">
+      <a href="maps.html" class="section-card">
+        <div class="icon"> Maps</div>
+        <h3>Historical Maps</h3>
+        <p>Georeferenced historical maps of Washington Square and Greenwich Village, including the 1852 Perris map and early NYU campus surveys.</p>
+      </a>
+      
+      <a href="nyu-photos.html" class="section-card">
+        <div class="icon"> NYU Photos</div>
+        <h3>NYU Building Photography</h3>
+        <p>Historical photographs and engravings of the NYU Gothic Revival building, from daguerreotypes to early 20th century images.</p>
+      </a>
+      
+      <a href="church-photos.html" class="section-card">
+        <div class="icon"> Church Photos</div>
+        <h3>Church of the Messiah</h3>
+        <p>Photographic documentation of the Church of the Messiah and its relationship to the NYU building and Washington Square.</p>
+      </a>
+      
+      <a href="plate-photos.html" class="section-card">
+        <div class="icon"> Plate H Photos</div>
+        <h3>Plate H Collection</h3>
+        <p>The complete Plate H daguerreotype analysis, including high-resolution images and technical examination by Howard McManus.</p>
+      </a>
+      
+      <a href="essays.html" class="section-card">
+        <div class="icon"> Essays</div>
+        <h3>Research Essays</h3>
+        <p>In-depth scholarly essays on early American photography, NYU history, and the technical analysis of Plate H.</p>
+      </a>
+      
+      <a href="tool/nyu-camera-v5.html" class="section-card">
+        <div class="icon"> NYU Camera Tool</div>
+        <h3>NYU Camera Tool</h3>
+        <p>Position the camera in Waverley Place, set bearing and field of view. The plan view shows the cone of sight against the 1852 Perris map with blind region analysis.</p>
+      </a>
+    </div>
   </div>
+</section>
 
-  <footer>
-    <span><strong>Plate H Camera</strong> &nbsp;·&nbsp; Washington Square research tool</span>
-    <span>NYU NW corner = origin (0,0) &nbsp;·&nbsp; 1852 Perris map georeferenced</span>
-  </footer>
+<footer>
+  <div class="footer-container">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h4>Research</h4>
+        <a href="#maps">Historical Maps</a>
+        <a href="#essays">Research Essays</a>
+        <a href="#tools">Analysis Tools</a>
+      </div>
+      <div class="footer-section">
+        <h4>Collections</h4>
+        <a href="#nyu-photos">NYU Photography</a>
+        <a href="#church-photos">Church Photography</a>
+        <a href="#plate-photos">Plate H Collection</a>
+      </div>
+      <div class="footer-section">
+        <h4>Resources</h4>
+        <a href="https://www.historybroker.com">The History Broker</a>
+        <a href="https://library.nyu.edu">NYU Archives</a>
+        <a href="#tools">Camera Tools</a>
+      </div>
+      <div class="footer-section">
+        <h4>About</h4>
+        <a href="#howard-mcmanus">Howard R. McManus</a>
+        <a href="#plate-h">Plate H Research</a>
+        <a href="#contact">Contact</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2024 Plate H Camera Project. Research and analysis by Howard R. McManus, The History Broker.</p>
+    </div>
+  </div>
+</footer>
 
-</div>
 </body>
 </html>
