@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plate H Camera Tool - Image Overlay</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Source+Code+Pro:wght@400;600&family=Spectral:ital,wght@0,300;0,400;1,300&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--ink:#1a1208;--paper:#f4ede0;--aged:#e8d9c0;--sepia:#8b6914;--rust:#c0392b;--muted:#6b5a3e;--rule:rgba(139,105,20,0.25);}
+body{background:var(--paper);color:var(--ink);font-family:'Spectral',Georgia,serif;font-size:14px;line-height:1.5;min-height:100vh;}
+.wrapper{max-width:1600px;margin:0 auto;padding:0.6rem 0.8rem 1.5rem;}
+
+header{border-top:3px double var(--sepia);border-bottom:1px solid var(--rule);padding:0.5rem 0;margin-bottom:0.7rem;text-align:center;}
+.eyebrow{font-family:'Source Code Pro',monospace;font-size:0.58rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--sepia);}
+h1{font-family:'Playfair Display',Georgia,serif;font-size:clamp(1.1rem,2vw,1.5rem);font-weight:600;color:var(--ink);}
+h1 em{font-style:italic;font-weight:400;color:var(--sepia);}
+
+/* Two-column workspace (plan + plate) - EXACTLY like original */
+.workspace{display:grid;grid-template-columns:1fr 400px;gap:0.8rem;align-items:stretch;margin-bottom:0.8rem;}
+.plate-col{display:flex;flex-direction:column;gap:0.4rem;justify-content:flex-end;}
+
+/* Slider panel (full width below workspace) */
+.slider-panel{background:var(--aged);border:1px solid var(--rule);border-radius:4px;padding:0.8rem 1rem;margin-bottom:0.8rem;}
+.slider-panel-inner{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:0.6rem 1.5rem;}
+
+/* Slider sections */
+.slider-group{}
+.ctrl-section{margin-bottom:0.6rem;padding-bottom:0.6rem;border-bottom:1px solid var(--rule);}
+.ctrl-section:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+.ctrl-section-title{font-family:'Source Code Pro',monospace;font-size:0.57rem;letter-spacing:0.13em;text-transform:uppercase;color:var(--sepia);font-weight:700;margin-bottom:0.4rem;}
+.sl{display:flex;align-items:center;gap:5px;margin-bottom:4px;}
+.sl label{font-family:'Source Code Pro',monospace;font-size:0.6rem;color:var(--muted);flex:0 0 100px;line-height:1.2;}
+.sl input[type=range]{flex:1;height:3px;-webkit-appearance:none;appearance:none;background:var(--sepia);border-radius:2px;outline:none;cursor:pointer;}
+.sl input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;border-radius:50%;background:var(--ink);cursor:pointer;border:2px solid var(--paper);box-shadow:0 0 0 1px var(--sepia);}
+.sl .v{font-family:'Source Code Pro',monospace;font-size:0.6rem;font-weight:700;color:var(--ink);min-width:32px;text-align:right;}
+.sl-check{display:flex;align-items:center;gap:6px;font-family:'Source Code Pro',monospace;font-size:0.6rem;color:var(--muted);margin-top:2px;}
+.coord-display{font-family:'Source Code Pro',monospace;font-size:0.62rem;color:var(--muted);text-align:center;padding:3px 0;margin-bottom:4px;}
+.coord-display span{color:var(--rust);font-weight:700;}
+
+/* CENTRE: Plan view */
+.plan-col{display:flex;flex-direction:column;gap:0.4rem;}
+.plan-wrap{border:1px solid var(--sepia);border-radius:2px;overflow:hidden;box-shadow:3px 3px 0 rgba(139,105,20,0.1);}
+canvas#plan{display:block;width:100%;}
+.legend{display:flex;flex-wrap:wrap;gap:0.25rem 0.7rem;padding:0.35rem 0.6rem;background:var(--aged);border:1px solid var(--rule);border-radius:3px;}
+.leg{display:flex;align-items:center;gap:0.25rem;font-family:'Source Code Pro',monospace;font-size:0.57rem;color:var(--muted);}
+.sw{width:9px;height:9px;border-radius:1px;flex-shrink:0;}
+
+/* RIGHT: Plate view */
+.plate-col-title{font-family:'Source Code Pro',monospace;font-size:0.57rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--sepia);text-align:center;}
+.plate-border{border:3px solid var(--sepia);padding:3px;background:var(--ink);display:inline-block;line-height:0;box-shadow:4px 4px 0 rgba(139,105,20,0.12);align-self:center;position:relative;}
+canvas#plateStrip{display:block;width:375px;height:450px;}
+canvas#imageOverlay{position:absolute;top:3px;left:3px;width:375px;height:450px;pointer-events:none;}
+.plate-caption{font-family:'Source Code Pro',monospace;font-size:0.57rem;color:var(--muted);text-align:center;}
+.plate-legend{display:flex;flex-wrap:wrap;gap:0.2rem 0.6rem;}
+.plate-leg{display:flex;align-items:center;gap:0.25rem;font-family:'Source Code Pro',monospace;font-size:0.57rem;color:var(--muted);}
+.plate-swatch{width:9px;height:9px;border-radius:1px;flex-shrink:0;}
+
+/* Image loader section */
+.image-loader{background:var(--aged);border:1px solid var(--rule);border-radius:4px;padding:0.8rem;margin-bottom:0.8rem;}
+.image-loader-inner{display:flex;gap:1rem;align-items:center;flex-wrap:wrap;}
+.image-upload{flex:1;}
+.image-upload label{display:block;font-family:'Source Code Pro',monospace;font-size:0.57rem;letter-spacing:0.13em;text-transform:uppercase;color:var(--sepia);font-weight:700;margin-bottom:0.4rem;}
+.image-upload input[type=file]{width:100%;padding:0.4rem;border:1px solid var(--sepia);border-radius:3px;background:var(--paper);font-family:'Source Code Pro',monospace;font-size:0.6rem;}
+.overlay-controls{flex:1;}
+.overlay-controls label{display:block;font-family:'Source Code Pro',monospace;font-size:0.57rem;letter-spacing:0.13em;text-transform:uppercase;color:var(--sepia);font-weight:700;margin-bottom:0.4rem;}
+.opacity-slider{display:flex;align-items:center;gap:0.5rem;}
+.opacity-slider input[type=range]{flex:1;height:3px;-webkit-appearance:none;appearance:none;background:var(--sepia);border-radius:2px;outline:none;cursor:pointer;}
+.opacity-slider input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;border-radius:50%;background:var(--ink);cursor:pointer;border:2px solid var(--paper);box-shadow:0 0 0 1px var(--sepia);}
+.opacity-slider .v{font-family:'Source Code Pro',monospace;font-size:0.6rem;font-weight:700;color:var(--ink);min-width:40px;text-align:right;}
+.image-info{font-family:'Source Code Pro',monospace;font-size:0.55rem;color:var(--muted);margin-top:0.3rem;}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:2px;}
+.stat{background:var(--aged);border:1px solid var(--rule);border-radius:2px;padding:3px 6px;}
+.stat-label{font-family:'Source Code Pro',monospace;font-size:0.52rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);}
+.stat-val{font-family:'Source Code Pro',monospace;font-size:0.68rem;font-weight:700;color:var(--ink);}
+
+/* Instructions */
+.instructions{margin-top:1.2rem;border-top:2px solid var(--rule);padding-top:1rem;}
+.instr-title{font-family:'Playfair Display',Georgia,serif;font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:0.6rem;}
+.instr-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0.6rem;}
+.instr-card{background:var(--aged);border:1px solid var(--rule);border-radius:3px;padding:0.6rem 0.8rem;}
+.instr-head{font-family:'Source Code Pro',monospace;font-size:0.6rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--sepia);font-weight:700;margin-bottom:0.25rem;}
+.instr-body{font-size:0.75rem;color:var(--muted);line-height:1.45;}
+.instr-btn{width:100%;background:var(--paper);border:none;border-radius:3px;padding:0.6rem 0.8rem;cursor:pointer;text-align:left;font-family:inherit;transition:background 0.2s;}
+.instr-btn:hover{background:var(--ink);color:var(--paper);}
+.instr-btn:hover .instr-head{color:var(--aged);}
+.instr-btn:hover .instr-body{color:var(--aged);}
+
+footer{border-top:1px solid var(--rule);margin-top:1rem;padding-top:0.6rem;font-size:0.65rem;color:var(--muted);font-style:italic;text-align:center;}
+footer strong{font-style:normal;color:var(--sepia);}
+header nav a:hover{background:var(--sepia);color:var(--paper);}
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+<header>
+  <div class="eyebrow">John William Draper · Samuel Morse · NYU · 1839</div>
+  <h1>Plate H Camera Tool <em>Image Overlay Version</em></h1>
+  <nav style="text-align:center; margin-top:0.5rem;">
+    <a href="index-new.html" style="color:var(--sepia); text-decoration:none; font-family:'Source Code Pro',monospace; font-size:0.6rem; border:1px solid var(--sepia); padding:0.3rem 0.8rem; border-radius:3px; transition:all 0.2s; display:inline-block;">« Home</a>
+  </nav>
+</header>
+
+<!-- Image Loader Section -->
+<div class="image-loader">
+  <div class="image-loader-inner">
+    <div class="image-upload">
+      <label>Load Target Image</label>
+      <input type="file" id="imageUpload" accept="image/*">
+      <div class="image-info" id="imageInfo">No image loaded</div>
+    </div>
+    <div class="overlay-controls">
+      <label>Overlay Opacity</label>
+      <div class="opacity-slider">
+        <input type="range" id="overlayOpacity" min="0" max="75" value="0" step="1">
+        <span class="v" id="opacityVal">0%</span>
+      </div>
+      <div class="image-info">0% = transparent, 75% = maximum opacity</div>
+    </div>
+  </div>
+</div>
+
+<div class="workspace">
+
+  <!-- CENTRE: PLAN VIEW -->
+  <div class="plan-col">
+    <div class="ctrl-section-title" style="margin-bottom:0.3rem;font-size:0.7rem;text-align:center;">Site Plan</div>
+    <div class="plan-wrap">
+      <canvas id="plan"></canvas>
+    </div>
+    <div class="legend">
+      <div class="leg"><div class="sw" style="background:#a0a098;border:1px solid #666"></div>NYU</div>
+      <div class="leg"><div class="sw" style="background:rgba(196,98,64,0.5);border:1px solid #a04020"></div>RH1</div>
+      <div class="leg"><div class="sw" style="background:rgba(210,140,60,0.5);border:1px solid #a06010"></div>RH2</div>
+      <div class="leg"><div class="sw" style="background:rgba(192,57,43,0.35);border:1px dashed rgba(192,57,43,0.7)"></div>Blind</div>
+      <div class="leg"><div class="sw" style="background:rgba(139,105,20,0.2);border:1px dashed #8b6914"></div>Cone</div>
+    </div>
+  </div>
+
+  <!-- RIGHT: PLATE VIEW -->
+  <div class="plate-col">
+    <div class="ctrl-section-title" style="margin-bottom:0.3rem;font-size:0.7rem;text-align:center;">Viewfinder</div>
+    <div class="plate-col-title">2½ × 3 inch daguerreotype portrait camera's eye view</div>
+    <div class="plate-legend">
+      <div class="plate-leg"><div class="plate-swatch" style="background:#f0eeea;border:1px solid #aaa"></div>NYU W</div>
+      <div class="plate-leg"><div class="plate-swatch" style="background:#d8d5d0;border:1px solid #aaa"></div>N</div>
+      <div class="plate-leg"><div class="plate-swatch" style="background:#c0bdb8;border:1px solid #aaa"></div>E</div>
+      <div class="plate-leg"><div class="plate-swatch" style="background:#a8a5a0;border:1px solid #aaa"></div>S</div>
+      <div class="plate-leg"><div class="plate-swatch" style="background:rgba(196,98,64,0.8);border:1px solid #a04020"></div>RH1</div>
+      <div class="plate-leg"><div class="plate-swatch" style="background:rgba(210,140,60,0.8);border:1px solid #a06010"></div>RH2</div>
+      <div class="plate-leg"><div class="plate-swatch" style="background:#1a4fcc;border:1px solid #1030aa"></div>Ch-N</div>
+      <div class="plate-leg"><div class="plate-swatch" style="background:#69BE28;border:1px solid #4a8a1a"></div>Ch-M</div>
+      <div class="plate-leg"><div class="plate-swatch" style="background:#FFEE00;border:1px solid #ccbb00"></div>Ch-S</div>
+      <div class="plate-leg"><div class="plate-swatch" style="background:#c8d4e8;border:1px solid #8899aa"></div>Sky</div>
+      <div class="plate-leg"><div class="plate-swatch" style="background:#c4a872;border:1px solid #8b6914"></div>Gnd</div>
+    </div>
+    <div style="flex:1"></div>
+    <div class="plate-border">
+      <canvas id="plateStrip" width="375" height="450"></canvas>
+      <canvas id="imageOverlay" width="375" height="450"></canvas>
+    </div>
+    <div class="plate-caption" id="plate-caption">Camera view with image overlay</div>
+  </div>
+
+</div>
+
+<!-- FULL-WIDTH SLIDER PANEL -->
+<div class="slider-panel">
+  <div class="ctrl-section-title" style="font-size:0.7rem;text-align:center;margin-bottom:0.6rem;padding-bottom:0.4rem;border-bottom:1px solid var(--rule);">Camera Settings</div>
+  <div class="slider-panel-inner">
+
+    <!-- Camera -->
+    <div class="slider-group">
+      <div class="ctrl-section-title">Camera</div>
+      <div class="coord-display">Position: <span id="coords">-</span></div>
+      <div class="sl"><label>Horizontal FOV</label><input type="range" id="fov" min="10" max="60" value="14" step="1"><span class="v" id="fov-out">14°</span></div>
+      <div class="sl"><label>Vertical FOV</label><span style="flex:1"></span><span class="v" id="vfov-out">16.8°</span></div>
+      <div class="sl"><label>Rotation</label><input type="range" id="rotation" min="-90" max="90" value="0" step="1"><span class="v" id="rot-out">0°</span></div>
+      <div class="sl"><label>X (E-W)</label><input type="range" id="camX" min="-400" max="400" value="-200" step="1"><span class="v" id="camX-out">-200</span></div>
+      <div class="sl"><label>Y (N-S)</label><input type="range" id="camY" min="-400" max="400" value="12" step="1"><span class="v" id="camY-out">12</span></div>
+    </div>
+
+    <!-- NYU building -->
+    <div class="slider-group">
+      <div class="ctrl-section-title">NYU Building</div>
+      <div class="sl"><label>Position (S)</label><input type="range" id="nyuslide" min="0" max="100" value="10" step="1"><span class="v" id="nyu-out">10 ft</span></div>
+      <div class="sl"><label>Height</label><input type="range" id="nyuheight" min="20" max="120" value="70" step="1"><span class="v" id="nyuheight-out">70 ft</span></div>
+    </div>
+
+    <!-- Row Houses -->
+    <div class="slider-group">
+      <div class="ctrl-section-title">Row Houses</div>
+      <div class="sl"><label>RH1 position</label><input type="range" id="rh1slide" min="0" max="100" value="15" step="1"><span class="v" id="rh1-out">15 ft</span></div>
+      <div class="sl"><label>RH1 height</label><input type="range" id="rh1height" min="10" max="80" value="40" step="1"><span class="v" id="rh1height-out">40 ft</span></div>
+      <div class="sl"><label>RH2 position</label><input type="range" id="rh2slide" min="0" max="100" value="15" step="1"><span class="v" id="rh2-out">15 ft</span></div>
+      <div class="sl"><label>RH2 height</label><input type="range" id="rh2height" min="10" max="80" value="40" step="1"><span class="v" id="rh2height-out">40 ft</span></div>
+    </div>
+
+    <!-- Church -->
+    <div class="slider-group">
+      <div class="ctrl-section-title">Church of the Messiah</div>
+      <div class="sl"><label>Distance</label><input type="range" id="churchdist" min="750" max="900" value="800" step="10"><span class="v" id="churchdist-out">800 ft</span></div>
+      <div class="sl"><label>Position (N)</label><input type="range" id="churchslide" min="0" max="100" value="0" step="1"><span class="v" id="church-out">0 ft</span></div>
+      <div class="sl"><label>North ht</label><input type="range" id="chnheight" min="10" max="120" value="50" step="1"><span class="v" id="chnheight-out">50 ft</span></div>
+      <div class="sl"><label>Mid ht</label><input type="range" id="chmheight" min="10" max="120" value="90" step="1"><span class="v" id="chmheight-out">90 ft</span></div>
+      <div class="sl"><label>South ht</label><input type="range" id="chsheight" min="10" max="120" value="50" step="1"><span class="v" id="chsheight-out">50 ft</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- INSTRUCTIONS -->
+<div class="instructions">
+  <div class="instr-title">Instructions click any card to hear it read aloud</div>
+  <div class="instr-grid">
+    <div class="instr-card"><button class="instr-btn" onclick="speakInstruction('camera-position')"><div class="instr-head">Camera position</div><div class="instr-body">X/Y sliders move the camera east-west and north-south. You can also drag the plan view directly. Keep X negative to stay west of NYU.</div></button></div>
+    <div class="instr-card"><button class="instr-btn" onclick="speakInstruction('camera-rotation')"><div class="instr-head">Camera rotation</div><div class="instr-body">0° aims east toward NYU. Positive rotates north, negative rotates south. The aim line and cone update on both views simultaneously.</div></button></div>
+    <div class="instr-card"><button class="instr-btn" onclick="speakInstruction('field-of-view')"><div class="instr-head">Field of view</div><div class="instr-body">14° is the estimated Plate H lens angle. The plate shows the correct vertical FOV automatically 11.7° at 14° horizontal, maintaining the 3×2½ ratio.</div></button></div>
+    <div class="instr-card"><button class="instr-btn" onclick="speakInstruction('image-overlay')"><div class="instr-head">Image overlay</div><div class="instr-body">Load a daguerreotype image using the file input. Adjust the opacity slider to blend the target image with the camera viewfinder for precise comparison.</div></button></div>
+  </div>
+</div>
+
+<footer>
+  Origin (0,0) = NYU NW corner &nbsp;·&nbsp; X east · Y north &nbsp;·&nbsp; Church <strong id="church-distance">800 ft</strong> east &nbsp;·&nbsp; Eye height <strong>5 ft</strong> · NYU <strong>70 ft</strong> · Row Houses <strong>40 ft</strong> · Church <strong>75 ft</strong>
+</footer>
+
+</div>
+
+<!-- hidden stubs for legacy JS refs -->
+<span style="display:none" id="zoom-coord"></span>
+<span style="display:none" id="ps-pos"></span>
+<span style="display:none" id="ps-rot"></span>
+<span style="display:none" id="ps-fov"></span>
+<span style="display:none" id="ps-nyu"></span>
+<span style="display:none" id="ps-ch"></span>
+<span style="display:none" id="ps-rh1"></span>
+<span style="display:none" id="ps-rh2"></span>
+<span style="display:none" id="ps-sky"></span>
+<span style="display:none" id="ps-dist"></span>
+<span style="display:none" id="ps-nwpos"></span>
+
+<script>
+// ── Canvases ──────────────────────────────────────────────────────────────
+const plan       = document.getElementById('plan');
+const pctx       = plan.getContext('2d');
+const plateStrip = document.getElementById('plateStrip');
+const psctx      = plateStrip.getContext('2d');
+const overlayCanvas = document.getElementById('imageOverlay');
+const overlayCtx = overlayCanvas.getContext('2d');
+
+// ── Constants ─────────────────────────────────────────────────────────────
+const NYU_NS=180, NYU_EW=100;
+const B2_EW=100,  B2_PROJ=5;
+const RH1_EW=90,  RH1_NS=50;
+const RH2_EW=180, RH2_NS=50;
+let churchDistance=800;
+const GAP=churchDistance;
+const MARGIN_LEFT_FT=220;
+function getPlanFtW(){return MARGIN_LEFT_FT+NYU_EW+GAP+B2_EW+40;}
+const GRID=100;
+
+// ── State ─────────────────────────────────────────────────────────────────
+let camFtX=-200, camFtY=12;
+let camRotation=0;
+let rh1FtY=15, rh2FtY=15;
+let churchFtY=0;
+let nyuFtY=10;
+// Building heights (ft)
+let nyuHeight=70, rh1Height=40, rh2Height=40;
+let chNHeight=50, chMHeight=90, chSHeight=50;
+// Overlay state
+let overlayOpacity = 0;
+let loadedImage = null;
+
+function clampCam(){
+  camFtX=Math.round(Math.max(-400,Math.min(400,camFtX)));
+  camFtY=Math.round(Math.max(-400,Math.min(400,camFtY)));
+}
+clampCam();
+
+// ── Layout setup ──────────────────────────────────────────────────────────
+function setup(){
+  const planCol = plan.parentElement;
+  const W = planCol.offsetWidth || 700;
+  plan.width = W;
+  plan.height = Math.round(W * 0.5);
+  plateStrip.width = 375;
+  plateStrip.height = 450;
+  overlayCanvas.width = 375;
+  overlayCanvas.height = 450;
+  drawAll();
+}
+
+function planScale(){return(plan.width-10)/getPlanFtW();}
+
+// Plan pixel coords of NYU NW corner
+function planOrigin(){
+  const s=planScale();
+  return{x:Math.round(MARGIN_LEFT_FT*s)+5, y:Math.round(plan.height*0.45)};
+}
+
+function drawPlan(){
+  const W=plan.width, H=plan.height;
+  pctx.fillStyle='#f4ede0'; pctx.fillRect(0,0,W,H);
+  const s=planScale();
+  const o=planOrigin();
+  
+  // Grid
+  pctx.strokeStyle='rgba(139,105,20,0.15)'; pctx.lineWidth=1;
+  for(let ft=0;ft<=getPlanFtW();ft+=50){
+    const x=o.x+ft*s; pctx.beginPath(); pctx.moveTo(x,0); pctx.lineTo(x,H); pctx.stroke();
+  }
+  for(let ft=-200;ft<=200;ft+=50){
+    const y=o.y+ft*s; pctx.beginPath(); pctx.moveTo(0,y); pctx.lineTo(W,y); pctx.stroke();
+  }
+  
+  // Buildings
+  const nyuS=o.y+nyuFtY*s, nyuN=o.y-nyuFtY*s;
+  const nyuW=o.x, nyuE=o.x+NYU_EW*s;
+  pctx.fillStyle='#a0a098'; pctx.fillRect(nyuW,nyuN,NYU_EW*s,nyuS-nyuN);
+  pctx.strokeStyle='#666'; pctx.lineWidth=1; pctx.strokeRect(nyuW,nyuN,NYU_EW*s,nyuS-nyuN);
+  
+  // Row houses
+  const rh1N=o.y-rh1FtY*s, rh1S=rh1N+RH1_NS*s;
+  const rh2N=o.y-rh2FtY*s, rh2S=rh2N+RH2_NS*s;
+  const rh1X=nyuE, rh1W=RH1_EW*s;
+  const rh2X=nyuE+RH1_EW*s+45*s, rh2W=RH2_EW*s;
+  pctx.fillStyle='rgba(196,98,64,0.5)'; pctx.fillRect(rh1X,rh1N,rh1W,rh1S-rh1N);
+  pctx.fillStyle='rgba(210,140,60,0.5)'; pctx.fillRect(rh2X,rh2N,rh2W,rh2S-rh2N);
+  
+  // Church
+  const chX=o.x+churchDistance*s-B2_EW*s/2;
+  const chN=o.y-churchFtY*s, ch1S=chN+25*s, ch2S=chN+50*s, ch3S=chN+75*s;
+  pctx.fillStyle='#1a4fcc'; pctx.fillRect(chX,chN,B2_EW*s,ch1S-chN);
+  pctx.fillStyle='#69BE28'; pctx.fillRect(chX-B2_PROJ*s,ch1S,B2_EW*s+B2_PROJ*s,ch2S-ch1S);
+  pctx.fillStyle='#FFEE00'; pctx.fillRect(chX,ch2S,B2_EW*s,ch3S-ch2S);
+  
+  // Camera
+  const camX=o.x+camFtX*s, camY=o.y-camFtY*s;
+  pctx.fillStyle='#d4a574'; pctx.fillRect(camX-10*s,camY-8*s,20*s,16*s);
+  pctx.strokeStyle='#8b6914'; pctx.lineWidth=2; pctx.strokeRect(camX-10*s,camY-8*s,20*s,16*s);
+  
+  // FOV cone
+  const fovDeg=getFovDeg();
+  const fovRad=fovDeg*Math.PI/180;
+  const aimRad=-camRotation*Math.PI/180;
+  const coneLength=150*s;
+  const coneWidth=coneLength*Math.tan(fovRad/2);
+  pctx.fillStyle='rgba(192,57,43,0.1)'; pctx.strokeStyle='rgba(192,57,43,0.5)'; pctx.lineWidth=1; pctx.setLineDash([5*s,5*s]);
+  pctx.beginPath(); pctx.moveTo(camX,camY);
+  pctx.lineTo(camX+coneLength*Math.cos(aimRad)-coneWidth*Math.sin(aimRad), camY+coneLength*Math.sin(aimRad)+coneWidth*Math.cos(aimRad));
+  pctx.lineTo(camX+coneLength*Math.cos(aimRad)+coneWidth*Math.sin(aimRad), camY+coneLength*Math.sin(aimRad)-coneWidth*Math.cos(aimRad));
+  pctx.closePath(); pctx.fill(); pctx.stroke(); pctx.setLineDash([]);
+  
+  // Labels
+  pctx.fillStyle='#1a1208'; pctx.font='10px "Source Code Pro",monospace'; pctx.textAlign='center';
+  pctx.fillText('NYU', nyuW+NYU_EW*s/2, nyuN-5);
+  pctx.fillText('RH1', rh1X+rh1W/2, rh1N-5);
+  pctx.fillText('RH2', rh2X+rh2W/2, rh2N-5);
+  pctx.fillText('Church', chX+B2_EW*s/2, chN-5);
+}
+
+function updateCoords(){
+  const absX = Math.abs(camFtX);
+  const absY = Math.abs(camFtY);
+  const xDirection = camFtX < 0 ? 'West' : 'East';
+  const yDirection = camFtY < 0 ? 'South' : 'North';
+  const descriptiveText = `${absX} ${xDirection} and ${absY} ${yDirection} of origin`;
+  const coordText = `(${camFtX}, ${camFtY>0?'+':''}${camFtY}) ft`;
+  document.getElementById('coords').textContent = descriptiveText;
+  document.getElementById('camX').value = camFtX;
+  document.getElementById('camX-out').textContent = camFtX;
+  document.getElementById('camY').value = camFtY;
+  document.getElementById('camY-out').textContent = camFtY;
+}
+
+// Draw image overlay
+function drawImageOverlay() {
+  const ctx = overlayCtx;
+  const w = overlayCanvas.width;
+  const h = overlayCanvas.height;
+  
+  // Clear
+  ctx.clearRect(0, 0, w, h);
+  
+  if (state.loadedImage && state.overlayOpacity > 0) {
+    ctx.globalAlpha = state.overlayOpacity / 100;
+    
+    // Calculate scaling to fit image to plate dimensions
+    const imgAspect = state.loadedImage.width / state.loadedImage.height;
+    const plateAspect = w / h;
+    
+    let drawWidth, drawHeight, drawX, drawY;
+    
+    if (imgAspect > plateAspect) {
+      // Image is wider than plate - fit to width
+      drawWidth = w;
+      drawHeight = w / imgAspect;
+      drawX = 0;
+      drawY = (h - drawHeight) / 2;
+    } else {
+      // Image is taller than plate - fit to height
+      drawHeight = h;
+      drawWidth = h * imgAspect;
+      drawX = (w - drawWidth) / 2;
+      drawY = 0;
+    }
+    
+    ctx.drawImage(loadedImage, drawX, drawY, drawWidth, drawHeight);
+    ctx.globalAlpha = 1.0;
+  }
+}
+
+// ── Slider wiring ─────────────────────────────────────────────────────────
+document.getElementById('fov').addEventListener('input',e=>{
+  const hf=parseInt(e.target.value);
+  document.getElementById('fov-out').textContent=hf+'°';
+  document.getElementById('vfov-out').textContent=(hf*(3.0/2.5)).toFixed(1)+'°';
+  drawAll();});
+document.getElementById('rotation').addEventListener('input',e=>{
+  document.getElementById('rot-out').textContent=e.target.value+'°'; camRotation=parseInt(e.target.value); drawAll();});
+document.getElementById('camX').addEventListener('input',e=>{
+  camFtX = parseInt(e.target.value);
+  document.getElementById('camX-out').textContent = camFtX;
+  clampCam(); updateCoords(); drawAll();
+});
+document.getElementById('camY').addEventListener('input',e=>{
+  camFtY = parseInt(e.target.value);
+  document.getElementById('camY-out').textContent = camFtY;
+  clampCam(); updateCoords(); drawAll();
+});
+
+document.getElementById('nyuslide').addEventListener('input',e=>{
+  nyuFtY=parseInt(e.target.value); 
+  document.getElementById('nyu-out').textContent=nyuFtY; 
+  drawAll();
+});
+document.getElementById('nyuheight').addEventListener('input',e=>{
+  nyuHeight=parseInt(e.target.value); 
+  document.getElementById('nyuheight-out').textContent=nyuHeight+' ft'; 
+  drawAll();
+});
+document.getElementById('rh1slide').addEventListener('input',e=>{
+  rh1FtY=parseInt(e.target.value); document.getElementById('rh1-out').textContent=rh1FtY; drawAll();});
+document.getElementById('rh2slide').addEventListener('input',e=>{
+  rh2FtY=parseInt(e.target.value); document.getElementById('rh2-out').textContent=rh2FtY; drawAll();});
+document.getElementById('churchslide').addEventListener('input',e=>{
+  churchFtY=parseInt(e.target.value); 
+  document.getElementById('church-out').textContent=churchFtY; 
+  drawAll();
+});
+document.getElementById('churchdist').addEventListener('input',e=>{
+  churchDistance=parseInt(e.target.value); 
+  document.getElementById('churchdist-out').textContent=churchDistance+' ft'; 
+  document.getElementById('church-distance').textContent=churchDistance+' ft'; 
+  drawAll();
+});
+document.getElementById('chnheight').addEventListener('input',e=>{
+  chNHeight=+e.target.value; document.getElementById('chnheight-out').textContent=chNHeight+' ft'; drawAll();});
+document.getElementById('chmheight').addEventListener('input',e=>{
+  chMHeight=+e.target.value; document.getElementById('chmheight-out').textContent=chMHeight+' ft'; drawAll();});
+document.getElementById('chsheight').addEventListener('input',e=>{
+  chSHeight=+e.target.value; document.getElementById('chsheight-out').textContent=chSHeight+' ft'; drawAll();});
+
+// Image upload handler
+document.getElementById('imageUpload').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (file && file.type.startsWith('image/')) {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        loadedImage = img;
+        document.getElementById('imageInfo').textContent = `Loaded: ${file.name} (${img.width}×${img.height})`;
+        drawImageOverlay();
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+// Opacity slider
+document.getElementById('overlayOpacity').addEventListener('input', (e) => {
+  overlayOpacity = parseInt(e.target.value);
+  document.getElementById('opacityVal').textContent = overlayOpacity + '%';
+  drawImageOverlay();
+});
+
+// ── Plan canvas drag ───────────────────────────────────────────────────────
+let pDrag=false;
+let pLastPx=0, pLastPy=0;
+
+function getPP(e){
+  const r=plan.getBoundingClientRect(), s=plan.width/r.width;
+  const src=e.touches?e.touches[0]:e;
+  return{x:(src.clientX-r.left)*s, y:(src.clientY-r.top)*s};
+}
+
+plan.addEventListener('mousedown',e=>{
+  pDrag=true;
+  const p=getPP(e); pLastPx=p.x; pLastPy=p.y;
+});
+plan.addEventListener('mousemove',e=>{
+  if(!pDrag)return;
+  const p=getPP(e);
+  const ps=planScale();
+  const dFtX=Math.round((p.x-pLastPx)/ps/1)*1;
+  const dFtY=Math.round(-(p.y-pLastPy)/ps/1)*1;
+  if(dFtX!==0||dFtY!==0){
+    camFtX=Math.max(-400,Math.min(400, camFtX+dFtX));
+    camFtY=Math.max(-400,Math.min(400,camFtY+dFtY));
+    pLastPx=p.x; pLastPy=p.y;
+    clampCam(); updateCoords(); drawAll();
+  }
+});
+plan.addEventListener('mouseup',()=>pDrag=false);
+plan.addEventListener('mouseleave',()=>pDrag=false);
+
+// ── Geometry helpers ──────────────────────────────────────────────────────
+function getFovDeg(){return parseInt(document.getElementById('fov').value);}
+
+function drawAll(){
+  updateCoords();
+  drawPlan();
+  updatePlate();
+  drawImageOverlay();
+}
+
+// ── Text-to-Speech for Accessibility ───────────────────────────────────────
+function speakInstruction(topic) {
+  window.speechSynthesis.cancel();
+  const instructions = {
+    'camera-position': 'Camera Position: Use the X and Y sliders to move the camera east-west and north-south. The camera stays in the western quadrant, which means negative X values and positive Y values. This positions the camera west of NYU and north of the reference point.',
+    'camera-rotation': 'Camera Rotation: Adjust the rotation slider to point the camera in different directions. Zero degrees points east toward NYU. Plus 90 degrees points north. Minus 90 degrees points south. This controls what the camera is looking at.',
+    'field-of-view': 'Field of View: Change the FOV angle between 10 and 100 degrees. Wider angles show more of the scene but with less detail. Narrower angles focus on specific areas with more detail. This simulates different camera lenses.',
+    'building-movement': 'Building Movement: Use the row house, church, and NYU sliders to move buildings north and south. This lets you test different historical positions and sight lines. Move buildings to see how they affect what the camera can see.',
+    'sight-analysis': 'Sight Analysis: The yellow cone shows the camera\'s field of view - what the camera can see. Red areas indicate blind regions that are blocked by buildings. This helps you understand sight lines and obstructions.',
+    'image-overlay': 'Load a daguerreotype image using the file input. Adjust the opacity slider to blend the target image with the camera viewfinder for precise comparison.'
+  };
+  const text = instructions[topic];
+  if (text) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.9;
+    window.speechSynthesis.speak(utterance);
+  }
+}
+
+// Building AABBs in world coords (X=east, Y=north, origin=NYU NW corner)
+function getBuildings(){
+  const nyuS = nyuFtY + NYU_NS;
+  const nyuN = nyuFtY;
+  const nyuYN = -nyuN;
+  const nyuYS = -nyuS;
+  const rh1N = -rh1FtY,  rh1S = -rh1FtY  - RH1_NS;
+  const rh2N = -rh2FtY,  rh2S = -rh2FtY  - RH2_NS;
+  const chN  = churchFtY;
+  const ch1S = churchFtY - 25;
+  const ch2S = churchFtY - 50;
+  const ch3S = churchFtY - 75;
+  const chX0 = churchDistance - B2_EW/2, chX1 = churchDistance + B2_EW/2;
+  const chMX0 = chX0 - B2_PROJ, chMX1 = chX1;
+  return [
+    {x0:0, x1:NYU_EW, y0:nyuYS, y1:nyuYN,
+     col:'#d8d5d0',
+     faceColors:{w:'#f0eeea', n:'#d8d5d0', e:'#c0bdb8', s:'#a8a5a0'},
+     name:'NYU'},
+    {x0:NYU_EW, x1:NYU_EW+RH1_EW, y0:rh1S, y1:rh1N, col:'rgba(196,98,64,0.7)', name:'RH1'},
+    {x0:NYU_EW+RH1_EW+45, x1:NYU_EW+RH1_EW+45+RH2_EW, y0:rh2S, y1:rh2N, col:'rgba(210,140,60,0.8)', name:'RH2'},
+    {x0:chX0,  x1:chX1,  y0:ch1S, y1:chN,  col:'#1a4fcc', name:'ChN'},
+    {x0:chMX0, x1:chMX1, y0:ch2S, y1:ch1S, col:'#69BE28', name:'ChM'},
+    {x0:chX0,  x1:chX1,  y0:ch3S, y1:ch2S, col:'#FFEE00', name:'ChS'},
+  ];
+}
+
+function rayAABB(ox,oy,dx,dy,b){
+  let tmin=-1e9, tmax=1e9;
+  if(Math.abs(dx)>1e-10){
+    const t1=(b.x0-ox)/dx, t2=(b.x1-ox)/dx;
+    tmin=Math.max(tmin,Math.min(t1,t2)); tmax=Math.min(tmax,Math.max(t1,t2));
+  } else if(ox<=b.x0||ox>=b.x1) return null;
+  if(Math.abs(dy)>1e-10){
+    const t1=(b.y0-oy)/dy, t2=(b.y1-oy)/dy;
+    tmin=Math.max(tmin,Math.min(t1,t2)); tmax=Math.min(tmax,Math.max(t1,t2));
+  } else if(oy<=b.y0||oy>=b.y1) return null;
+  if(tmax<0.5||tmin>tmax) return null;
+  const t=tmin>0.5?tmin:tmax;
+  if(t<0.5) return null;
+  let col=b.col;
+  if(b.faceColors){
+    const hx=ox+dx*t, hy=oy+dy*t, eps=0.5;
+    if(Math.abs(hx-b.x0)<eps)      col=b.faceColors.w;
+    else if(Math.abs(hx-b.x1)<eps) col=b.faceColors.e;
+    else if(Math.abs(hy-b.y1)<eps) col=b.faceColors.n;
+    else if(Math.abs(hy-b.y0)<eps) col=b.faceColors.s;
+  }
+  return {t, col, name:b.name};
+}
+
+function castRay(ox,oy,angle,buildings){
+  const dx=Math.cos(angle), dy=Math.sin(angle);
+  let best=null;
+  for(const b of buildings){
+    const h=rayAABB(ox,oy,dx,dy,b);
+    if(h&&(!best||h.t<best.t)) best=h;
+  }
+  return best||{col:'#c8d4e8',name:'sky',t:9999};
+}
+
+function updatePlate(){
+  const PW=plateStrip.width, PH=plateStrip.height;
+  const fovDeg=getFovDeg();
+  const vFovDeg=fovDeg*(3.0/2.5);
+  const aimRad=-camRotation*Math.PI/180;
+  const halfH=fovDeg/2*Math.PI/180;
+  const halfV=vFovDeg/2*Math.PI/180;
+  const CAM_H=5;
+  const aimDx=Math.cos(aimRad),aimDy=Math.sin(aimRad);
+  const rightDx=Math.sin(aimRad),rightDy=-Math.cos(aimRad);
+  const blds=getBuildings();
+  const imgData=psctx.createImageData(PW,PH);
+  const d=imgData.data;
+  const SKY=[200,212,232],GND=[196,168,114];
+  const counts={NYU:0,RH1:0,RH2:0,ChN:0,ChM:0,ChS:0,sky:0,ground:0};
+  const midRow=Math.floor(PH/2);
+  const horizAng=Math.atan2(-CAM_H,1000);
+
+  const _tmp=document.createElement('canvas');_tmp.width=_tmp.height=1;
+  const _tx=_tmp.getContext('2d');
+  const _cc={};
+  function rgb(col){
+    if(_cc[col])return _cc[col];
+    _tx.clearRect(0,0,1,1);_tx.fillStyle=col;_tx.fillRect(0,0,1,1);
+    const p=_tx.getImageData(0,0,1,1).data;
+    return _cc[col]=[p[0],p[1],p[2]];
+  }
+
+  function bldH(b){
+    if(b.name==='NYU')    return nyuHeight;
+    if(b.name==='RH1')    return rh1Height;
+    if(b.name==='RH2')    return rh2Height;
+    if(b.name==='ChN')    return chNHeight;
+    if(b.name==='ChM')    return chMHeight;
+    if(b.name==='ChS')    return chSHeight;
+    return 0;
+  }
+
+  for(let py=0;py<PH;py++){
+    const vAng=((1-py/(PH-1))-0.5)*2*halfV;
+    for(let px=0;px<PW;px++){
+      const hAng=((1-px/(PW-1))-0.5)*2*halfH;
+      const angle=aimRad+hAng;
+      const dx=Math.cos(angle),dy=Math.sin(angle);
+
+      const hits=[];
+      for(const b of blds){
+        const h=rayAABB(camFtX,camFtY,dx,dy,b);
+        if(h) hits.push(h);
+      }
+      hits.sort((a,b)=>a.t-b.t);
+
+      let r,g,b2;
+      let resolved=false;
+
+      for(const hit of hits){
+        const bh=bldH(hit);
+        const angTop=Math.atan2(bh-CAM_H,hit.t);
+        const angBot=Math.atan2(-CAM_H,hit.t);
+        if(vAng>=angBot&&vAng<=angTop){
+          const c=rgb(hit.col);
+          const shade=0.75+0.25*((vAng-angBot)/(angTop-angBot||1));
+          r=Math.min(255,Math.round(c[0]*shade));
+          g=Math.min(255,Math.round(c[1]*shade));
+          b2=Math.min(255,Math.round(c[2]*shade));
+          if(py===midRow) counts[hit.name]=(counts[hit.name]||0)+1;
+          resolved=true;
+          break;
+        }
+        if(vAng<angBot){ r=GND[0];g=GND[1];b2=GND[2];if(py===midRow)counts.ground++;resolved=true;break; }
+      }
+
+      if(!resolved){
+        if(vAng>horizAng){r=SKY[0];g=SKY[1];b2=SKY[2];if(py===midRow)counts.sky++;}
+        else{r=GND[0];g=GND[1];b2=GND[2];if(py===midRow)counts.ground++;}
+      }
+
+      const idx=(py*PW+px)*4;
+      d[idx]=r;d[idx+1]=g;d[idx+2]=b2;d[idx+3]=255;
+    }
+  }
+  psctx.putImageData(imgData,0,0);
+
+  const N=PW;
+  const dist=Math.round(Math.sqrt(camFtX*camFtX+camFtY*camFtY));
+  document.getElementById('ps-pos').textContent=`(${camFtX}, ${camFtY>=0?'+':''}${camFtY}) ft`;
+  document.getElementById('ps-rot').textContent=`${camRotation}°`;
+  document.getElementById('ps-fov').textContent=`${fovDeg}° / ${vFovDeg.toFixed(1)}°`;
+  document.getElementById('ps-nyu').textContent=`${Math.round((counts.NYU||0)/N*100)}%`;
+  document.getElementById('ps-ch').textContent=`${Math.round(((counts.ChN||0)+(counts.ChM||0)+(counts.ChS||0))/N*100)}%`;
+  document.getElementById('ps-rh1').textContent=`${Math.round((counts.RH1||0)/N*100)}%`;
+  document.getElementById('ps-rh2').textContent=`${Math.round((counts.RH2||0)/N*100)}%`;
+  document.getElementById('ps-sky').textContent=`${Math.round((counts.sky||0)/N*100)}%`;
+  document.getElementById('ps-dist').textContent=`${dist} ft`;
+  document.getElementById('plate-caption').textContent=
+    `cam(${camFtX}, ${camFtY>=0?'+':''}${camFtY}) · rot ${camRotation}° · H-FOV ${fovDeg}° · V-FOV ${vFovDeg.toFixed(1)}°`;
+}
+
+window.addEventListener('resize',setup);
+setup();
+
+</script>
+</body>
+</html>

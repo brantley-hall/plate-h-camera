@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plate H Camera Tool - Overlay Version</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Source+Code+Pro:wght@400;600&family=Spectral:ital,wght@0,300;0,400;1,300&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--ink:#1a1208;--paper:#f4ede0;--aged:#e8d9c0;--sepia:#8b6914;--rust:#c0392b;--muted:#6b5a3e;--rule:rgba(139,105,20,0.25);}
+body{background:var(--paper);color:var(--ink);font-family:'Spectral',Georgia,serif;font-size:14px;line-height:1.5;min-height:100vh;}
+.wrapper{max-width:1600px;margin:0 auto;padding:0.6rem 0.8rem 1.5rem;}
+
+header{border-top:3px double var(--sepia);border-bottom:1px solid var(--rule);padding:0.5rem 0;margin-bottom:0.7rem;text-align:center;}
+.eyebrow{font-family:'Source Code Pro',monospace;font-size:0.58rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--sepia);}
+h1{font-family:'Playfair Display',Georgia,serif;font-size:clamp(1.1rem,2vw,1.5rem);font-weight:600;color:var(--ink);}
+h1 em{font-style:italic;font-weight:400;color:var(--sepia);}
+
+/* Three-column workspace (target + plan + plate) */
+.workspace{display:grid;grid-template-columns:1fr 1fr 400px;gap:0.8rem;align-items:stretch;margin-bottom:0.8rem;}
+
+/* LEFT: Target image */
+.target-col{display:flex;flex-direction:column;gap:0.4rem;}
+.target-wrap{border:1px solid var(--sepia);border-radius:2px;overflow:hidden;box-shadow:3px 3px 0 rgba(139,105,20,0.1);position:relative;}
+canvas#target{display:block;width:100%;}
+.target-overlay{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;}
+.target-title{font-family:'Source Code Pro',monospace;font-size:0.57rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--sepia);text-align:center;}
+.target-caption{font-family:'Source Code Pro',monospace;font-size:0.57rem;color:var(--muted);text-align:center;}
+
+/* CENTRE: Plan view */
+.plan-col{display:flex;flex-direction:column;gap:0.4rem;}
+.plan-wrap{border:1px solid var(--sepia);border-radius:2px;overflow:hidden;box-shadow:3px 3px 0 rgba(139,105,20,0.1);}
+canvas#plan{display:block;width:100%;}
+.legend{display:flex;flex-wrap:wrap;gap:0.25rem 0.7rem;padding:0.35rem 0.6rem;background:var(--aged);border:1px solid var(--rule);border-radius:3px;}
+.leg{display:flex;align-items:center;gap:0.25rem;font-family:'Source Code Pro',monospace;font-size:0.57rem;color:var(--muted);}
+.sw{width:9px;height:9px;border-radius:1px;flex-shrink:0;}
+
+/* RIGHT: Plate view */
+.plate-col{display:flex;flex-direction:column;gap:0.4rem;justify-content:flex-end;}
+.plate-col-title{font-family:'Source Code Pro',monospace;font-size:0.57rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--sepia);text-align:center;}
+.plate-border{border:3px solid var(--sepia);padding:3px;background:var(--ink);display:inline-block;line-height:0;box-shadow:4px 4px 0 rgba(139,105,20,0.12);align-self:center;}
+canvas#plateStrip{display:block;width:375px;height:450px;}
+.plate-caption{font-family:'Source Code Pro',monospace;font-size:0.57rem;color:var(--muted);text-align:center;}
+.plate-legend{display:flex;flex-wrap:wrap;gap:0.2rem 0.6rem;}
+.plate-leg{display:flex;align-items:center;gap:0.25rem;font-family:'Source Code Pro',monospace;font-size:0.57rem;color:var(--muted);}
+.plate-swatch{width:9px;height:9px;border-radius:1px;flex-shrink:0;}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:2px;}
+.stat{background:var(--aged);border:1px solid var(--rule);border-radius:2px;padding:3px 6px;}
+.stat-label{font-family:'Source Code Pro',monospace;font-size:0.52rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);}
+.stat-val{font-family:'Source Code Pro',monospace;font-size:0.68rem;font-weight:700;color:var(--ink);}
+
+/* Slider panel */
+.slider-panel{background:var(--aged);border:1px solid var(--rule);border-radius:4px;padding:0.8rem 1rem;margin-bottom:0.8rem;}
+.slider-panel-inner{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:0.6rem 1.5rem;}
+.slider-group{}
+.ctrl-section{margin-bottom:0.6rem;padding-bottom:0.6rem;border-bottom:1px solid var(--rule);}
+.ctrl-section:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+.ctrl-section-title{font-family:'Source Code Pro',monospace;font-size:0.57rem;letter-spacing:0.13em;text-transform:uppercase;color:var(--sepia);font-weight:700;margin-bottom:0.4rem;}
+.sl{display:flex;align-items:center;gap:5px;margin-bottom:4px;}
+.sl label{font-family:'Source Code Pro',monospace;font-size:0.6rem;color:var(--muted);flex:0 0 100px;line-height:1.2;}
+.sl input[type=range]{flex:1;height:3px;-webkit-appearance:none;appearance:none;background:var(--sepia);border-radius:2px;outline:none;cursor:pointer;}
+.sl input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;border-radius:50%;background:var(--ink);cursor:pointer;border:2px solid var(--paper);box-shadow:0 0 0 1px var(--sepia);}
+.sl .v{font-family:'Source Code Pro',monospace;font-size:0.6rem;font-weight:700;color:var(--ink);min-width:32px;text-align:right;}
+.sl-check{display:flex;align-items:center;gap:6px;font-family:'Source Code Pro',monospace;font-size:0.6rem;color:var(--muted);margin-top:2px;}
+.coord-display{font-family:'Source Code Pro',monospace;font-size:0.62rem;color:var(--muted);text-align:center;padding:3px 0;margin-bottom:4px;}
+.coord-display span{color:var(--rust);font-weight:700;}
+
+/* Overlay controls */
+.overlay-controls{background:var(--aged);border:1px solid var(--rule);border-radius:4px;padding:0.6rem;margin-bottom:0.8rem;}
+.overlay-controls-inner{display:flex;gap:0.8rem;align-items:center;flex-wrap:wrap;}
+.overlay-btn{background:var(--paper);border:1px solid var(--sepia);border-radius:3px;padding:0.4rem 0.8rem;cursor:pointer;font-family:'Source Code Pro',monospace;font-size:0.6rem;transition:all 0.2s;}
+.overlay-btn:hover{background:var(--sepia);color:var(--paper);}
+.overlay-btn.active{background:var(--sepia);color:var(--paper);}
+
+footer{border-top:1px solid var(--rule);margin-top:1rem;padding-top:0.6rem;font-size:0.65rem;color:var(--muted);font-style:italic;text-align:center;}
+footer strong{font-style:normal;color:var(--sepia);}
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+<header>
+  <div class="eyebrow">John William Draper · Samuel Morse · NYU · 1839</div>
+  <h1>Plate H Camera Tool <em>Overlay Version</em></h1>
+</header>
+
+<!-- Overlay Controls -->
+<div class="overlay-controls">
+  <div class="overlay-controls-inner">
+    <button class="overlay-btn active" id="showViewfinder">Show Viewfinder</button>
+    <button class="overlay-btn" id="showFov">Show FOV</button>
+    <button class="overlay-btn" id="showGrid">Show Grid</button>
+    <button class="overlay-btn" id="showCenter">Show Center</button>
+    <button class="overlay-btn" id="toggleOpacity">Toggle Opacity</button>
+  </div>
+</div>
+
+<div class="workspace">
+
+  <!-- LEFT: TARGET IMAGE -->
+  <div class="target-col">
+    <div class="target-title">Target Image</div>
+    <div class="target-wrap">
+      <canvas id="target"></canvas>
+      <canvas id="targetOverlay" class="target-overlay"></canvas>
+    </div>
+    <div class="target-caption">Original daguerreotype for comparison</div>
+  </div>
+
+  <!-- CENTRE: PLAN VIEW -->
+  <div class="plan-col">
+    <div class="ctrl-section-title" style="margin-bottom:0.3rem;font-size:0.7rem;text-align:center;">Site Plan</div>
+    <div class="plan-wrap">
+      <canvas id="plan"></canvas>
+    </div>
+    <div class="legend">
+      <div class="leg"><div class="sw" style="background:#a0a098;border:1px solid #666"></div>NYU</div>
+      <div class="leg"><div class="sw" style="background:#d4a574"></div>Camera</div>
+      <div class="leg"><div class="sw" style="background:#c0392b"></div>FOV</div>
+      <div class="leg"><div class="sw" style="background:#8b6914"></div>Center</div>
+    </div>
+  </div>
+
+  <!-- RIGHT: PLATE VIEW -->
+  <div class="plate-col">
+    <div class="plate-col-title">Plate View</div>
+    <div class="plate-border">
+      <canvas id="plateStrip"></canvas>
+    </div>
+    <div class="plate-caption">Daguerreotype plate simulation</div>
+    <div class="plate-legend">
+      <div class="plate-leg"><div class="plate-swatch" style="background:#f4ede0"></div>Paper</div>
+      <div class="plate-leg"><div class="plate-swatch" style="background:#1a1208"></div>Ink</div>
+      <div class="plate-leg"><div class="plate-swatch" style="background:#d4a574"></div>Buildings</div>
+    </div>
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-label">Distance</div>
+        <div class="stat-val" id="distanceStat">--</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">FOV</div>
+        <div class="stat-val" id="fovStat">--</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Height</div>
+        <div class="stat-val" id="heightStat">--</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Angle</div>
+        <div class="stat-val" id="angleStat">--</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Slider Panel -->
+<div class="slider-panel">
+  <div class="slider-panel-inner">
+    
+    <!-- Camera Controls -->
+    <div class="slider-group">
+      <div class="ctrl-section-title">Camera Controls</div>
+      <div class="ctrl-section">
+        <div class="sl">
+          <label>Distance</label>
+          <input type="range" id="distSlider" min="50" max="500" value="200" step="5">
+          <span class="v" id="distVal">200</span>
+        </div>
+        <div class="sl">
+          <label>Height</label>
+          <input type="range" id="heightSlider" min="10" max="200" value="60" step="2">
+          <span class="v" id="heightVal">60</span>
+        </div>
+        <div class="sl">
+          <label>Angle</label>
+          <input type="range" id="angleSlider" min="-45" max="45" value="0" step="1">
+          <span class="v" id="angleVal">0°</span>
+        </div>
+        <div class="sl">
+          <label>FOV</label>
+          <input type="range" id="fovSlider" min="20" max="120" value="60" step="1">
+          <span class="v" id="fovVal">60°</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Building Controls -->
+    <div class="slider-group">
+      <div class="ctrl-section-title">Building Controls</div>
+      <div class="ctrl-section">
+        <div class="sl">
+          <label>Building 1</label>
+          <input type="range" id="b1Slider" min="0" max="200" value="80" step="2">
+          <span class="v" id="b1Val">80</span>
+        </div>
+        <div class="sl">
+          <label>Building 2</label>
+          <input type="range" id="b2Slider" min="0" max="200" value="120" step="2">
+          <span class="v" id="b2Val">120</span>
+        </div>
+        <div class="sl">
+          <label>Building 3</label>
+          <input type="range" id="b3Slider" min="0" max="200" value="100" step="2">
+          <span class="v" id="b3Val">100</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Display Options -->
+    <div class="slider-group">
+      <div class="ctrl-section-title">Display Options</div>
+      <div class="ctrl-section">
+        <div class="sl-check">
+          <input type="checkbox" id="showGridCheck" checked>
+          <label for="showGridCheck">Show Grid</label>
+        </div>
+        <div class="sl-check">
+          <input type="checkbox" id="showFovCheck" checked>
+          <label for="showFovCheck">Show FOV</label>
+        </div>
+        <div class="sl-check">
+          <input type="checkbox" id="showCenterCheck" checked>
+          <label for="showCenterCheck">Show Center</label>
+        </div>
+        <div class="sl-check">
+          <input type="checkbox" id="showBuildingsCheck" checked>
+          <label for="showBuildingsCheck">Show Buildings</label>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</div>
+
+<footer>
+  <strong>Plate H Camera Study</strong> · John William Draper & Samuel Morse · NYU 1839 · Daguerreotype Analysis Tool
+</footer>
+
+</div>
+
+<script>
+// Global state
+let state = {
+  distance: 200,
+  height: 60,
+  angle: 0,
+  fov: 60,
+  buildings: [80, 120, 100],
+  showGrid: true,
+  showFov: true,
+  showCenter: true,
+  showBuildings: true,
+  overlayOpacity: 0.7,
+  showViewfinder: true,
+  showFovOverlay: false,
+  showGridOverlay: false,
+  showCenterOverlay: false
+};
+
+// Canvas elements
+const planCanvas = document.getElementById('plan');
+const planCtx = planCanvas.getContext('2d');
+const targetCanvas = document.getElementById('target');
+const targetCtx = targetCanvas.getContext('2d');
+const targetOverlayCanvas = document.getElementById('targetOverlay');
+const targetOverlayCtx = targetOverlayCanvas.getContext('2d');
+const plateCanvas = document.getElementById('plateStrip');
+const plateCtx = plateCanvas.getContext('2d');
+
+// Initialize canvases
+function initCanvases() {
+  // Set canvas dimensions
+  const planWidth = planCanvas.parentElement.offsetWidth;
+  const planHeight = 400;
+  planCanvas.width = planWidth;
+  planCanvas.height = planHeight;
+  
+  const targetWidth = targetCanvas.parentElement.offsetWidth;
+  const targetHeight = 400;
+  targetCanvas.width = targetWidth;
+  targetCanvas.height = targetHeight;
+  targetOverlayCanvas.width = targetWidth;
+  targetOverlayCanvas.height = targetHeight;
+  
+  plateCanvas.width = 375;
+  plateCanvas.height = 450;
+}
+
+// Draw plan view
+function drawPlan() {
+  const ctx = planCtx;
+  const w = planCanvas.width;
+  const h = planCanvas.height;
+  
+  // Clear
+  ctx.fillStyle = '#f4ede0';
+  ctx.fillRect(0, 0, w, h);
+  
+  // Draw grid
+  if (state.showGrid) {
+    ctx.strokeStyle = 'rgba(139, 105, 20, 0.2)';
+    ctx.lineWidth = 1;
+    for (let x = 0; x < w; x += 40) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, h);
+      ctx.stroke();
+    }
+    for (let y = 0; y < h; y += 40) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(w, y);
+      ctx.stroke();
+    }
+  }
+  
+  // Camera position
+  const camX = w / 2;
+  const camY = h - 50;
+  
+  // Draw camera
+  ctx.fillStyle = '#d4a574';
+  ctx.fillRect(camX - 15, camY - 10, 30, 20);
+  ctx.strokeStyle = '#8b6914';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(camX - 15, camY - 10, 30, 20);
+  
+  // Draw FOV
+  if (state.showFov) {
+    const fovRad = (state.fov * Math.PI) / 180;
+    const fovWidth = state.distance * Math.tan(fovRad / 2);
+    
+    ctx.fillStyle = 'rgba(192, 57, 43, 0.1)';
+    ctx.strokeStyle = '#c0392b';
+    ctx.lineWidth = 2;
+    
+    ctx.beginPath();
+    ctx.moveTo(camX, camY);
+    ctx.lineTo(camX - fovWidth, camY - state.distance);
+    ctx.lineTo(camX + fovWidth, camY - state.distance);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+  }
+  
+  // Draw buildings
+  if (state.showBuildings) {
+    const buildingX = w / 2;
+    const buildingY = camY - state.distance;
+    
+    state.buildings.forEach((height, i) => {
+      const x = buildingX - 60 + i * 60;
+      const y = buildingY - height;
+      
+      ctx.fillStyle = '#a0a098';
+      ctx.fillRect(x - 20, y, 40, height);
+      ctx.strokeStyle = '#666';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x - 20, y, 40, height);
+    });
+  }
+  
+  // Draw center point
+  if (state.showCenter) {
+    ctx.fillStyle = '#8b6914';
+    ctx.beginPath();
+    ctx.arc(camX, camY - state.distance, 5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  
+  // Draw camera line
+  ctx.strokeStyle = '#d4a574';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([5, 5]);
+  ctx.beginPath();
+  ctx.moveTo(camX, camY);
+  ctx.lineTo(camX, camY - state.distance);
+  ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+// Draw target image (placeholder for actual daguerreotype)
+function drawTarget() {
+  const ctx = targetCtx;
+  const w = targetCanvas.width;
+  const h = targetCanvas.height;
+  
+  // Clear
+  ctx.fillStyle = '#1a1208';
+  ctx.fillRect(0, 0, w, h);
+  
+  // Draw placeholder daguerreotype
+  ctx.fillStyle = '#f4ede0';
+  ctx.fillRect(w/2 - 100, h/2 - 75, 200, 150);
+  
+  // Draw some building shapes
+  ctx.fillStyle = '#a0a098';
+  ctx.fillRect(w/2 - 80, h/2 - 55, 40, 80);
+  ctx.fillRect(w/2 - 20, h/2 - 75, 40, 100);
+  ctx.fillRect(w/2 + 40, h/2 - 65, 40, 90);
+  
+  // Add text
+  ctx.fillStyle = '#f4ede0';
+  ctx.font = '12px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('Plate H Target Image', w/2, h/2 + 100);
+}
+
+// Draw overlay on target image
+function drawTargetOverlay() {
+  const ctx = targetOverlayCtx;
+  const w = targetOverlayCanvas.width;
+  const h = targetOverlayCanvas.height;
+  
+  // Clear
+  ctx.clearRect(0, 0, w, h);
+  
+  if (!state.showViewfinder && !state.showFovOverlay && !state.showGridOverlay && !state.showCenterOverlay) {
+    return;
+  }
+  
+  ctx.globalAlpha = state.overlayOpacity;
+  
+  // Camera position (scaled to target canvas)
+  const camX = w / 2;
+  const camY = h - 30;
+  
+  // Draw viewfinder
+  if (state.showViewfinder) {
+    // Viewfinder frame
+    ctx.strokeStyle = '#d4a574';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(camX - 60, camY - 120, 120, 90);
+    
+    // Viewfinder crosshairs
+    ctx.beginPath();
+    ctx.moveTo(camX - 60, camY - 75);
+    ctx.lineTo(camX + 60, camY - 75);
+    ctx.moveTo(camX, camY - 120);
+    ctx.lineTo(camX, camY - 30);
+    ctx.stroke();
+  }
+  
+  // Draw FOV overlay
+  if (state.showFovOverlay) {
+    const fovRad = (state.fov * Math.PI) / 180;
+    const fovWidth = 100 * Math.tan(fovRad / 2);
+    
+    ctx.fillStyle = 'rgba(192, 57, 43, 0.2)';
+    ctx.strokeStyle = '#c0392b';
+    ctx.lineWidth = 2;
+    
+    ctx.beginPath();
+    ctx.moveTo(camX, camY);
+    ctx.lineTo(camX - fovWidth, camY - 100);
+    ctx.lineTo(camX + fovWidth, camY - 100);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+  }
+  
+  // Draw grid overlay
+  if (state.showGridOverlay) {
+    ctx.strokeStyle = 'rgba(139, 105, 20, 0.3)';
+    ctx.lineWidth = 1;
+    for (let x = 0; x < w; x += 30) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, h);
+      ctx.stroke();
+    }
+    for (let y = 0; y < h; y += 30) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(w, y);
+      ctx.stroke();
+    }
+  }
+  
+  // Draw center point
+  if (state.showCenterOverlay) {
+    ctx.fillStyle = '#8b6914';
+    ctx.beginPath();
+    ctx.arc(camX, camY - 100, 8, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  
+  ctx.globalAlpha = 1.0;
+}
+
+// Draw plate view
+function drawPlate() {
+  const ctx = plateCtx;
+  const w = plateCanvas.width;
+  const h = plateCanvas.height;
+  
+  // Clear
+  ctx.fillStyle = '#f4ede0';
+  ctx.fillRect(0, 0, w, h);
+  
+  // Draw buildings as seen from camera
+  const buildingX = w / 2;
+  const buildingY = h / 2 - 50;
+  
+  state.buildings.forEach((height, i) => {
+    const perspectiveHeight = (height / state.distance) * 100;
+    const perspectiveWidth = 40 / (state.distance / 100);
+    const x = buildingX - 60 + i * (perspectiveWidth + 10);
+    const y = buildingY - perspectiveHeight;
+    
+    ctx.fillStyle = '#a0a098';
+    ctx.fillRect(x - perspectiveWidth/2, y, perspectiveWidth, perspectiveHeight);
+    ctx.strokeStyle = '#666';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x - perspectiveWidth/2, y, perspectiveWidth, perspectiveHeight);
+  });
+  
+  // Add plate border
+  ctx.strokeStyle = '#8b6914';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(5, 5, w - 10, h - 10);
+}
+
+// Update stats
+function updateStats() {
+  document.getElementById('distanceStat').textContent = state.distance + 'ft';
+  document.getElementById('fovStat').textContent = state.fov + '°';
+  document.getElementById('heightStat').textContent = state.height + 'ft';
+  document.getElementById('angleStat').textContent = state.angle + '°';
+}
+
+// Event listeners
+document.getElementById('distSlider').addEventListener('input', (e) => {
+  state.distance = parseInt(e.target.value);
+  document.getElementById('distVal').textContent = state.distance;
+  drawPlan();
+  drawPlate();
+  updateStats();
+});
+
+document.getElementById('heightSlider').addEventListener('input', (e) => {
+  state.height = parseInt(e.target.value);
+  document.getElementById('heightVal').textContent = state.height;
+  drawPlan();
+  drawPlate();
+  updateStats();
+});
+
+document.getElementById('angleSlider').addEventListener('input', (e) => {
+  state.angle = parseInt(e.target.value);
+  document.getElementById('angleVal').textContent = state.angle + '°';
+  drawPlan();
+  drawPlate();
+  updateStats();
+});
+
+document.getElementById('fovSlider').addEventListener('input', (e) => {
+  state.fov = parseInt(e.target.value);
+  document.getElementById('fovVal').textContent = state.fov + '°';
+  drawPlan();
+  drawPlate();
+  drawTargetOverlay();
+  updateStats();
+});
+
+// Building sliders
+document.getElementById('b1Slider').addEventListener('input', (e) => {
+  state.buildings[0] = parseInt(e.target.value);
+  document.getElementById('b1Val').textContent = state.buildings[0];
+  drawPlan();
+  drawPlate();
+});
+
+document.getElementById('b2Slider').addEventListener('input', (e) => {
+  state.buildings[1] = parseInt(e.target.value);
+  document.getElementById('b2Val').textContent = state.buildings[1];
+  drawPlan();
+  drawPlate();
+});
+
+document.getElementById('b3Slider').addEventListener('input', (e) => {
+  state.buildings[2] = parseInt(e.target.value);
+  document.getElementById('b3Val').textContent = state.buildings[2];
+  drawPlan();
+  drawPlate();
+});
+
+// Display checkboxes
+document.getElementById('showGridCheck').addEventListener('change', (e) => {
+  state.showGrid = e.target.checked;
+  drawPlan();
+});
+
+document.getElementById('showFovCheck').addEventListener('change', (e) => {
+  state.showFov = e.target.checked;
+  drawPlan();
+});
+
+document.getElementById('showCenterCheck').addEventListener('change', (e) => {
+  state.showCenter = e.target.checked;
+  drawPlan();
+});
+
+document.getElementById('showBuildingsCheck').addEventListener('change', (e) => {
+  state.showBuildings = e.target.checked;
+  drawPlan();
+  drawPlate();
+});
+
+// Overlay control buttons
+document.getElementById('showViewfinder').addEventListener('click', (e) => {
+  state.showViewfinder = !state.showViewfinder;
+  e.target.classList.toggle('active');
+  drawTargetOverlay();
+});
+
+document.getElementById('showFov').addEventListener('click', (e) => {
+  state.showFovOverlay = !state.showFovOverlay;
+  e.target.classList.toggle('active');
+  drawTargetOverlay();
+});
+
+document.getElementById('showGrid').addEventListener('click', (e) => {
+  state.showGridOverlay = !state.showGridOverlay;
+  e.target.classList.toggle('active');
+  drawTargetOverlay();
+});
+
+document.getElementById('showCenter').addEventListener('click', (e) => {
+  state.showCenterOverlay = !state.showCenterOverlay;
+  e.target.classList.toggle('active');
+  drawTargetOverlay();
+});
+
+document.getElementById('toggleOpacity').addEventListener('click', (e) => {
+  state.overlayOpacity = state.overlayOpacity === 0.7 ? 0.3 : 0.7;
+  drawTargetOverlay();
+});
+
+// Initialize
+initCanvases();
+drawPlan();
+drawTarget();
+drawTargetOverlay();
+drawPlate();
+updateStats();
+
+// Handle window resize
+window.addEventListener('resize', () => {
+  initCanvases();
+  drawPlan();
+  drawTarget();
+  drawTargetOverlay();
+  drawPlate();
+});
+
+</script>
+</body>
+</html>
