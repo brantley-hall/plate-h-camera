@@ -142,7 +142,8 @@ footer strong{font-style:normal;color:var(--sepia);}
     <div class="slider-group">
       <div class="ctrl-section-title">Camera</div>
       <div class="coord-display">Position: <span id="coords">—</span></div>
-      <div class="sl"><label>Horizontal FOV</label><input type="range" id="fov" min="10" max="60" value="14" step="1"><span class="v" id="fov-out">14°</span></div>
+      <div class="sl"><label>Focal Length</label><input type="range" id="focal" min="2" max="20" value="8" step="0.5"><span class="v" id="focal-out">8"</span></div>
+      <div class="sl"><label>Horizontal FOV</label><span style="flex:1"></span><span class="v" id="fov-out">14°</span></div>
       <div class="sl"><label>Vertical FOV</label><span style="flex:1"></span><span class="v" id="vfov-out">16.8°</span></div>
       <div class="sl"><label>Rotation</label><input type="range" id="rotation" min="-90" max="90" value="0" step="1"><span class="v" id="rot-out">0°</span></div>
       <div class="sl"><label>X (E–W)</label><input type="range" id="camX" min="-400" max="400" value="-200" step="1"><span class="v" id="camX-out">-200</span></div>
@@ -264,10 +265,18 @@ function planOrigin(){
 }
 
 // ── Slider wiring ─────────────────────────────────────────────────────────
-document.getElementById('fov').addEventListener('input',e=>{
-  const hf=parseInt(e.target.value);
-  document.getElementById('fov-out').textContent=hf+'°';
-  document.getElementById('vfov-out').textContent=(hf*(3.0/2.5)).toFixed(1)+'°';
+document.getElementById('focal').addEventListener('input',e=>{
+  const focalLength=parseFloat(e.target.value);
+  document.getElementById('focal-out').textContent=focalLength+'"';
+  
+  // Calculate FOV from focal length: FOV = 2 * arctan(width/(2*focal_length))
+  const plateWidthInches = 2.0; // 2.0 inch wide plate
+  const fovRad = 2 * Math.atan(plateWidthInches / (2 * focalLength));
+  const fovDeg = fovRad * 180 / Math.PI;
+  const vFovDeg = fovDeg * (2.5/2.0); // portrait aspect ratio
+  
+  document.getElementById('fov-out').textContent=fovDeg.toFixed(1)+'°';
+  document.getElementById('vfov-out').textContent=vFovDeg.toFixed(1)+'°';
   drawAll();});
 document.getElementById('rotation').addEventListener('input',e=>{
   document.getElementById('rot-out').textContent=e.target.value+'°'; camRotation=parseInt(e.target.value); drawAll();});
@@ -396,7 +405,12 @@ plan.addEventListener('touchmove',e=>{
 plan.addEventListener('touchend',()=>pDrag=false);
 
 // ── Geometry helpers ──────────────────────────────────────────────────────
-function getFovDeg(){return parseInt(document.getElementById('fov').value);}
+function getFovDeg(){
+  const focalLength=parseFloat(document.getElementById('focal').value);
+  const plateWidthInches = 2.0; // 2.0 inch wide plate
+  const fovRad = 2 * Math.atan(plateWidthInches / (2 * focalLength));
+  return fovRad * 180 / Math.PI;
+}
 // Convert rotation degrees (-90 to +90) to canvas math angle (0=east, CCW positive)
 // Rotation 0° = east, +90° = north, -90° = south
 function getCamAngle(){ return camRotation * Math.PI / 180; }
