@@ -51,7 +51,7 @@ canvas#plan{display:block;width:100%;}
 /* plate-col defined in workspace block above */
 .plate-col-title{font-family:'Source Code Pro',monospace;font-size:0.57rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--sepia);text-align:center;}
 .plate-border{border:3px solid var(--sepia);padding:3px;background:var(--ink);display:inline-block;line-height:0;box-shadow:4px 4px 0 rgba(139,105,20,0.12);align-self:center;}
-canvas#plateStrip{display:block;width:375px;height:450px;}
+canvas#plateStrip{display:block;width:300px;height:375px;}
 .plate-caption{font-family:'Source Code Pro',monospace;font-size:0.57rem;color:var(--muted);text-align:center;}
 .plate-legend{display:flex;flex-wrap:wrap;gap:0.2rem 0.6rem;}
 .plate-leg{display:flex;align-items:center;gap:0.25rem;font-family:'Source Code Pro',monospace;font-size:0.57rem;color:var(--muted);}
@@ -124,7 +124,7 @@ footer strong{font-style:normal;color:var(--sepia);}
     </div>
     <div style="flex:1"></div>
     <div class="plate-border">
-      <canvas id="plateStrip" width="375" height="450"></canvas>
+      <canvas id="plateStrip" width="300" height="375"></canvas>
     </div>
     <div class="plate-caption" id="plate-caption">—</div>
   </div>
@@ -979,7 +979,7 @@ function updatePlate(){
   }
   const PW=plateStrip.width, PH=plateStrip.height;
   const fovDeg=getFovDeg();
-  const vFovDeg=fovDeg*(3.0/2.5);  // portrait: 2.5in wide, 3.0in tall → V-FOV calculation (updated from 2.0x2.5)
+  const vFovDeg=fovDeg*(2.5/2.0);  // portrait: 2.0in wide, 2.5in tall → V-FOV calculation
   const aimRad=-camRotation*Math.PI/180;
   const halfH=fovDeg/2*Math.PI/180;
   const halfV=vFovDeg/2*Math.PI/180;
