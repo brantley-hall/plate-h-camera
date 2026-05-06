@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plate H Original — Washington Square 1839</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="wrapper">
+
+  <header>
+    <p class="eyebrow">Research Tool &nbsp;·&nbsp; Washington Square, New York &nbsp;·&nbsp; c. 1839–1895</p>
+    <h1>Plate H Original</h1>
+    <p class="tagline">Original version of the camera tool as used in perspective analysis discussions</p>
+  </header>
+
+  <div class="intro">
+    <strong>Original research tool.</strong> This is the original version of the Plate H camera tool that was referenced in perspective telescoping analysis discussions. Uses direct FOV control (10-60°) rather than focal length calculation.
+  </div>
+
+  <div class="canvas-container">
+    <canvas id="plan" width="800" height="600"></canvas>
+    <canvas id="plateStrip" width="300" height="375"></canvas>
+  </div>
+
+  <!-- FULL-WIDTH SLIDER PANEL -->
+  <div class="slider-panel">
+    <div class="ctrl-section-title" style="font-size:0.7rem;text-align:center;margin-bottom:0.6rem;padding-bottom:0.4rem;border-bottom:1px solid var(--rule);">Camera Settings</div>
+    <div class="slider-panel-inner">
+
+      <!-- Camera -->
+      <div class="slider-group">
+        <div class="ctrl-section-title">Camera</div>
+        <div class="coord-display">Position: <span id="coords">—</span></div>
+        <div class="sl"><label>Horizontal FOV</label><input type="range" id="fov" min="10" max="60" value="14" step="1"><span class="v" id="fov-out">14°</span></div>
+        <div class="sl"><label>Vertical FOV</label><span style="flex:1"></span><span class="v" id="vfov-out">16.8°</span></div>
+        <div class="sl"><label>Rotation</label><input type="range" id="rotation" min="-90" max="90" value="0" step="1"><span class="v" id="rot-out">0°</span></div>
+        <div class="sl"><label>X (E–W)</label><input type="range" id="camX" min="-400" max="400" value="-200" step="1"><span class="v" id="camX-out">-200</span></div>
+        <div class="sl"><label>Y (N–S)</label><input type="range" id="camY" min="-400" max="400" value="12" step="1"><span class="v" id="camY-out">12</span></div>
+      </div>
+
+      <!-- NYU building -->
+      <div class="slider-group">
+        <div class="ctrl-section-title">NYU Building</div>
+        <div class="sl"><label>Position (S)</label><input type="range" id="nyuslide" min="0" max="100" value="10" step="1"><span class="v" id="nyu-out">10 ft</span></div>
+        <div class="sl"><label>Height</label><input type="range" id="nyuheightslide" min="50" max="150" value="100" step="1"><span class="v" id="nyuheight-out">100 ft</span></div>
+      </div>
+
+      <!-- RH1 -->
+      <div class="slider-group">
+        <div class="ctrl-section-title">RH1 (Remsen House 1)</div>
+        <div class="sl"><label>Position (S)</label><input type="range" id="rh1slide" min="0" max="100" value="40" step="1"><span class="v" id="rh1-out">40 ft</span></div>
+        <div class="sl"><label>Height</label><input type="range" id="rh1heightslide" min="50" max="150" value="80" step="1"><span class="v" id="rh1height-out">80 ft</span></div>
+      </div>
+
+      <!-- RH2 -->
+      <div class="slider-group">
+        <div class="ctrl-section-title">RH2 (Remsen House 2)</div>
+        <div class="sl"><label>Position (S)</label><input type="range" id="rh2slide" min="0" max="100" value="70" step="1"><span class="v" id="rh2-out">70 ft</span></div>
+        <div class="sl"><label>Height</label><input type="range" id="rh2heightslide" min="50" max="150" value="80" step="1"><span class="v" id="rh2height-out">80 ft</span></div>
+      </div>
+
+      <!-- Church -->
+      <div class="slider-group">
+        <div class="ctrl-section-title">Church of the Messiah</div>
+        <div class="sl"><label>Position (E)</label><input type="range" id="churchslide" min="0" max="150" value="60" step="1"><span class="v" id="church-out">60 ft</span></div>
+        <div class="sl"><label>Height</label><input type="range" id="churchheightslide" min="50" max="200" value="150" step="1"><span class="v" id="churchheight-out">150 ft</span></div>
+      </div>
+
+      <!-- Plate Info -->
+      <div class="slider-group">
+        <div class="ctrl-section-title">Plate Info</div>
+        <div class="plate-info">
+          <div class="plate-size">2.0 × 2.5 inch plate</div>
+          <div class="plate-desc">Original daguerreotype format</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>
+    <span><strong>Plate H Original</strong> &nbsp;·&nbsp; FOV-based camera control</span>
+    <span>NYU NW corner = origin (0,0) &nbsp;·&nbsp; 1852 Perris map georeferenced</span>
+  </footer>
+
+</div>
+
+<script>
+// ── GLOBAL STATE ────────────────────────────────────────────────────────
+let camFtX=-200, camFtY=12, camRotation=0;
+let nyuFtY=10, nyuHeight=100;
+let rh1FtY=40, rh1Height=80;
+let rh2FtY=70, rh2Height=80;
+let churchDistance=60, churchHeight=150;
+let plan, ctx, plateStrip, psctx;
+let pDrag=false, pLastPx=0, pLastPy=0;
+
+// ── CONSTANTS ────────────────────────────────────────────────────────────
+const NYU_EW=100, NYU_NS=200;
+const RH1_EW=45, RH1_NS=80;
+const RH2_EW=45, RH2_NS=80;
+const CHURCH_EW=60, CHURCH_NS=100;
+const MARGIN_LEFT_FT=-400, MARGIN_TOP_FT=-400, MARGIN_RIGHT_FT=400, MARGIN_BOTTOM_FT=400;
+const B2_PROJ=30;
+
+// ── INITIALIZATION ────────────────────────────────────────────────────────
+function setup(){
+  plan=document.getElementById('plan');
+  ctx=plan.getContext('2d');
+  plateStrip=document.getElementById('plateStrip');
+  psctx=plateStrip.getContext('2d');
+  drawAll();
+}
+
+// ── GEOMETRY HELPERS ──────────────────────────────────────────────────────
+function getFovDeg(){return parseInt(document.getElementById('fov').value);}
+function getCamAngle(){ return camRotation * Math.PI / 180; }
+
+function planScale(){return(plan.width-10)/getPlanFtW();}
+
+function planOrigin(){
+  const s=planScale();
+  return{x:Math.round(MARGIN_LEFT_FT*s)+5, y:Math.round(plan.height*0.45)};
+}
+
+function getConeParams(s, ox, oy){
+  const cx=ox+camFtX*s, cy=oy-camFtY*s;
+  const nex=ox+NYU_EW*s, nsy=oy+NYU_NS*s + nyuFtY*s;
+  const r1x=nex, r2x=nex+(RH1_EW+45)*s;
+  const r1y=oy+rh1FtY*s, r2y=oy+rh2FtY*s;
+  const b2x=ox+churchDistance*s, b2y=oy-churchFtY*s;
+  const sec=25*s, proj=B2_PROJ*s;
+  const fovDeg=getFovDeg();
+  const ca=getCamAngle(), fR=fovDeg*Math.PI/180, FAR=9000;
+  const rv1={x:cx+Math.cos(ca-fR/2)*FAR, y:cy+Math.sin(ca-fR/2)*FAR};
+  const rv2={x:cx+Math.cos(ca+fR/2)*FAR, y:cy+Math.sin(ca+fR/2)*FAR};
+  return {cx, cy, nex, nsy, r1x, r2x, r1y, r2y, b2x, b2y, sec, proj, fovDeg, ca, fR, rv1, rv2};
+}
+
+function getPlanFtW(){return MARGIN_RIGHT_FT - MARGIN_LEFT_FT;}
+function getPlanFtH(){return MARGIN_TOP_FT - MARGIN_BOTTOM_FT;}
+
+function clampCam(){
+  camFtX=Math.max(MARGIN_LEFT_FT+10,Math.min(MARGIN_RIGHT_FT-10,camFtX));
+  camFtY=Math.max(MARGIN_BOTTOM_FT+10,Math.min(MARGIN_TOP_FT-10,camFtY));
+}
+
+function updateCoords(){
+  const coord=document.getElementById('coords');
+  coord.textContent=`(${camFtX.toFixed(0)}, ${camFtY.toFixed(0)})`;
+}
+
+// ── BUILDING DEFINITIONS ────────────────────────────────────────────────────
+function getBuildings(){
+  return[
+    {x:0, y:nyuFtY, w:NYU_EW, h:NYU_NS, name:'NYU', height:nyuHeight},
+    {x:NYU_EW, y:rh1FtY, w:RH1_EW, h:RH1_NS, name:'RH1', height:rh1Height},
+    {x:NYU_EW, y:rh2FtY, w:RH2_EW, h:RH2_NS, name:'RH2', height:rh2Height},
+    {x:churchDistance, y:-churchFtY, w:CHURCH_EW, h:CHURCH_NS, name:'ChM', height:churchHeight}
+  ];
+}
+
+// ── DRAWING FUNCTIONS ────────────────────────────────────────────────────────
+function drawAll(){
+  drawPlan();
+  updatePlate();
+  updateCoords();
+}
+
+function drawPlan(){
+  const s=planScale();
+  const o=planOrigin();
+  ctx.clearRect(0,0,plan.width,plan.height);
+  
+  // Grid
+  ctx.strokeStyle='#e0e0e0';
+  ctx.lineWidth=0.5;
+  for(let x=0;x<=plan.width;x+=s*50) ctx.beginPath(), ctx.moveTo(x,0), ctx.lineTo(x,plan.height), ctx.stroke();
+  for(let y=0;y<=plan.height;y+=s*50) ctx.beginPath(), ctx.moveTo(0,y), ctx.lineTo(plan.width,y), ctx.stroke();
+  
+  // Buildings
+  const blds=getBuildings();
+  ctx.fillStyle='#f0f0f0';
+  ctx.strokeStyle='#333';
+  ctx.lineWidth=1;
+  for(const b of blds){
+    ctx.fillRect(o.x+b.x*s, o.y-b.y*s, b.w*s, b.h*s);
+    ctx.strokeRect(o.x+b.x*s, o.y-b.y*s, b.w*s, b.h*s);
+    ctx.fillStyle='#333';
+    ctx.font='10px sans-serif';
+    ctx.fillText(b.name, o.x+b.x*s+2, o.y-b.y*s+12);
+    ctx.fillStyle='#f0f0f0';
+  }
+  
+  // Camera and cone
+  const p=getConeParams(s,o.x,o.y);
+  ctx.fillStyle='#0066cc';
+  ctx.beginPath();
+  ctx.arc(p.cx, p.cy, 4, 0, Math.PI*2);
+  ctx.fill();
+  
+  ctx.strokeStyle='#0066cc';
+  ctx.lineWidth=1;
+  ctx.setLineDash([5,5]);
+  ctx.beginPath();
+  ctx.moveTo(p.cx, p.cy);
+  ctx.lineTo(p.rv1.x, p.rv1.y);
+  ctx.lineTo(p.rv2.x, p.rv2.y);
+  ctx.closePath();
+  ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+function updatePlate(){
+  if(!plateStrip){
+    plateStrip=document.getElementById('plateStrip');
+    psctx=plateStrip.getContext('2d');
+  }
+  const PW=plateStrip.width, PH=plateStrip.height;
+  const fovDeg=getFovDeg();
+  const vFovDeg=fovDeg*(2.5/2.0);
+  const aimRad=-camRotation*Math.PI/180;
+  const halfH=fovDeg/2*Math.PI/180;
+  const halfV=vFovDeg/2*Math.PI/180;
+  const aimDx=Math.cos(aimRad),aimDy=Math.sin(aimRad);
+  const rightDx=Math.sin(aimRad),rightDy=-Math.cos(aimRad);
+  const blds=getBuildings();
+  const imgData=psctx.createImageData(PW,PH);
+  const d=imgData.data;
+  const SKY=[200,212,232],GND=[196,168,114];
+  const counts={NYU:0,RH1:0,RH2:0,ChM:0,sky:0,ground:0};
+  const midRow=Math.floor(PH/2);
+  const horizAng=Math.atan2(-5,1000);
+
+  // Color parser cache
+  const _tmp=document.createElement('canvas');_tmp.width=_tmp.height=1;
+  const _tx=_tmp.getContext('2d');
+  const _cc={};
+  function rgb(col){
+    if(_cc[col])return _cc[col];
+    _tx.clearRect(0,0,1,1);_tx.fillStyle=col;_tx.fillRect(0,0,1,1);
+    const p=_tx.getImageData(0,0,1,1).data;
+    return _cc[col]=[p[0],p[1],p[2]];
+  }
+
+  function bldH(b){
+    if(b.name==='NYU')    return nyuHeight;
+    if(b.name==='RH1')    return rh1Height;
+    if(b.name==='RH2')    return rh2Height;
+    if(b.name==='ChM')    return churchHeight;
+    return 0;
+  }
+
+  for(let py=0;py<PH;py++){
+    const vAng=((1-py/(PH-1))-0.5)*2*halfV;
+    for(let px=0;px<PW;px++){
+      const hAng=((1-px/(PW-1))-0.5)*2*halfH;
+      const angle=aimRad+hAng;
+      const dx=Math.cos(angle),dy=Math.sin(angle);
+
+      // Collect ALL hits along this ray, sorted front-to-back
+      const hits=[];
+      for(const b of blds){
+        const h=rayAABB(camFtX,camFtY,dx,dy,b);
+        if(h) hits.push(h);
+      }
+      hits.sort((a,b)=>a.t-b.t);
+
+      let r,g,b2;
+      let resolved=false;
+
+      for(const hit of hits){
+        const b=hit.b;
+        const bHeight=bldH(b);
+        const camHeight=5;
+        const relHeight=bHeight-camHeight;
+        const hitY=camFtY+hit.t*dy;
+        const yRatio=(hitY-camFtY)/relHeight;
+        const vPos=0.5 - (vAng/halfV)/2;
+
+        if(yRatio>=0 && yRatio<=1 && vPos>=0 && vPos<=1){
+          let col;
+          if(b.name==='NYU')    col='#a0a0a0';
+          else if(b.name==='RH1')col='#c0c0c0';
+          else if(b.name==='RH2')col='#b0b0b0';
+          else if(b.name==='ChM')col='#909090';
+          
+          [r,g,b2]=rgb(col);
+          resolved=true;
+          break;
+        }
+      }
+
+      if(!resolved){
+        const vPos=0.5 - (vAng/halfV)/2;
+        if(vPos<0.5){
+          [r,g,b2]=SKY;
+          counts.sky++;
+        }else{
+          [r,g,b2]=GND;
+          counts.ground++;
+        }
+      }
+
+      const idx=(py*PW+px)*4;
+      d[idx]=r; d[idx+1]=g; d[idx+2]=b2; d[idx+3]=255;
+    }
+  }
+
+  psctx.putImageData(imgData,0,0);
+}
+
+function rayAABB(ox,oy,dx,dy,b){
+  const tx1=(b.x-ox)/dx, tx2=(b.x+b.w-ox)/dx;
+  const ty1=(b.y-oy)/dy, ty2=(b.y+b.h-oy)/dy;
+  const tmin=Math.max(Math.min(tx1,tx2),Math.min(ty1,ty2));
+  const tmax=Math.min(Math.max(tx1,tx2),Math.max(ty1,ty2));
+  if(tmax<0 || tmin>tmax) return null;
+  const t=tmin>0?tmin:tmax;
+  if(t<0) return null;
+  return {t,b};
+}
+
+// ── EVENT HANDLERS ────────────────────────────────────────────────────────
+document.getElementById('fov').addEventListener('input',e=>{
+  const hf=parseInt(e.target.value);
+  document.getElementById('fov-out').textContent=hf+'°';
+  document.getElementById('vfov-out').textContent=(hf*(2.5/2.0)).toFixed(1)+'°';
+  drawAll();});
+
+document.getElementById('rotation').addEventListener('input',e=>{
+  document.getElementById('rot-out').textContent=e.target.value+'°';
+  camRotation=parseInt(e.target.value);
+  drawAll();});
+
+document.getElementById('camX').addEventListener('input',e=>{
+  camFtX = parseInt(e.target.value);
+  document.getElementById('camX-out').textContent = camFtX;
+  clampCam(); updateCoords(); drawAll();
+});
+
+document.getElementById('camY').addEventListener('input',e=>{
+  camFtY = parseInt(e.target.value);
+  document.getElementById('camY-out').textContent = camFtY;
+  clampCam(); updateCoords(); drawAll();
+});
+
+document.getElementById('nyuslide').addEventListener('input',e=>{
+  nyuFtY=parseInt(e.target.value);
+  document.getElementById('nyu-out').textContent=nyuFtY;
+  drawAll();});
+
+document.getElementById('nyuheightslide').addEventListener('input',e=>{
+  nyuHeight=parseInt(e.target.value);
+  document.getElementById('nyuheight-out').textContent=nyuHeight;
+  drawAll();});
+
+document.getElementById('rh1slide').addEventListener('input',e=>{
+  rh1FtY=parseInt(e.target.value);
+  document.getElementById('rh1-out').textContent=rh1FtY;
+  drawAll();});
+
+document.getElementById('rh1heightslide').addEventListener('input',e=>{
+  rh1Height=parseInt(e.target.value);
+  document.getElementById('rh1height-out').textContent=rh1Height;
+  drawAll();});
+
+document.getElementById('rh2slide').addEventListener('input',e=>{
+  rh2FtY=parseInt(e.target.value);
+  document.getElementById('rh2-out').textContent=rh2FtY;
+  drawAll();});
+
+document.getElementById('rh2heightslide').addEventListener('input',e=>{
+  rh2Height=parseInt(e.target.value);
+  document.getElementById('rh2height-out').textContent=rh2Height;
+  drawAll();});
+
+document.getElementById('churchslide').addEventListener('input',e=>{
+  churchDistance=parseInt(e.target.value);
+  document.getElementById('church-out').textContent=churchDistance;
+  drawAll();});
+
+document.getElementById('churchheightslide').addEventListener('input',e=>{
+  churchHeight=parseInt(e.target.value);
+  document.getElementById('churchheight-out').textContent=churchHeight;
+  drawAll();});
+
+// Mouse drag on plan
+plan.addEventListener('mousedown',e=>{
+  const rect=plan.getBoundingClientRect();
+  const x=e.clientX-rect.left, y=e.clientY-rect.top;
+  const s=planScale(), o=planOrigin();
+  const cx=o.x+camFtX*s, cy=o.y-camFtY*s;
+  if(Math.hypot(x-cx,y-cy)<15){
+    pDrag=true; pLastPx=x; pLastPy=y;
+    plan.style.cursor='grabbing';
+  }
+});
+
+plan.addEventListener('mousemove',e=>{
+  const rect=plan.getBoundingClientRect();
+  const x=e.clientX-rect.left, y=e.clientY-rect.top;
+  const s=planScale(), o=planOrigin();
+  const cx=o.x+camFtX*s, cy=o.y-camFtY*s;
+  if(Math.hypot(x-cx,y-cy)<15){
+    plan.style.cursor='grab';
+  }else{
+    plan.style.cursor='default';
+  }
+  if(pDrag){
+    const dx=x-pLastPx, dy=y-pLastPy;
+    camFtX+=dx/s; camFtY-=dy/s;
+    clampCam(); updateCoords(); drawAll();
+    pLastPx=x; pLastPy=y;
+  }
+});
+
+plan.addEventListener('mouseup',()=>{
+  pDrag=false;
+  plan.style.cursor='default';
+});
+
+plan.addEventListener('mouseleave',()=>{
+  pDrag=false;
+  plan.style.cursor='default';
+});
+
+// ── INIT ───────────────────────────────────────────────────────────────────
+window.addEventListener('load',setup);
+</script>
+</body>
+</html>
