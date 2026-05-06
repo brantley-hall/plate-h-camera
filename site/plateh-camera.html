@@ -142,7 +142,7 @@ footer strong{font-style:normal;color:var(--sepia);}
     <div class="slider-group">
       <div class="ctrl-section-title">Camera</div>
       <div class="coord-display">Position: <span id="coords">—</span></div>
-      <div class="sl"><label>Horizontal FOV</label><input type="range" id="fov" min="10" max="60" value="14" step="1"><span class="v" id="fov-out">14°</span></div>
+      <div class="sl"><label>Horizontal FOV</label><input type="range" id="fov" min="5" max="60" value="14" step="1"><span class="v" id="fov-out">14°</span></div>
       <div class="sl"><label>Vertical FOV</label><span style="flex:1"></span><span class="v" id="vfov-out">16.8°</span></div>
       <div class="sl"><label>Rotation</label><input type="range" id="rotation" min="-90" max="90" value="0" step="1"><span class="v" id="rot-out">0°</span></div>
       <div class="sl"><label>X (E–W)</label><input type="range" id="camX" min="-400" max="400" value="-200" step="1"><span class="v" id="camX-out">-200</span></div>
@@ -993,6 +993,11 @@ function updatePlate(){
   const counts={NYU:0,RH1:0,RH2:0,ChN:0,ChM:0,ChS:0,sky:0,ground:0};
   const midRow=Math.floor(PH/2);
   const horizAng=Math.atan2(-CAM_H,1000);
+  
+  // Perspective compression factor for better telephoto simulation
+  // Increases compression at distance to match real camera behavior
+  const camDist=Math.sqrt(camFtX*camFtX + camFtY*camFtY);
+  const compressionFactor = 1.0 + (camDist / 200.0) * 0.3; // Up to 30% compression at 200ft
 
   // Color parser cache
   const _tmp=document.createElement('canvas');_tmp.width=_tmp.height=1;
@@ -1019,7 +1024,9 @@ function updatePlate(){
     const vAng=((1-py/(PH-1))-0.5)*2*halfV;
     for(let px=0;px<PW;px++){
       const hAng=((1-px/(PW-1))-0.5)*2*halfH;
-      const angle=aimRad+hAng;
+      // Apply compression factor to horizontal angle for enhanced telephoto effect
+      const compressedHAng = hAng / compressionFactor;
+      const angle=aimRad+compressedHAng;
       const dx=Math.cos(angle),dy=Math.sin(angle);
 
       // Collect ALL hits along this ray, sorted front-to-back
