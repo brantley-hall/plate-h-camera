@@ -141,7 +141,7 @@ footer strong{font-style:normal;color:var(--sepia);}
         <canvas id="plateStrip" width="400" height="286"></canvas>
       </div>
       <img id="dagOverlay"
-        src="../site/images/photos/Plate H/PlateH.png"
+        src="https://brantley-hall.github.io/plate-h-camera/site/images/photos/Plate%20H/PlateH.png"
         style="position:absolute;top:3px;left:3px;width:calc(100% - 6px);height:calc(100% - 6px);
                object-fit:contain;pointer-events:none;opacity:0.2;display:block;"
         alt="Plate H overlay" />
@@ -723,23 +723,40 @@ function getPlateHeight() {
 }
 
 function getFovDeg(){
-  // Check which mode is active
-  const isFovMode = document.getElementById('fov-mode').checked;
-  const isCameraMode = document.getElementById('camera-mode').checked;
-  
-  if (isCameraMode) {
-    // Return FOV from camera type settings
-    const cameraType = document.getElementById('camera-type').value;
-    return getCameraSettings(cameraType).fov;
-  } else if (isFovMode) {
-    // Return FOV directly from slider
-    return parseFloat(document.getElementById('fov-slider').value);
-  } else {
-    // Calculate FOV from focal length using current plate width
-    const focalLength=parseFloat(document.getElementById('focal').value);
-    const plateWidthInches = getPlateWidth();
-    const fovRad = 2 * Math.atan(plateWidthInches / (2 * focalLength));
-    return fovRad * 180 / Math.PI;
+  // Check which mode is active with fallbacks for uninitialized DOM
+  try {
+    const fovModeEl = document.getElementById('fov-mode');
+    const cameraModeEl = document.getElementById('camera-mode');
+    
+    if (!fovModeEl || !cameraModeEl) {
+      return 15; // Default FOV during initialization
+    }
+    
+    const isFovMode = fovModeEl.checked;
+    const isCameraMode = cameraModeEl.checked;
+    
+    if (isCameraMode) {
+      // Return FOV from camera type settings
+      const cameraTypeEl = document.getElementById('camera-type');
+      if (!cameraTypeEl) return 15;
+      const cameraType = cameraTypeEl.value;
+      return getCameraSettings(cameraType).fov;
+    } else if (isFovMode) {
+      // Return FOV directly from slider
+      const fovSliderEl = document.getElementById('fov-slider');
+      if (!fovSliderEl) return 15;
+      return parseFloat(fovSliderEl.value);
+    } else {
+      // Calculate FOV from focal length using current plate width
+      const focalEl = document.getElementById('focal');
+      if (!focalEl) return 15;
+      const focalLength=parseFloat(focalEl.value);
+      const plateWidthInches = getPlateWidth();
+      const fovRad = 2 * Math.atan(plateWidthInches / (2 * focalLength));
+      return fovRad * 180 / Math.PI;
+    }
+  } catch (e) {
+    return 15; // Fallback to 15 degrees on any error
   }
 }
 
@@ -814,7 +831,7 @@ const mapRotNudge = 30 * Math.PI / 180;
 const mapOpacity  = 0.55;
 const _mapImg = new Image();
 _mapImg.onload = () => drawAll();
-_mapImg.src = 'C:/Users/roder/CascadeProjects/windsurf-project/plate-h-camera/sandbox/1891 Washington Square Park and NYU Bromley from NYU.jpg';
+_mapImg.src = 'https://brantley-hall.github.io/plate-h-camera/sandbox/1891%20Washington%20Square%20Park%20and%20NYU%20Bromley%20from%20NYU.jpg';
 
 function drawPlan(){
   const W=plan.width,PH=plan.height,s=planScale();
@@ -1082,6 +1099,8 @@ window.addEventListener('resize',setup);
 // Initialize setup after DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
   setup();
+  // Force an initial redraw after a short delay to ensure all elements are ready
+  setTimeout(() => drawAll(), 100);
 });
 
 // Building AABBs in world coords (X=east, Y=north, origin=NYU NW corner)
