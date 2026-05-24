@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Plate H Tool</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Source+Code+Pro:wght@400;600&family=Spectral:ital,wght@0,300;0,400;1,300&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--ink:#1a1208;--paper:#f4ede0;--aged:#e8d9c0;--sepia:#8b6914;--rust:#c0392b;--muted:#6b5a3e;--rule:rgba(139,105,20,0.25);}
+body{background:var(--paper);color:var(--ink);font-family:'Spectral',Georgia,serif;font-size:14px;line-height:1.5;min-height:100vh;}
+.wrapper{max-width:1600px;margin:0 auto;padding:0.1rem 0.8rem 0.4rem;}
+
+header{border-top:3px double var(--sepia);border-bottom:1px solid var(--rule);padding:0.1rem 0;margin-bottom:0.2rem;text-align:center;}
+.eyebrow{font-family:'Source Code Pro',monospace;font-size:0.58rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--sepia);}
+h1{font-family:'Playfair Display',Georgia,serif;font-size:clamp(1.1rem,2vw,1.5rem);font-weight:600;color:var(--ink);}
+h1 em{font-style:italic;font-weight:400;color:var(--sepia);}
+
+/* ── Two-column workspace (plan + plate) ── */
+.workspace{display:grid;grid-template-columns:1fr 400px;gap:0.72rem;align-items:stretch;margin-bottom:0.1rem;}
+/* ── RIGHT: Plate view ── */
+.plate-col{display:flex;flex-direction:column;gap:0.1rem;justify-content:flex-end;}
+
+/* ── Slider panel (full width below workspace) ── */
+.slider-panel{background:var(--aged);border:1px solid var(--rule);border-radius:4px;padding:0.4rem 1rem;margin-bottom:0.1rem;}
+.slider-panel-inner{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0.6rem 1.5rem;}
+.col-1{grid-column:1;}
+.col-2{grid-column:2;}
+.col-3{grid-column:3;}
+.col-4{grid-column:4;}
+
+/* ── Slider sections ── */
+.slider-group{}
+.ctrl-section{margin-bottom:0.3rem;padding-bottom:0.3rem;border-bottom:1px solid var(--rule);}
+.ctrl-section:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+.ctrl-section-title{font-family:'Source Code Pro',monospace;font-size:0.57rem;letter-spacing:0.13em;text-transform:uppercase;color:var(--sepia);font-weight:700;margin-bottom:0.2rem;}
+.sl{display:flex;align-items:center;gap:5px;margin-bottom:2px;}
+.sl label{font-family:'Source Code Pro',monospace;font-size:0.6rem;color:var(--muted);flex:0 0 100px;line-height:1.2;}
+.sl input[type=range]{flex:1;height:3px;-webkit-appearance:none;appearance:none;background:var(--sepia);border-radius:2px;outline:none;cursor:pointer;}
+.sl input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;border-radius:50%;background:var(--ink);cursor:pointer;border:2px solid var(--paper);box-shadow:0 0 0 1px var(--sepia);}
+.sl .v{font-family:'Source Code Pro',monospace;font-size:0.6rem;font-weight:700;color:var(--ink);min-width:32px;text-align:right;}
+.sl-check{display:flex;align-items:center;gap:6px;font-family:'Source Code Pro',monospace;font-size:0.6rem;color:var(--muted);margin-top:2px;}
+.coord-display{font-family:'Source Code Pro',monospace;font-size:0.62rem;color:var(--muted);text-align:center;padding:1px 0;margin-bottom:2px;}
+.coord-display span{color:var(--rust);font-weight:700;}
+
+/* ── CENTRE: Plan view ── */
+.plan-col{display:flex;flex-direction:column;gap:0.2rem;}
+.plan-wrap{border:1px solid var(--sepia);border-radius:2px;overflow:hidden;box-shadow:3px 3px 0 rgba(139,105,20,0.1);}
+canvas#plan{display:block;width:100%;}
+.legend{display:flex;flex-wrap:wrap;gap:0.25rem 0.7rem;padding:0.35rem 0.6rem;background:var(--aged);border:1px solid var(--rule);border-radius:3px;}
+.leg{display:flex;align-items:center;gap:0.25rem;font-family:'Source Code Pro',monospace;font-size:0.57rem;color:var(--muted);}
+.sw{width:9px;height:9px;border-radius:1px;flex-shrink:0;}
+
+/* ── RIGHT: Plate view ── */
+/* plate-col defined in workspace block above */
+.plate-col-title{font-family:'Source Code Pro',monospace;font-size:0.57rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--sepia);text-align:center;}
+.plate-border{border:3px solid var(--sepia);padding:3px;background:var(--ink);display:inline-block;line-height:0;box-shadow:4px 4px 0 rgba(139,105,20,0.12);align-self:center;}
+canvas#plateStrip{display:block;width:400px;height:286px;}
+.plate-caption{font-family:'Source Code Pro',monospace;font-size:0.57rem;color:var(--muted);text-align:center;}
+.plate-legend{display:flex;flex-wrap:wrap;gap:0.2rem 0.6rem;}
+.plate-leg{display:flex;align-items:center;gap:0.25rem;font-family:'Source Code Pro',monospace;font-size:0.57rem;color:var(--muted);}
+.plate-swatch{width:9px;height:9px;border-radius:1px;flex-shrink:0;}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:2px;}
+.stat{background:var(--aged);border:1px solid var(--rule);border-radius:2px;padding:3px 6px;}
+.stat-label{font-family:'Source Code Pro',monospace;font-size:0.52rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);}
+.stat-val{font-family:'Source Code Pro',monospace;font-size:0.68rem;font-weight:700;color:var(--ink);}
+
+/* ── Instructions (bottom) ── */
+.instructions{margin-top:0.4rem;border-top:2px solid var(--rule);padding-top:0.3rem;}
+.instr-title{font-family:'Playfair Display',Georgia,serif;font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:0.3rem;}
+.instr-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0.3rem;}
+.instr-card{background:var(--aged);border:1px solid var(--rule);border-radius:3px;padding:0.3rem 0.5rem;}
+.instr-head{font-family:'Source Code Pro',monospace;font-size:0.6rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--sepia);font-weight:700;margin-bottom:0.25rem;}
+.instr-body{font-size:0.75rem;color:var(--muted);line-height:1.45;}
+.instr-btn{width:100%;background:var(--paper);border:none;border-radius:3px;padding:0.6rem 0.8rem;cursor:pointer;text-align:left;font-family:inherit;transition:background 0.2s;}
+.instr-btn:hover{background:var(--ink);color:var(--paper);}
+.instr-btn:hover .instr-head{color:var(--aged);}
+.instr-btn:hover .instr-body{color:var(--aged);}
+
+footer{border-top:1px solid var(--rule);margin-top:1rem;padding-top:0.6rem;font-size:0.65rem;color:var(--muted);font-style:italic;text-align:center;}
+footer strong{font-style:normal;color:var(--sepia);}
+
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+<header>
+  <div class="eyebrow">🚀 v4.0 DEVELOPMENT · Ninth Plate · 1893 Photo Study · NYU</div>
+        <h1>Plate H — <em>Washington Square Wide Angle Camera (Ninth Plate)</em></h1>
+</header>
+
+<div class="workspace">
+
+  <!-- CENTRE: PLAN VIEW -->
+  <div class="plan-col">
+    <div class="ctrl-section-title" style="margin-bottom:0.3rem;font-size:0.7rem;text-align:center;">Site Plan</div>
+    <div class="plan-wrap">
+      <canvas id="plan"></canvas>
+    </div>
+    <div class="legend">
+      <div class="leg"><div class="sw" style="background:#a0a098;border:1px solid #666"></div>NYU</div>
+      <div class="leg"><div class="sw" style="background:rgba(196,98,64,0.5);border:1px solid #a04020"></div>RH1</div>
+      <div class="leg"><div class="sw" style="background:rgba(210,140,60,0.5);border:1px solid #a06010"></div>RH2</div>
+      <div class="leg"><div class="sw" style="background:rgba(192,57,43,0.35);border:1px dashed rgba(192,57,43,0.7)"></div>Blind</div>
+      <div class="leg"><div class="sw" style="background:rgba(139,105,20,0.2);border:1px dashed #8b6914"></div>Cone</div>
+    </div>
+  </div>
+
+  <!-- RIGHT: PLATE VIEW -->
+  <div class="plate-col">
+    <div class="ctrl-section-title" style="margin-bottom:0.3rem;font-size:0.7rem;text-align:center;">Viewfinder</div>
+    
+    <!-- Plate Size Selector -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-bottom:0.3rem;">
+      <span style="font-size:0.6rem;color:var(--sepia);font-family:'Source Code Pro',monospace;">Plate Size:</span>
+      <div style="display:flex;gap:0.3rem;flex-wrap:wrap;">
+        <label style="display:flex;align-items:center;gap:0.2rem;font-size:0.6rem;color:var(--muted);cursor:pointer;">
+          <input type="radio" name="plate-size" value="2x2.5" checked>
+          <span>2×2.5</span>
+        </label>
+      </div>
+    </div>
+    
+    <div class="plate-col-title" id="plate-title">2 × 2.5 inch plate — portrait — camera's eye view</div>
+    <div class="plate-legend">
+      <div class="plate-leg"><div class="plate-swatch" style="background:#d8d5d0;border:1px solid #aaa"></div>NYU</div>
+      <div class="plate-leg"><div class="plate-swatch" style="background:rgba(196,98,64,0.8);border:1px solid #a04020"></div>RH1</div>
+      <div class="plate-leg"><div class="plate-swatch" style="background:rgba(210,140,60,0.8);border:1px solid #a06010"></div>RH2</div>
+      <div class="plate-leg"><div class="plate-swatch" style="background:#1a4fcc;border:1px solid #1030aa"></div>Ch-N</div>
+      <div class="plate-leg"><div class="plate-swatch" style="background:#69BE28;border:1px solid #4a8a1a"></div>Ch-M</div>
+      <div class="plate-leg"><div class="plate-swatch" style="background:#FFEE00;border:1px solid #ccbb00"></div>Ch-S</div>
+      <div class="plate-leg"><div class="plate-swatch" style="background:#c8d4e8;border:1px solid #8899aa"></div>Sky</div>
+      <div class="plate-leg"><div class="plate-swatch" style="background:#c4a872;border:1px solid #8b6914"></div>Gnd</div>
+    </div>
+    <div style="flex:1"></div>
+    <div style="position:relative;display:inline-block;align-self:center;">
+      <div class="plate-border">
+        <canvas id="plateStrip" width="400" height="286"></canvas>
+      </div>
+      <img id="dagOverlay"
+        src="../site/images/photos/Plate H/PlateH.png"
+        style="position:absolute;top:3px;left:3px;width:calc(100% - 6px);height:calc(100% - 6px);
+               object-fit:contain;pointer-events:none;opacity:0.2;display:block;"
+        alt="Plate H overlay" />
+    </div>
+    <div class="plate-caption" id="plate-caption">—</div>
+    <div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.35rem;align-self:center;flex-wrap:wrap;justify-content:center;">
+      <span style="font-size:0.6rem;color:var(--sepia);font-family:'Source Code Pro',monospace;">Overlay</span>
+      <input type="range" id="overlayOpacity" min="0" max="100" value="20"
+        style="width:120px;accent-color:var(--sepia);">
+      <span style="font-size:0.6rem;color:var(--sepia);font-family:'Source Code Pro',monospace;min-width:28px;text-align:right;" id="overlayOpacityVal">20%</span>
+    </div>            </div>
+  </div>
+
+  </div>
+
+</div><!-- end workspace -->
+
+<!--
+MAP REPOSITIONING INSTRUCTIONS
+===========================
+Current map transformation values (locked):
+- Scale: 1.41x
+- Rotation: -4.0°
+- X Offset: -1680px
+- Y Offset: -2052px
+- Opacity: 50%
+
+To reposition the map for other photos:
+1. Find the drawMap() function in the JavaScript section
+2. Locate these transformation variables:
+   - tempMapScale (currently 1.41)
+   - tempMapRotation (currently -4.0)
+   - tempMapX (currently -1680)
+   - tempMapY (currently -2052)
+   - tempMapOpacity (currently 50)
+3. Adjust these values to align the map with new photo locations
+4. The map image is loaded from: '1893KingsHandbook_map.png'
+5. Use browser developer tools to debug positioning if needed
+
+For reference, the map transformation uses canvas context:
+ctx.translate(tempMapX, tempMapY);
+ctx.rotate(tempMapRotation * Math.PI / 180);
+ctx.scale(tempMapScale, tempMapScale);
+-->
+
+
+<!-- FULL-WIDTH SLIDER PANEL -->
+<div class="slider-panel">
+  <div class="ctrl-section-title" style="font-size:0.7rem;text-align:center;margin-bottom:0.6rem;padding-bottom:0.4rem;border-bottom:1px solid var(--rule);">Camera Variable Settings</div>
+  <div class="slider-panel-inner">
+
+    <!-- Camera Position -->
+    <div class="slider-group col-1">
+      <div class="ctrl-section-title">Camera Position</div>
+      <div class="coord-display">Position: <span id="coords">—</span></div>
+        <div class="sl"><label>Rotation</label><input type="range" id="rotation" min="-180" max="180" value="0" step="1"><span class="v" id="rot-out">0°</span></div>
+      <div class="sl"><label>X (E–W)</label><input type="range" id="camX" min="-800" max="800" value="-250" step="1"><span class="v" id="camX-out">-125.0</span></div>
+      <div class="sl"><label>Y (N–S)</label><input type="range" id="camY" min="-800" max="800" value="0" step="1"><span class="v" id="camY-out">0.0</span></div>
+      
+      <!-- Exact Coordinate Input -->
+      <div class="sl"><label>X Exact</label><input type="text" id="camX-exact" value="-125" placeholder="-125.0" style="flex:1;padding:2px;font-size:0.6rem;"><span class="v" id="camX-exact-out">ft</span></div>
+      <div class="sl"><label>Y Exact</label><input type="text" id="camY-exact" value="0" placeholder="0.0" style="flex:1;padding:2px;font-size:0.6rem;"><span class="v" id="camY-exact-out">ft</span></div>
+            <div class="sl"><label>Height</label><input type="range" id="cameraHeight" min="3" max="35" value="5" step="0.5"><span class="v" id="cameraHeight-out">5.0 ft</span></div>
+    </div>
+
+    <!-- Camera Optics -->
+    <div class="slider-group col-2">
+      <div class="ctrl-section-title">Camera Optics</div>
+      
+      <!-- Mode Toggle -->
+      <div class="sl" style="margin-bottom:0.8rem;">
+        <label style="flex:0 0 100px;">Mode</label>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input type="radio" id="focal-mode" name="optics-mode" value="focal">
+          <label for="focal-mode" style="font-size:0.6rem;margin:0;">Focal Length</label>
+          <input type="radio" id="fov-mode" name="optics-mode" value="fov" checked>
+          <label for="fov-mode" style="font-size:0.6rem;margin:0;">FOV</label>
+          <input type="radio" id="camera-mode" name="optics-mode" value="camera">
+          <label for="camera-mode" style="font-size:0.6rem;margin:0;">Camera Type</label>
+        </div>
+      </div>
+      
+      <!-- Focal Length Controls -->
+      <div id="focal-controls" style="display:none;">
+        <div class="sl"><label>Focal Length</label><input type="range" id="focal" min="0.2" max="25" value="8" step="0.1"><span class="v" id="focal-out">8 inches</span></div>
+      </div>
+      
+      <!-- FOV Controls -->
+      <div id="fov-controls" style="display:none;">
+        <div class="sl"><label>Horizontal FOV</label><input type="range" id="fov-slider" min="5" max="120" value="15" step="1"><span class="v" id="fov-slider-out">15 degrees</span></div>
+      </div>
+      
+      <!-- Camera Type Controls -->
+      <div id="camera-controls">
+        <div class="sl"><label>Lens Type</label>
+          <select id="camera-type" style="flex:1;padding:2px;font-size:0.6rem;">
+            <option value="engraving">🎯 Human Vision (Engravings) - 60 degrees Natural View</option>
+            <option value="standard">35mm Equivalent - Standard FOV (45 degrees)</option>
+            <option value="telephoto">Telephoto Equivalent - Narrow FOV (7.5 degrees)</option>
+            <option value="wide" selected>Wide Angle Equivalent - Wide FOV (70 degrees)</option>
+            <option value="fisheye">Fisheye Equivalent - Ultra Wide (120 degrees)</option>
+          </select>
+        </div>
+        <div class="sl"><label>Lens FOV</label><span style="flex:1"></span><span class="v" id="camera-fov-out">70 degrees</span></div>
+        <div class="sl"><label>Plate Focal</label><span style="flex:1"></span><span class="v" id="camera-focal-out">8 inches</span></div>
+      </div>
+      
+      <!-- Display Values (always shown) -->
+      <div class="sl"><label>Horizontal FOV</label><span style="flex:1"></span><span class="v" id="fov-out">15 degrees</span></div>
+      <div class="sl"><label>Vertical FOV</label><span style="flex:1"></span><span class="v" id="vfov-out">20.9 degrees</span></div>
+    </div>
+
+    <!-- NYU Building and Row Houses -->
+    <div class="slider-group col-3">
+      <div class="ctrl-section-title">NYU Building</div>
+      <div class="sl"><label>Position (S)</label><input type="range" id="nyuslide" min="0" max="100" value="9" step="1"><span class="v" id="nyu-out">10 ft</span></div>
+      <div class="sl"><label>Height</label><input type="range" id="nyuheight" min="20" max="120" value="85" step="1"><span class="v" id="nyuheight-out">85 ft</span></div>
+      
+      <div class="ctrl-section-title" style="margin-top:0.8rem;">Row Houses</div>
+      <div class="sl"><label>RH1 position</label><input type="range" id="rh1slide" min="0" max="100" value="10" step="1"><span class="v" id="rh1-out">10 ft</span></div>
+      <div class="sl"><label>RH1 height</label><input type="range" id="rh1height" min="10" max="120" value="90" step="1"><span class="v" id="rh1height-out">90 ft</span></div>
+      <div class="sl"><label>RH2 position</label><input type="range" id="rh2slide" min="0" max="100" value="10" step="1"><span class="v" id="rh2-out">10 ft</span></div>
+      <div class="sl"><label>RH2 height</label><input type="range" id="rh2height" min="10" max="120" value="90" step="1"><span class="v" id="rh2height-out">90 ft</span></div>
+    </div>
+
+    <!-- Church -->
+    <div class="slider-group col-4">
+      <div class="ctrl-section-title">Church of the Messiah</div>
+      <div class="sl"><label>Distance</label><input type="range" id="churchdist" min="700" max="900" value="740" step="10"><span class="v" id="churchdist-out">740 ft</span></div>
+      <div class="sl"><label>Position (N)</label><input type="range" id="churchslide" min="0" max="100" value="28" step="1"><span class="v" id="church-out">28 ft</span></div>
+      <div class="sl"><label>North ht</label><input type="range" id="chnheight" min="10" max="120" value="50" step="1"><span class="v" id="chnheight-out">50 ft</span></div>
+      <div class="sl"><label>Mid ht</label><input type="range" id="chmheight" min="10" max="120" value="90" step="1"><span class="v" id="chmheight-out">90 ft</span></div>
+      <div class="sl"><label>South ht</label><input type="range" id="chsheight" min="10" max="120" value="50" step="1"><span class="v" id="chsheight-out">50 ft</span></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- hidden stubs for legacy JS refs -->
+<span style="display:none" id="zoom-coord"></span>
+<span style="display:none" id="ps-pos"></span>
+<span style="display:none" id="ps-rot"></span>
+<span style="display:none" id="ps-fov"></span>
+<span style="display:none" id="ps-nyu"></span>
+<span style="display:none" id="ps-ch"></span>
+<span style="display:none" id="ps-rh1"></span>
+<span style="display:none" id="ps-rh2"></span>
+<span style="display:none" id="ps-sky"></span>
+<span style="display:none" id="ps-dist"></span>
+<span style="display:none" id="ps-nwpos"></span>
+
+<!-- INSTRUCTIONS -->
+<div class="instructions">
+  <div class="instr-title">Instructions — click any card to hear it read aloud</div>
+  <div class="instr-grid">
+    <div class="instr-card"><button class="instr-btn" onclick="speakInstruction('camera-position')"><div class="instr-head">Camera position</div><div class="instr-body">X/Y sliders move the camera east-west and north-south. The camera stays in the western quadrant, which means negative X values and positive Y values. This positions the camera west of NYU and north of the reference point.</div></button></div>
+    <div class="instr-card"><button class="instr-btn" onclick="speakInstruction('camera-rotation')"><div class="instr-head">Rotation</div><div class="instr-body">0° aims east toward NYU. Positive rotates north, negative rotates south. This controls what the camera is looking at.</div></button></div>
+    <div class="instr-card"><button class="instr-btn" onclick="speakInstruction('field-of-view')"><div class="instr-head">Field of view</div><div class="instr-body">FOV is calculated from focal length using the formula: FOV = 2 × arctan(width/(2×focal_length)). At <span id="instr-focal">8"</span> focal length, the horizontal FOV is <span id="instr-hfov">14°</span> and vertical is <span id="instr-vfov">16.8°</span> for the <span id="instr-plate-size">5×7</span> inch plate. Adjust focal length to change perspective and field of view.</div></button></div>
+        <div class="instr-card"><button class="instr-btn" onclick="speakInstruction('image-overlay')"><div class="instr-head">Plate H overlay</div><div class="instr-body">Load the actual 1893 daguerreotype image to overlay on the simulated camera view. Adjust the opacity slider from 0 to 100 percent to blend the historical photograph with the simulated plate view for precise optical comparison.</div></button></div>
+    <div class="instr-card"><button class="instr-btn" onclick="speakInstruction('building-movement')"><div class="instr-head">Building positions</div><div class="instr-body">Shift buildings north or south. Changes appear instantly in both the plan view and the plate rendering. Use to test historical placement hypotheses.</div></button></div>
+    <div class="instr-card"><button class="instr-btn" onclick="speakInstruction('historical-map')"><div class="instr-head">Historical map</div><div class="instr-body">The 1852 Perris map underlies the plan at georeferenced scale. Origin (0,0) is the NYU NW corner. The Church of the Messiah is <span id="instruction-distance">800</span> ft to the east.</div></button></div>
+  </div>
+</div>
+
+<footer>
+  Origin (0,0) = NYU NW corner &nbsp;·&nbsp; X east · Y north &nbsp;·&nbsp; Church <strong id="church-distance">800 ft</strong> east &nbsp;·&nbsp; Eye height <strong>5 ft</strong> · NYU <strong>85 ft</strong> · Row Houses <strong>40 ft</strong> · Church <strong>75 ft</strong>
+</footer>
+
+</div><!-- end wrapper -->
+<script>
+// ── Canvases ──────────────────────────────────────────────────────────────
+const plan       = document.getElementById('plan');
+const pctx       = plan.getContext('2d');
+// const zoom       = document.getElementById('zoom');
+// const zctx       = zoom.getContext('2d');
+
+
+// ── Constants ─────────────────────────────────────────────────────────────
+const NYU_NS=180, NYU_EW=77;
+const B2_EW=100,  B2_PROJ=5;
+const RH1_EW=112,  RH1_NS=50;
+const RH2_EW=180, RH2_NS=50;
+let churchDistance=740;
+const GAP=churchDistance;
+const MARGIN_LEFT_FT=220;
+function getPlanFtW(){return MARGIN_LEFT_FT+NYU_EW+GAP+B2_EW+40;}
+const GRID=100;
+
+// Zoom window: 15 ft wide × 15 ft tall centered on camera (40x plan scale)
+const ZOOM_HALF_W=15, ZOOM_HALF_H=15;
+
+// ── State ─────────────────────────────────────────────────────────────────
+let camFtX=-125, camFtY=0;
+let camRotation=0;
+let rh1FtY=10, rh2FtY=10;
+let churchFtY=28;
+let nyuFtY=9;
+// Building heights (ft)
+let nyuHeight=85, rh1Height=90, rh2Height=90;
+let chNHeight=50, chMHeight=90, chSHeight=50, chTHeight=120;
+// Plate size state
+let currentPlateSize = '2x2.5';
+
+function clampCam(){
+  camFtX=Math.round(Math.max(-400,Math.min(400,camFtX)));
+  camFtY=Math.round(Math.max(-400,Math.min(400,camFtY)));
+}
+clampCam();
+
+// ── Layout setup ──────────────────────────────────────────────────────────
+function setup(){
+  const planCol = plan.parentElement;
+  const W = planCol.offsetWidth || 700;
+  plan.width = W;
+  plan.height = Math.round(W * 0.375); // Reduced from 0.5 to 0.375 (25% reduction)
+  
+  
+  // Initialize instruction spans with current focal length values
+  const focalLength = parseFloat(document.getElementById('focal').value);
+  const plateWidthInches = getPlateWidth();
+  const plateHeightInches = getPlateHeight();
+  const fovRad = 2 * Math.atan(plateWidthInches / (2 * focalLength));
+  const fovDeg = fovRad * 180 / Math.PI;
+  const vFovDeg = fovDeg * (plateHeightInches/plateWidthInches);
+  
+  document.getElementById('instr-focal').textContent = focalLength + '"';
+  document.getElementById('instr-hfov').textContent = fovDeg.toFixed(1) + '°';
+  document.getElementById('instr-vfov').textContent = vFovDeg.toFixed(1) + '°';
+  document.getElementById('instr-plate-size').textContent = currentPlateSize;
+  
+  drawAll();
+}
+
+function planScale(){return(plan.width-10)/getPlanFtW();}
+
+// Plan pixel coords of NYU NW corner
+function planOrigin(){
+  const s=planScale();
+  return{x:Math.round(MARGIN_LEFT_FT*s)+5, y:Math.round(plan.height*0.45)};
+}
+
+// ── Slider wiring ─────────────────────────────────────────────────────────
+document.getElementById('focal').addEventListener('input',e=>{
+  const focalLength=parseFloat(e.target.value);
+  document.getElementById('focal-out').textContent=focalLength+'"';
+  
+  // Calculate FOV from focal length: FOV = 2 * arctan(width/(2*focal_length))
+  const plateWidthInches = getPlateWidth();
+  const plateHeightInches = getPlateHeight();
+  const fovRad = 2 * Math.atan(plateWidthInches / (2 * focalLength));
+  const fovDeg = fovRad * 180 / Math.PI;
+  const vFovDeg = fovDeg * (plateHeightInches/plateWidthInches); // aspect ratio
+  
+  document.getElementById('fov-out').textContent=fovDeg.toFixed(1)+'°';
+  document.getElementById('vfov-out').textContent=vFovDeg.toFixed(1)+'°';
+  
+  // Update instruction spans with current values
+  document.getElementById('instr-focal').textContent=focalLength+'"';
+  document.getElementById('instr-hfov').textContent=fovDeg.toFixed(1)+'°';
+  document.getElementById('instr-vfov').textContent=vFovDeg.toFixed(1)+'°';
+  document.getElementById('instr-plate-size').textContent=currentPlateSize;
+  
+  drawAll();});
+
+// Store previous FOV for proportional scaling
+let previousFOV = 15; // Start with default FOV
+
+// FOV slider event listener
+document.getElementById('fov-slider').addEventListener('input',e=>{
+  const fovDeg=parseFloat(e.target.value);
+  document.getElementById('fov-slider-out').textContent=fovDeg+'°';
+  
+  // Calculate focal length from FOV: focal_length = width / (2 * tan(FOV/2))
+  const plateWidthInches = getPlateWidth();
+  const plateHeightInches = getPlateHeight();
+  const fovRad = fovDeg * Math.PI / 180;
+  const focalLength = plateWidthInches / (2 * Math.tan(fovRad / 2));
+  
+  // Update focal length display (read-only in FOV mode)
+  document.getElementById('focal-out').textContent=focalLength.toFixed(1)+'"';
+  
+  // Update FOV displays
+  const vFovDeg = fovDeg * (plateHeightInches/plateWidthInches); // aspect ratio
+  document.getElementById('fov-out').textContent=fovDeg.toFixed(1)+'°';
+  document.getElementById('vfov-out').textContent=vFovDeg.toFixed(1)+'°';
+  
+  // GEOMETRICALLY CORRECT FOV BEHAVIOR:
+  // When FOV changes, recalculate camera distance to maintain apparent object size
+  // scalingFactor = tan(oldFOV/2) / tan(newFOV/2)
+  const oldFovRad = previousFOV * Math.PI / 180;
+  const newFovRad = fovDeg * Math.PI / 180;
+  const scalingFactor = Math.tan(oldFovRad / 2) / Math.tan(newFovRad / 2);
+  
+  // Calculate new camera distance proportionally from current position
+  const currentDistance = Math.abs(camFtX);
+  const newDistance = currentDistance * scalingFactor;
+  
+  // Update camera X position (distance from buildings)
+  camFtX = -Math.abs(newDistance); // Keep negative (west of buildings)
+  
+  // Update camera position display
+  document.getElementById('camX-out').textContent = Math.abs(newDistance).toFixed(0);
+  document.getElementById('camX').value = Math.abs(newDistance);
+  
+  // Update instruction spans with current values
+  document.getElementById('instr-focal').textContent=focalLength.toFixed(1)+'"';
+  document.getElementById('instr-hfov').textContent=fovDeg.toFixed(1)+'°';
+  document.getElementById('instr-vfov').textContent=vFovDeg.toFixed(1)+'°';
+  document.getElementById('instr-plate-size').textContent=currentPlateSize;
+  
+  // Store current FOV for next change
+  previousFOV = fovDeg;
+  
+  // Update coordinates and redraw
+  clampCam(); 
+  updateCoords(); 
+  drawAll();
+});
+
+
+// Mode toggle event listeners
+function updateModeDisplay() {
+  const isFocalMode = document.getElementById('focal-mode').checked;
+  const isFovMode = document.getElementById('fov-mode').checked;
+  const isCameraMode = document.getElementById('camera-mode').checked;
+  
+  document.getElementById('focal-controls').style.display = isFocalMode ? 'block' : 'none';
+  document.getElementById('fov-controls').style.display = isFovMode ? 'block' : 'none';
+  document.getElementById('camera-controls').style.display = isCameraMode ? 'block' : 'none';
+  
+  drawAll();
+}
+
+// Initialize mode display
+document.addEventListener('DOMContentLoaded', function() {
+  updateModeDisplay();
+});
+
+document.getElementById('focal-mode').addEventListener('change', updateModeDisplay);
+document.getElementById('focal-mode').addEventListener('click', updateModeDisplay);
+
+document.getElementById('fov-mode').addEventListener('change', updateModeDisplay);
+document.getElementById('fov-mode').addEventListener('click', updateModeDisplay);
+
+document.getElementById('camera-mode').addEventListener('change', updateModeDisplay);
+document.getElementById('camera-mode').addEventListener('click', updateModeDisplay);
+
+document.getElementById('rotation').addEventListener('input',e=>{
+  document.getElementById('rot-out').textContent=e.target.value+'°'; camRotation=parseInt(e.target.value); drawAll();});
+// Function to update exact input fields safely
+function updateExactInputs() {
+  document.getElementById('camX-exact').value = camFtX.toFixed(1);
+  document.getElementById('camY-exact').value = camFtY.toFixed(1);
+}
+
+document.getElementById('camX').addEventListener('input',e=>{
+  camFtX = parseFloat(e.target.value) / 2; // Convert half-feet to feet
+  document.getElementById('camX-out').textContent = Math.round(camFtX);
+  clampCam(); updateCoords(); updateExactInputs(); drawAll();
+});
+document.getElementById('camY').addEventListener('input',e=>{
+  camFtY = parseFloat(e.target.value) / 2; // Convert half-feet to feet
+  document.getElementById('camY-out').textContent = Math.round(camFtY);
+  clampCam(); updateCoords(); updateExactInputs(); drawAll();
+});
+
+// Exact coordinate input event listeners with validation
+document.getElementById('camX-exact').addEventListener('blur',e=>{
+  const value = parseFloat(e.target.value);
+  console.log('X exact input:', e.target.value, 'parsed:', value);
+  if (!isNaN(value) && value >= -400 && value <= 400) {
+    camFtX = value;
+    document.getElementById('camX-out').textContent = camFtX.toFixed(1);
+    console.log('Set camFtX to:', camFtX);
+    // Update slider to half-feet integer value
+    const sliderValue = Math.round(value * 2);
+    document.getElementById('camX').value = sliderValue;
+    clampCam(); updateCoords(); drawAll();
+  } else {
+    // Reset to current value if invalid
+    e.target.value = camFtX.toFixed(1);
+    console.log('Invalid X value, reset to:', camFtX.toFixed(1));
+  }
+});
+document.getElementById('camY-exact').addEventListener('blur',e=>{
+  const value = parseFloat(e.target.value);
+  console.log('Y exact input:', e.target.value, 'parsed:', value);
+  if (!isNaN(value) && value >= -400 && value <= 400) {
+    camFtY = value;
+    document.getElementById('camY').value = camFtY; // Direct decimal value for slider
+    document.getElementById('camY-out').textContent = camFtY.toFixed(1);
+    console.log('Set camFtY to:', camFtY);
+    clampCam(); updateCoords(); drawAll();
+  } else {
+    // Reset to current value if invalid
+    e.target.value = camFtY.toFixed(1);
+    console.log('Invalid Y value, reset to:', camFtY.toFixed(1));
+  }
+});
+let cameraTiltUp = 0; // Global variable for camera tilt in radians (always 0)
+let cameraHeight = 5; // Global variable for camera height in feet
+document.getElementById('cameraHeight').addEventListener('input',e=>{
+  const height = parseFloat(e.target.value);
+  document.getElementById('cameraHeight-out').textContent = height.toFixed(1) + ' ft';
+  cameraHeight = height;
+  drawAll();
+});
+document.getElementById('rh1slide').addEventListener('input',e=>{
+  rh1FtY=parseInt(e.target.value); document.getElementById('rh1-out').textContent=rh1FtY; drawAll();});
+document.getElementById('rh2slide').addEventListener('input',e=>{
+  rh2FtY=parseInt(e.target.value); document.getElementById('rh2-out').textContent=rh2FtY; drawAll();});
+
+// Camera type selection event listener
+document.getElementById('camera-type').addEventListener('change',e=>{
+  const cameraType = e.target.value;
+  const cameraSettings = getCameraSettings(cameraType);
+  
+  // Update focal length slider
+  document.getElementById('focal').value = cameraSettings.focal;
+  document.getElementById('focal-out').textContent = cameraSettings.focal + '"';
+  
+  // Update FOV displays
+  document.getElementById('fov-out').textContent = cameraSettings.fov.toFixed(1) + '°';
+  document.getElementById('vfov-out').textContent = cameraSettings.vFov.toFixed(1) + '°';
+  
+  // Update camera mode displays
+  document.getElementById('camera-fov-out').textContent = cameraSettings.fov.toFixed(1) + '°';
+  document.getElementById('camera-focal-out').textContent = cameraSettings.focal + '"';
+  
+  // Update instruction spans
+  document.getElementById('instr-focal').textContent = cameraSettings.focal + '"';
+  document.getElementById('instr-hfov').textContent = cameraSettings.fov.toFixed(1) + '°';
+  document.getElementById('instr-vfov').textContent = cameraSettings.vFov.toFixed(1) + '°';
+  document.getElementById('instr-plate-size').textContent = currentPlateSize;
+  
+  drawAll();
+});
+
+document.getElementById('churchslide').addEventListener('input',e=>{
+  churchFtY=parseInt(e.target.value); 
+  document.getElementById('church-out').textContent=churchFtY; 
+  console.log('Church slider moved to:', churchFtY);
+  drawAll();
+});
+document.getElementById('churchdist').addEventListener('input',e=>{
+  churchDistance=parseInt(e.target.value); 
+  document.getElementById('churchdist-out').textContent=churchDistance+' ft'; 
+  document.getElementById('church-distance').textContent=churchDistance+' ft'; 
+  document.getElementById('instruction-distance').textContent=churchDistance; 
+  console.log('Church distance moved to:', churchDistance);
+  drawAll();
+});
+document.getElementById('nyuslide').addEventListener('input',e=>{
+  nyuFtY=parseInt(e.target.value); 
+  document.getElementById('nyu-out').textContent=nyuFtY; 
+  console.log('NYU slider moved to:', nyuFtY);
+  drawAll();
+});
+document.getElementById('nyuheight').addEventListener('input',e=>{
+  nyuHeight=parseInt(e.target.value); 
+  document.getElementById('nyuheight-out').textContent=nyuHeight+' ft'; 
+  console.log('NYU height slider moved to:', nyuHeight);
+  drawAll();
+});
+document.getElementById('rh1height').addEventListener('input',e=>{
+  rh1Height=+e.target.value; document.getElementById('rh1height-out').textContent=rh1Height+' ft'; drawAll();});
+document.getElementById('rh2height').addEventListener('input',e=>{
+  rh2Height=+e.target.value; document.getElementById('rh2height-out').textContent=rh2Height+' ft'; drawAll();});
+document.getElementById('chnheight').addEventListener('input',e=>{
+  chNHeight=+e.target.value; document.getElementById('chnheight-out').textContent=chNHeight+' ft'; drawAll();});
+document.getElementById('chmheight').addEventListener('input',e=>{
+  chMHeight=+e.target.value; document.getElementById('chmheight-out').textContent=chMHeight+' ft'; drawAll();});
+document.getElementById('chsheight').addEventListener('input',e=>{
+  chSHeight=+e.target.value; document.getElementById('chsheight-out').textContent=chSHeight+' ft'; drawAll();});
+
+function updateCoords(){
+  // Calculate distance from camera's current position (0,0 reference)
+  const absX = Math.abs(camFtX);
+  const absY = Math.abs(camFtY);
+  
+  const xDirection = camFtX < 0 ? 'West' : 'East';
+  const yDirection = camFtY < 0 ? 'South' : 'North';
+  
+  const descriptiveText = `${absX} ${xDirection} and ${absY} ${yDirection} of origin`;
+  const coordText = `(${camFtX}, ${camFtY>0?'+':''}${camFtY}) ft`;
+  
+  document.getElementById('coords').textContent = descriptiveText;
+  document.getElementById('zoom-coord').textContent = coordText;
+  
+  // Update camera sliders and displays to match current position
+  document.getElementById('camX').value = Math.round(camFtX * 2); // Convert to half-feet integer
+  document.getElementById('camX-out').textContent = Math.round(camFtX);
+  document.getElementById('camY').value = Math.round(camFtY * 2); // Convert to half-feet integer
+  document.getElementById('camY-out').textContent = Math.round(camFtY);
+}
+
+// ── Plan canvas drag ───────────────────────────────────────────────────────
+// ── Plan drag — move camera in main plan view ───────────────────────────────
+// The plan canvas uses planScale(), so 1 ft = planScale() px on plan canvas.
+// Camera moves in variable increments (1 ft or 2 ft).
+let pDrag=false;
+let pLastPx=0, pLastPy=0;
+
+function getPP(e){
+  const r=plan.getBoundingClientRect(), s=plan.width/r.width;
+  const src=e.touches?e.touches[0]:e;
+  return{x:(src.clientX-r.left)*s, y:(src.clientY-r.top)*s};
+}
+
+plan.addEventListener('mousedown',e=>{
+  pDrag=true;
+  const p=getPP(e); pLastPx=p.x; pLastPy=p.y;
+});
+plan.addEventListener('mousemove',e=>{
+  if(!pDrag)return;
+  const p=getPP(e);
+  const ps=planScale();
+  const dFtX=Math.round((p.x-pLastPx)/ps/1)*1; // Fixed 1-foot increments
+  const dFtY=Math.round(-(p.y-pLastPy)/ps/1)*1; // Fixed 1-foot increments
+  if(dFtX!==0||dFtY!==0){
+    camFtX=Math.max(-400,Math.min(400, camFtX+dFtX));
+    camFtY=Math.max(-400,Math.min(400,camFtY+dFtY));
+    pLastPx=p.x; pLastPy=p.y;
+    clampCam(); updateCoords(); drawAll();
+  }
+});
+plan.addEventListener('mouseup',()=>pDrag=false);
+plan.addEventListener('mouseleave',()=>pDrag=false);
+plan.addEventListener('touchstart',e=>{
+  e.preventDefault(); pDrag=true;
+  const p=getPP(e); pLastPx=p.x; pLastPy=p.y;
+},{passive:false});
+plan.addEventListener('touchmove',e=>{
+  e.preventDefault(); if(!pDrag)return;
+  const p=getPP(e);
+  const ps=planScale();
+  const dFtX=Math.round((p.x-pLastPx)/ps/1)*1; // Fixed 1-foot increments
+  const dFtY=Math.round(-(p.y-pLastPy)/ps/1)*1; // Fixed 1-foot increments 
+  if(dFtX!==0||dFtY!==0){
+    camFtX=Math.max(-400,Math.min(400, camFtX+dFtX));
+    camFtY=Math.max(-400,Math.min(400,camFtY+dFtY));
+    pLastPx=p.x; pLastPy=p.y;
+    clampCam(); updateCoords(); drawAll();
+  }
+},{passive:false});
+plan.addEventListener('touchend',()=>pDrag=false);
+
+// ── Geometry helpers ──────────────────────────────────────────────────────
+function getPlateWidth() {
+  // Return plate width in inches based on current selection
+  if (currentPlateSize === '5x7') {
+    return 7.0; // 7 inches wide for 5x7 landscape
+  } else if (currentPlateSize === '5x7-portrait') {
+    return 5.0; // 5 inches wide for 5x7 portrait
+  } else if (currentPlateSize === '8x10') {
+    return 10.0; // 10 inches wide for 8x10 landscape
+  } else if (currentPlateSize === '8x10-portrait') {
+    return 8.0; // 8 inches wide for 8x10 portrait
+  } else if (currentPlateSize === '2x2.5') {
+    return 2.0; // 2 inches wide for 2x2.5 plate
+  }
+  return 7.0; // default to 5x7
+}
+
+function getPlateHeight() {
+  // Return plate height in inches based on current selection
+  if (currentPlateSize === '5x7') {
+    return 5.0; // 5 inches tall for 5x7 landscape
+  } else if (currentPlateSize === '5x7-portrait') {
+    return 7.0; // 7 inches tall for 5x7 portrait
+  } else if (currentPlateSize === '8x10') {
+    return 8.0; // 8 inches tall for 8x10 landscape
+  } else if (currentPlateSize === '8x10-portrait') {
+    return 10.0; // 10 inches tall for 8x10 portrait
+  } else if (currentPlateSize === '2x2.5') {
+    return 2.5; // 2.5 inches tall for 2x2.5 plate
+  }
+  return 5.0; // default to 5x7
+}
+
+function getFovDeg(){
+  // Check which mode is active
+  const isFovMode = document.getElementById('fov-mode').checked;
+  const isCameraMode = document.getElementById('camera-mode').checked;
+  
+  if (isCameraMode) {
+    // Return FOV from camera type settings
+    const cameraType = document.getElementById('camera-type').value;
+    return getCameraSettings(cameraType).fov;
+  } else if (isFovMode) {
+    // Return FOV directly from slider
+    return parseFloat(document.getElementById('fov-slider').value);
+  } else {
+    // Calculate FOV from focal length using current plate width
+    const focalLength=parseFloat(document.getElementById('focal').value);
+    const plateWidthInches = getPlateWidth();
+    const fovRad = 2 * Math.atan(plateWidthInches / (2 * focalLength));
+    return fovRad * 180 / Math.PI;
+  }
+}
+
+function getCameraSettings(cameraType) {
+  // Use actual 2x2.5 inch plate dimensions for realistic FOV calculations
+  const plateWidth = 2.0; // 2 inches wide
+  const plateHeight = 2.5; // 2.5 inches tall
+  
+  const settings = {
+    'engraving': { 
+      focal: 8.5, 
+      fov: 2 * Math.atan(plateWidth / (2 * 8.5)) * 180 / Math.PI, 
+      vFov: 2 * Math.atan(plateWidth / (2 * 8.5)) * 180 / Math.PI * (plateHeight/plateWidth) 
+    },
+    'standard': { 
+      focal: 12.2, 
+      fov: 2 * Math.atan(plateWidth / (2 * 12.2)) * 180 / Math.PI, 
+      vFov: 2 * Math.atan(plateWidth / (2 * 12.2)) * 180 / Math.PI * (plateHeight/plateWidth) 
+    },
+    'telephoto': { 
+      focal: 24.0, 
+      fov: 2 * Math.atan(plateWidth / (2 * 24.0)) * 180 / Math.PI, 
+      vFov: 2 * Math.atan(plateWidth / (2 * 24.0)) * 180 / Math.PI * (plateHeight/plateWidth) 
+    },
+    'wide': { 
+      focal: 6.9, 
+      fov: 2 * Math.atan(plateWidth / (2 * 6.9)) * 180 / Math.PI, 
+      vFov: 2 * Math.atan(plateWidth / (2 * 6.9)) * 180 / Math.PI * (plateHeight/plateWidth) 
+    },
+    'fisheye': { 
+      focal: 4.0, 
+      fov: 2 * Math.atan(plateWidth / (2 * 4.0)) * 180 / Math.PI, 
+      vFov: 2 * Math.atan(plateWidth / (2 * 4.0)) * 180 / Math.PI * (plateHeight/plateWidth) 
+    }
+  };
+  return settings[cameraType] || settings['standard'];
+}
+// Convert rotation degrees (-90 to +90) to canvas math angle (0=east, CCW positive)
+// Rotation 0° = east, +90° = north, -90° = south
+function getCamAngle(){ return camRotation * Math.PI / 180; }
+
+function getConeParams(s, ox, oy){
+  const cx=ox+camFtX*s, cy=oy-camFtY*s;
+  const nex=ox+NYU_EW*s, nsy=oy+NYU_NS*s + nyuFtY*s; // Apply NYU southward movement
+  const r1x=nex, r2x=nex+(RH1_EW+45)*s;
+  const r1y=oy+rh1FtY*s, r2y=oy+rh2FtY*s;
+  const b2x=ox+churchDistance*s, b2y=oy-churchFtY*s;
+  const sec=25*s, proj=B2_PROJ*s;
+  const fovDeg=getFovDeg();
+  const ca=getCamAngle(), fR=fovDeg*Math.PI/180, FAR=9000;
+  const rv1={x:cx+Math.cos(ca-fR/2)*FAR, y:cy+Math.sin(ca-fR/2)*FAR};
+  const rv2={x:cx+Math.cos(ca+fR/2)*FAR, y:cy+Math.sin(ca+fR/2)*FAR};
+  return{cx,cy,ca,fR,FAR,rv1,rv2,nex,nsy,r1x,r1y,r2x,r2y,b2x,b2y,sec,proj};
+}
+
+function extPt(cx,cy,ca,FAR,tx,ty){
+  const dx=tx-cx,dy=ty-cy,d=Math.sqrt(dx*dx+dy*dy);
+  if(d<0.001)return{x:cx+Math.cos(ca)*FAR,y:cy+Math.sin(ca)*FAR};
+  return{x:cx+(dx/d)*FAR,y:cy+(dy/d)*FAR};
+}
+
+// ── Draw plan view ────────────────────────────────────────────────────────
+
+// ── Historical map (1852) georeferencing ─────────────────────────
+const MAP_SCALE  = 0.652362;
+const MAP_THETA  = -0.520630;
+const MAP_TX     = 118;
+const MAP_TY     = 55;
+const mapDx      = 0;
+const mapDy      = -42;
+const mapRotNudge = 30 * Math.PI / 180;
+const mapOpacity  = 0.55;
+const _mapImg = new Image();
+_mapImg.onload = () => drawAll();
+_mapImg.src = 'C:/Users/roder/CascadeProjects/windsurf-project/plate-h-camera/sandbox/1891 Washington Square Park and NYU Bromley from NYU.jpg';
+
+function drawPlan(){
+  const W=plan.width,PH=plan.height,s=planScale();
+  const{x:ox,y:oy}=planOrigin();
+  const{cx,cy,ca,fR,FAR,rv1,rv2,nex,nsy,r1x,r1y,r2x,r2y,b2x,b2y,sec,proj}=getConeParams(s,ox,oy);
+  const tc='#1a1208',mc='#6b5a3e',gc='rgba(139,105,20,0.16)',gl='rgba(100,75,14,0.18)';
+
+  pctx.fillStyle='#faf5ec'; pctx.fillRect(0,0,W,PH);
+
+  // Draw georeferenced historical map
+  if(_mapImg.complete && _mapImg.naturalWidth>0){
+    pctx.save();
+    
+    // Use locked transformation values
+    const currentScale = tempMapScale;
+    const currentRotation = tempMapRotation * Math.PI / 180;
+    const currentX = tempMapX;
+    const currentY = tempMapY;
+    const currentOpacity = tempMapOpacity / 100;
+    
+    // Transform: world ft → plan canvas px
+    // Plan canvas: px = ox + wx*s, py = oy - wy*s
+    // Map image: world (wx,wy) → image px via scale/rotation/anchor
+    // We need to position/rotate the image so its anchor aligns with plan canvas anchor
+    // Plan canvas position of world origin (0,0):
+    const planOx = ox, planOy = oy;
+    // The map image pixel (MAP_TX, MAP_TY) corresponds to world (0,0)
+    // Map is rotated by currentRotation radians in image space
+    // Map scale is currentScale img_px/ft
+    // Plan scale is s plan_px/ft
+    // Combined scale: s/currentScale plan_px/img_px
+    const drawScale = s / currentScale;
+    // Move canvas origin to plan position of world (0,0)
+    pctx.translate(planOx + currentX*s, planOy + currentY*s);
+    // Rotate: map theta is rotation of map grid vs true east
+    // In plan canvas, east=+x, north=-y (canvas y flipped)
+    // Map rotation in canvas coords = currentRotation (already in correct sign)
+    pctx.rotate(currentRotation);
+    pctx.scale(drawScale, drawScale);
+    // Now draw image so that pixel (MAP_TX, MAP_TY) sits at canvas origin
+    pctx.globalAlpha = currentOpacity;
+    pctx.drawImage(_mapImg, -MAP_TX, -MAP_TY);
+    pctx.globalAlpha = 1.0;
+    pctx.restore();
+  }
+
+  // grid
+  const gp=GRID*s;
+  pctx.strokeStyle=gc; pctx.lineWidth=0.5;
+  for(let x=((ox%gp)+gp)%gp;x<W;x+=gp){pctx.beginPath();pctx.moveTo(x,0);pctx.lineTo(x,PH);pctx.stroke();}
+  for(let y=((oy%gp)+gp)%gp;y<PH;y+=gp){pctx.beginPath();pctx.moveTo(0,y);pctx.lineTo(W,y);pctx.stroke();}
+  pctx.font='9px "Source Code Pro",monospace'; pctx.fillStyle=gl;
+  pctx.textAlign='center';
+  for(let x=((ox%gp)+gp)%gp;x<W;x+=gp){const f=Math.round((ox-x)/s);if(!f)continue;pctx.fillText((f>0?'−':'')+Math.abs(f),x,oy-3);}
+  pctx.textAlign='right';
+  for(let y=((oy%gp)+gp)%gp;y<PH;y+=gp){const f=Math.round((oy-y)/s);if(!f)continue;pctx.fillText((f>0?'+':'')+f,ox-2,y+10);}
+
+  // axes
+  pctx.strokeStyle='rgba(100,75,14,0.28)'; pctx.lineWidth=1;
+  pctx.beginPath();pctx.moveTo(ox,0);pctx.lineTo(ox,PH);pctx.stroke();
+  pctx.beginPath();pctx.moveTo(0,oy);pctx.lineTo(W,oy);pctx.stroke();
+  pctx.font='9px "Source Code Pro",monospace'; pctx.fillStyle=mc; pctx.textAlign='left';
+  pctx.fillText('(0,0)',ox+3,oy-4);
+
+  // cone fill
+  pctx.beginPath();pctx.moveTo(cx,cy);pctx.lineTo(rv1.x,rv1.y);pctx.lineTo(rv2.x,rv2.y);pctx.closePath();
+  pctx.fillStyle='rgba(0,210,255,0.45)';pctx.fill();
+
+  // blind zones
+  function blind(ctx2, px,py,ax,ay,bx,by){
+    const sp=extPt(cx,cy,ca,FAR,px,py),sa=extPt(cx,cy,ca,FAR,ax,ay),sb=extPt(cx,cy,ca,FAR,bx,by);
+    ctx2.save();
+    ctx2.beginPath();ctx2.moveTo(cx,cy);ctx2.lineTo(rv1.x,rv1.y);ctx2.lineTo(rv2.x,rv2.y);ctx2.closePath();ctx2.clip();
+    ctx2.fillStyle='rgba(255,0,0,0.7)';
+    ctx2.beginPath();ctx2.moveTo(px,py);ctx2.lineTo(ax,ay);ctx2.lineTo(sa.x,sa.y);ctx2.lineTo(sp.x,sp.y);ctx2.closePath();ctx2.fill();
+    ctx2.beginPath();ctx2.moveTo(px,py);ctx2.lineTo(bx,by);ctx2.lineTo(sb.x,sb.y);ctx2.lineTo(sp.x,sp.y);ctx2.closePath();ctx2.fill();
+    ctx2.restore();
+    ctx2.setLineDash([4,4]);ctx2.lineWidth=1;ctx2.strokeStyle='rgba(255,0,0,0.9)';
+    ctx2.beginPath();ctx2.moveTo(px,py);ctx2.lineTo(sp.x,sp.y);ctx2.moveTo(ax,ay);ctx2.lineTo(sa.x,sa.y);ctx2.moveTo(bx,by);ctx2.lineTo(sb.x,sb.y);ctx2.stroke();ctx2.setLineDash([]);
+  }
+  blind(pctx, ox, oy+nyuFtY*s, nex, oy+nyuFtY*s, ox, nsy);
+  blind(pctx,r1x,r1y,r1x+RH1_EW*s,r1y,r1x,r1y+RH1_NS*s);
+  blind(pctx,r2x,r2y,r2x+RH2_EW*s,r2y,r2x,r2y+RH2_NS*s);
+
+  // cone edges
+  pctx.setLineDash([5,3]);pctx.lineWidth=1.5;pctx.strokeStyle='rgba(0,210,255,0.9)';
+  pctx.beginPath();pctx.moveTo(cx,cy);pctx.lineTo(rv1.x,rv1.y);pctx.moveTo(cx,cy);pctx.lineTo(rv2.x,rv2.y);pctx.stroke();
+  pctx.setLineDash([]);pctx.lineWidth=1.5;pctx.strokeStyle='rgba(255,0,0,1)'; // Bright red for middle line
+  pctx.beginPath();pctx.moveTo(cx,cy);pctx.lineTo(cx+Math.cos(ca)*120,cy+Math.sin(ca)*120);pctx.stroke();
+
+  // NYU
+  const nyuY = oy + nyuFtY*s; // Apply NYU north-south movement (southward)
+  pctx.fillStyle='rgba(160,158,152,0.75)';pctx.strokeStyle='#3a3020';pctx.lineWidth=1.5;
+  pctx.beginPath();pctx.rect(ox,nyuY,NYU_EW*s,NYU_NS*s);pctx.fill();pctx.stroke();
+  pctx.fillStyle=tc;pctx.font='600 9px "Source Code Pro",monospace';pctx.textAlign='center';
+  pctx.fillText('NYU',ox+NYU_EW*s/2,nyuY+NYU_NS*s/2);
+
+  function nsArr(ax,ay){pctx.strokeStyle='rgba(160,158,152,0.75)';pctx.lineWidth=1.2;pctx.setLineDash([]);pctx.beginPath();pctx.moveTo(ax,ay-7);pctx.lineTo(ax,ay+7);pctx.stroke();pctx.beginPath();pctx.moveTo(ax-3,ay-4);pctx.lineTo(ax,ay-7);pctx.lineTo(ax+3,ay-4);pctx.stroke();pctx.beginPath();pctx.moveTo(ax-3,ay+4);pctx.lineTo(ax,ay+7);pctx.lineTo(ax+3,ay+4);pctx.stroke();}
+
+  // RH1
+  pctx.fillStyle='rgba(196,98,64,0.4)';pctx.strokeStyle='#a04020';pctx.lineWidth=1.5;
+  pctx.beginPath();pctx.rect(r1x,r1y,RH1_EW*s,RH1_NS*s);pctx.fill();pctx.stroke();
+  pctx.fillStyle='#6b2010';pctx.font='700 8px "Source Code Pro",monospace';pctx.textAlign='center';
+  pctx.fillText('RH1',r1x+RH1_EW*s/2,r1y+RH1_NS*s/2+3);nsArr(r1x+RH1_EW*s/2,r1y+RH1_NS*s/2);
+
+  // RH2
+  pctx.fillStyle='rgba(210,140,60,0.5)';pctx.strokeStyle='#a06010';pctx.lineWidth=1.5;
+  pctx.beginPath();pctx.rect(r2x,r2y,RH2_EW*s,RH2_NS*s);pctx.fill();pctx.stroke();
+  pctx.fillStyle='#6b3a05';pctx.font='700 8px "Source Code Pro",monospace';pctx.textAlign='center';
+  pctx.fillText('RH2',r2x+RH2_EW*s/2,r2y+RH2_NS*s/2+3);nsArr(r2x+RH2_EW*s/2,r2y+RH2_NS*s/2);
+
+  // Church
+  const nS={x:b2x,y:b2y,w:B2_EW*s,h:sec};
+  const mS={x:b2x-proj,y:b2y+sec,w:B2_EW*s+proj,h:sec};
+  const sS={x:b2x,y:b2y+2*sec,w:B2_EW*s,h:sec};
+  console.log('Drawing church at position:', b2y, 'churchFtY:', churchFtY);
+  pctx.fillStyle='#1a4fcc';pctx.strokeStyle='#001122';pctx.lineWidth=1.5;pctx.beginPath();pctx.rect(nS.x,nS.y,nS.w,nS.h);pctx.fill();pctx.stroke();
+  pctx.fillStyle='#69BE28';pctx.strokeStyle='#a06010';pctx.beginPath();pctx.rect(mS.x,mS.y,mS.w,mS.h);pctx.fill();pctx.stroke();
+  pctx.fillStyle='#FFEE00';pctx.strokeStyle='#707880';pctx.beginPath();pctx.rect(sS.x,sS.y,sS.w,sS.h);pctx.fill();pctx.stroke();
+  pctx.font='8px "Source Code Pro",monospace';pctx.textAlign='center';
+  pctx.fillStyle='#ffffff';pctx.fillText('N',b2x+B2_EW*s/2,b2y+sec/2+3);
+  pctx.fillStyle='#6b3a05';pctx.fillText('T',mS.x+mS.w/2,b2y+sec*1.5+3);
+  pctx.fillStyle='#1a4fcc';pctx.fillText('S',b2x+B2_EW*s/2,b2y+2*sec+sec/2+3);
+  pctx.fillStyle=tc;pctx.font='italic 8px "Playfair Display",Georgia,serif';
+  pctx.fillText('Church of the Messiah',b2x+B2_EW*s/2,b2y-8);
+
+  // corner dots
+  pctx.fillStyle='#3a3020';
+  pctx.beginPath();pctx.arc(ox,oy,3,0,Math.PI*2);pctx.fill();
+  pctx.beginPath();pctx.arc(b2x,b2y,3,0,Math.PI*2);pctx.fill();
+
+  // camera crosshair
+  pctx.strokeStyle='rgba(192,57,43,0.22)';pctx.lineWidth=0.8;pctx.setLineDash([3,3]);
+  pctx.beginPath();pctx.moveTo(cx,0);pctx.lineTo(cx,PH);pctx.stroke();
+  pctx.beginPath();pctx.moveTo(0,cy);pctx.lineTo(W,cy);pctx.stroke();pctx.setLineDash([]);
+
+  // camera dot
+  pctx.fillStyle='#c0392b';pctx.beginPath();pctx.arc(cx,cy,4,0,Math.PI*2);pctx.fill();
+  pctx.fillStyle='white';pctx.font='bold 6px monospace';pctx.textAlign='center';pctx.fillText('C',cx,cy+2);
+
+  // 1000-foot ruler
+  const rulerY = oy; // Along x-axis
+  const rulerStartX = ox - 1000 * s; // Start 1000 feet west of origin
+  const rulerEndX = ox + 1000 * s;   // End 1000 feet east of origin
+  
+  // Draw ruler line
+  pctx.strokeStyle = 'rgba(50, 50, 50, 0.8)';
+  pctx.lineWidth = 2;
+  pctx.beginPath();
+  pctx.moveTo(rulerStartX, rulerY);
+  pctx.lineTo(rulerEndX, rulerY);
+  pctx.stroke();
+  
+  // Draw ruler ticks and labels
+  pctx.fillStyle = 'rgba(50, 50, 50, 0.9)';
+  pctx.font = '8px "Source Code Pro", monospace';
+  pctx.textAlign = 'center';
+  const tickHeight = 4;
+  
+  for (let i = -1000; i <= 1000; i += 100) {
+    const tickX = ox + i * s;
+    
+    // Draw tick
+    pctx.beginPath();
+    pctx.moveTo(tickX, rulerY - tickHeight);
+    pctx.lineTo(tickX, rulerY + tickHeight);
+    pctx.stroke();
+    
+    // Draw label for major divisions
+    if (i % 200 === 0) {
+      const label = Math.abs(i) + ' ft';
+      pctx.fillText(label, tickX, rulerY - tickHeight - 3);
+    }
+  }
+  
+  // Draw 0 ft marker
+  pctx.fillStyle = 'rgba(192, 57, 43, 0.9)';
+  pctx.font = 'bold 9px "Source Code Pro", monospace';
+  pctx.fillText('0 ft', ox, rulerY - 10);
+  
+  // Draw ruler label
+  pctx.fillStyle = 'rgba(50, 50, 50, 0.7)';
+  pctx.font = 'italic 8px "Playfair Display", Georgia, serif';
+  pctx.textAlign = 'left';
+  pctx.fillText('1000 ft ruler', rulerStartX + 5, rulerY - 15);
+
+  
+  // N arrow
+  pctx.fillStyle=mc;pctx.font='11px serif';pctx.textAlign='center';pctx.fillText('N',W-18,18);
+  pctx.strokeStyle=mc;pctx.lineWidth=1;pctx.beginPath();pctx.moveTo(W-18,22);pctx.lineTo(W-18,34);pctx.stroke();
+  pctx.beginPath();pctx.moveTo(W-22,26);pctx.lineTo(W-18,22);pctx.lineTo(W-14,26);pctx.stroke();
+
+  pctx.restore();
+}
+
+// ── Plate Cross-Section Ray-Caster ────────────────────────────────────────
+let plateStrip, psctx;
+
+function drawAll(){
+  updateCoords();
+  drawPlan();
+  updatePlate();
+}
+
+// ── Text-to-Speech for Accessibility ───────────────────────────────────────
+function speakInstruction(topic) {
+  // Cancel any ongoing speech
+  window.speechSynthesis.cancel();
+  
+  const instructions = {
+    'camera-position': 'Camera Position: Use the X and Y sliders to move the camera east-west and north-south. The camera stays in the western quadrant, which means negative X values and positive Y values. This positions the camera west of NYU and north of the reference point.',
+    
+    'camera-rotation': 'Camera Rotation: Adjust the rotation slider to point the camera in different directions. Zero degrees points east toward NYU. Positive rotates north, negative rotates south. This controls what the camera is looking at.',
+    
+    'field-of-view': function() {
+      const focalLength = parseFloat(document.getElementById('focal').value);
+      const fovDeg = getFovDeg();
+      const plateWidthInches = getPlateWidth();
+      const plateHeightInches = getPlateHeight();
+      const vFovDeg = fovDeg * (plateHeightInches/plateWidthInches);
+      const plateSize = currentPlateSize;
+      return `Field of View: FOV is calculated from focal length using the formula: FOV = 2 × arctan(width/(2×focal_length)). At ${focalLength} inches focal length, the horizontal FOV is ${fovDeg.toFixed(1)} degrees and vertical is ${vFovDeg.toFixed(1)} degrees for the ${plateSize} inch plate. Adjust focal length to change perspective and field of view.`;
+    },
+    
+    'image-overlay': 'Plate H Overlay: Load the actual 1893 daguerreotype image to overlay on the simulated camera view. Adjust the opacity slider from 0 to 100 percent to blend the historical photograph with the simulated plate view for precise optical comparison.',
+    
+    'building-movement': 'Building Movement: Use the row house, church, and NYU sliders to move buildings north and south. This lets you test different historical positions and sight lines. Move buildings to see how they affect what the camera can see.',
+    
+    'historical-map': 'Historical Map: The 1852 Perris map provides historical context for the building positions. The map is georeferenced and shows the actual layout of Washington Square in the mid-19th century.'
+  };
+  
+  const text = typeof instructions[topic] === 'function' ? instructions[topic]() : instructions[topic];
+  if (text) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.9; // Slightly slower for clarity
+    utterance.pitch = 1.0;
+    utterance.volume = 1.0;
+    
+    // Find a voice that speaks clearly
+    const voices = window.speechSynthesis.getVoices();
+    const preferredVoice = voices.find(voice => 
+      voice.name.includes('Google') || 
+      voice.name.includes('Microsoft') ||
+      voice.lang.startsWith('en')
+    );
+    
+    if (preferredVoice) {
+      utterance.voice = preferredVoice;
+    }
+    
+    window.speechSynthesis.speak(utterance);
+  }
+}
+
+// Load voices when available
+window.speechSynthesis.getVoices();
+if (speechSynthesis.onvoiceschanged !== undefined) {
+  speechSynthesis.onvoiceschanged = function() {
+    speechSynthesis.getVoices();
+  };
+}
+
+window.addEventListener('resize',setup);
+
+// Initialize setup after DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+  setup();
+});
+
+// Building AABBs in world coords (X=east, Y=north, origin=NYU NW corner)
+// Each: {x0,x1,y0,y1, wCol (west face), sCol (other faces), name}
+// NYU: west face x=0, north face y=0, extends east 100ft, south 180ft
+// Row houses and church use same Y positions as plan (slider-adjustable at render time)
+function getBuildings(){
+  // Simple NYU building implementation
+  // Base position from slider
+  const baseY = nyuFtY;
+  
+  const buildings = [];
+  
+  // Street surface (rendered as ground-level building)
+  const streetHeight = 1;
+  const streetY = -streetHeight;
+  const streetWest = -2000, streetEast = 2000;
+  const streetNorth = 100, streetSouth = -100;
+  buildings.push({x0:streetWest, x1:streetEast, y0:streetSouth, y1:streetNorth, 
+                   col:'rgba(180,160,110,0.8)', name:'Street'});
+  
+  
+  // Simple NYU building: 180'×100' rectangle with slider-controlled height
+  buildings.push({
+    x0:0, x1:100, y0:-(baseY+0), y1:-(baseY+180),
+    h: nyuHeight,  // Height controlled by slider
+    col:'#d8d5d0',
+    name:'NYU',
+    faceColors:{w:'#c8c5c0', e:'#e8e5e0', n:'#f8f5f0', s:'#b8b5b0'}
+  });
+  
+  // Row houses - positioned after NYU facade (max depth 112ft)
+  const rh1N = -rh1FtY,  rh1S = -rh1FtY  - RH1_NS;
+  const rh2N = -rh2FtY,  rh2S = -rh2FtY  - RH2_NS;
+  buildings.push(
+    {x0:112, x1:112+RH1_EW, y0:rh1S, y1:rh1N, col:'rgba(196,98,64,0.7)', name:'RH1'},
+    {x0:112+RH1_EW+45, x1:112+RH1_EW+45+RH2_EW, y0:rh2S, y1:rh2N, col:'rgba(210,140,60,0.8)', name:'RH2'}
+  );
+  
+  // Church sections - 4 shades of green for edge visibility
+  const chN  = churchFtY;
+  const ch1S = churchFtY - 25;
+  const ch2S = churchFtY - 50;
+  const ch3S = churchFtY - 75;
+  const ch4S = churchFtY - 100;
+  const chX0 = churchDistance - B2_EW/2, chX1 = churchDistance + B2_EW/2;
+  const chMX0 = chX0 - B2_PROJ, chMX1 = chX1;
+  
+  // Church sections - original 3-section structure matching plan view
+  buildings.push(
+    {x0:chX0,  x1:chX1,  y0:ch1S, y1:chN, col:'#1a4fcc', name:'ChN'},    // North tower - blue
+    {x0:chMX0, x1:chMX1, y0:ch2S, y1:ch1S, col:'#69BE28', name:'ChM'},    // Middle tower - green  
+    {x0:chX0,  x1:chX1,  y0:ch3S, y1:ch2S, col:'#FFEE00', name:'ChS'}     // South tower - yellow
+  );
+  
+  return buildings;
+}
+
+function rayAABB(ox,oy,dx,dy,b){
+  let tmin=-1e9, tmax=1e9;
+  if(Math.abs(dx)>1e-10){
+    const t1=(b.x0-ox)/dx, t2=(b.x1-ox)/dx;
+    tmin=Math.max(tmin,Math.min(t1,t2)); tmax=Math.min(tmax,Math.max(t1,t2));
+  } else if(ox<=b.x0||ox>=b.x1) return null;
+  if(Math.abs(dy)>1e-10){
+    const t1=(b.y0-oy)/dy, t2=(b.y1-oy)/dy;
+    tmin=Math.max(tmin,Math.min(t1,t2)); tmax=Math.min(tmax,Math.max(t1,t2));
+  } else if(oy<=b.y0||oy>=b.y1) return null;
+  if(tmax<0.5||tmin>tmax) return null;
+  const t=tmin>0.5?tmin:tmax;
+  if(t<0.5) return null;
+  // Determine which face was hit
+  let col=b.col;
+  if(b.faceColors){
+      const hx=ox+dx*t, hy=oy+dy*t, eps=0.5;
+      // Check side faces first (vertical surfaces)
+      if(Math.abs(hx-b.x0)<eps)      col=b.faceColors.w;
+      else if(Math.abs(hx-b.x1)<eps) col=b.faceColors.e;
+      else if(Math.abs(hy-b.y1)<eps) col=b.faceColors.n;
+      else if(Math.abs(hy-b.y0)<eps) col=b.faceColors.s;
+      // If not a side face, check if it's the top face (horizontal surface)
+      else if(b.faceColors.t)        col=b.faceColors.t;
+  }
+  return {t, col, name:b.name};
+}
+
+function castRay(ox,oy,angle,buildings){
+  const dx=Math.cos(angle), dy=Math.sin(angle);
+  let best=null;
+  for(const b of buildings){
+    const h=rayAABB(ox,oy,dx,dy,b);
+    if(h&&(!best||h.t<best.t)) best=h;
+  }
+  return best||{col:'#c8d4e8',name:'sky',t:9999};
+}
+
+function updatePlate(){
+  if(!plateStrip){
+    plateStrip=document.getElementById('plateStrip');
+    psctx=plateStrip.getContext('2d');
+  }
+  const PW=plateStrip.width, PH=plateStrip.height;
+  const fovDeg=getFovDeg();
+  const plateWidthInches = getPlateWidth();
+  const plateHeightInches = getPlateHeight();
+  const vFovDeg = fovDeg * (plateHeightInches/plateWidthInches); // aspect ratio
+  const aimRad=-camRotation*Math.PI/180;
+  const halfH=fovDeg/2*Math.PI/180;
+  const halfV=vFovDeg/2*Math.PI/180;
+  const CAM_H=cameraHeight;
+  const CAMERA_TILT_UP=cameraTiltUp; // Use global camera tilt variable
+  const aimDx=Math.cos(aimRad),aimDy=Math.sin(aimRad);
+  const rightDx=Math.sin(aimRad),rightDy=-Math.cos(aimRad);
+  const blds=getBuildings();
+  const imgData=psctx.createImageData(PW,PH);
+  const d=imgData.data;
+  const SKY=[200,212,232],GND=[196,168,114];
+  const counts={NYU:0,RH1:0,RH2:0,ChN:0,ChM:0,ChS:0,sky:0,ground:0,street:0};
+  const midRow=Math.floor(PH/2);
+  const horizAng=Math.atan2(-CAM_H,1000);
+
+  // Color parser cache
+  const _tmp=document.createElement('canvas');_tmp.width=_tmp.height=1;
+  const _tx=_tmp.getContext('2d');
+  const _cc={};
+  function rgb(col){
+    if(_cc[col])return _cc[col];
+    _tx.clearRect(0,0,1,1);_tx.fillStyle=col;_tx.fillRect(0,0,1,1);
+    const p=_tx.getImageData(0,0,1,1).data;
+    return _cc[col]=[p[0],p[1],p[2]];
+  }
+
+  function bldH(b){
+    if(b.h !== undefined) return b.h; // Use height from building object if available
+    if(b.name==='NYU')    return nyuHeight;
+    if(b.name==='RH1')    return rh1Height;
+    if(b.name==='RH2')    return rh2Height;
+    if(b.name==='ChN')    return chNHeight;
+    if(b.name==='ChM')    return chMHeight;
+    if(b.name==='ChS')    return chSHeight;
+    if(b.name==='ChT1'||b.name==='ChT2'||b.name==='ChT3'||b.name==='ChT4')    return chTHeight;
+    if(b.name==='Street') return 1; // Street at 1 foot height
+    return 0;
+  }
+
+  for(let py=0;py<PH;py++){
+    const vAng=((1-py/(PH-1))-0.5)*2*halfV + CAMERA_TILT_UP; // Apply configurable upward camera angle
+    for(let px=0;px<PW;px++){
+      const hAng=((1-px/(PW-1))-0.5)*2*halfH;
+      const angle=aimRad+hAng;
+      const dx=Math.cos(angle),dy=Math.sin(angle);
+
+      // Collect ALL hits along this ray, sorted front-to-back
+      const hits=[];
+      for(const b of blds){
+        const h=rayAABB(camFtX,camFtY,dx,dy,b);
+        if(h) {
+          hits.push({...h, building: b}); // Preserve building reference
+        }
+      }
+      hits.sort((a,b)=>a.t-b.t);
+
+      let r,g,b2;
+      let resolved=false;
+
+      for(const hit of hits){
+        const bh=bldH(hit.building); // Use building reference
+        const angTop=Math.atan2(bh-CAM_H,hit.t);
+        const angBot=Math.atan2(-CAM_H,hit.t);
+        if(vAng>=angBot&&vAng<=angTop){
+          // Ray hits this building face
+          let colorToUse = hit.col;
+          // Check if this is the top face and if top face color is defined
+          if(hit.building.faceColors && hit.building.faceColors.t && vAng > angBot + (angTop-angBot)*0.8){
+            // This is likely the top surface (upper portion of the face)
+            colorToUse = hit.building.faceColors.t;
+          }
+          const c=rgb(colorToUse);
+          const shade=1.0; // Remove vertical shading - uniform color
+          r=Math.min(255,Math.round(c[0]*shade));
+          g=Math.min(255,Math.round(c[1]*shade));
+          b2=Math.min(255,Math.round(c[2]*shade));
+          if(py===midRow) counts[hit.name]=(counts[hit.name]||0)+1;
+          resolved=true;
+          break;
+        }
+        // If vAng is above this building's roofline, keep looking at buildings behind
+        // If vAng is below this building's ground, it's ground — stop
+        if(vAng<angBot){ r=GND[0];g=GND[1];b2=GND[2];if(py===midRow)counts.ground++;resolved=true;break; }
+        // vAng > angTop: ray passes over this building — continue to next
+      }
+
+      if(!resolved){
+        if(vAng>horizAng){r=SKY[0];g=SKY[1];b2=SKY[2];if(py===midRow)counts.sky++;}
+        else{r=GND[0];g=GND[1];b2=GND[2];if(py===midRow)counts.ground++;}
+      }
+
+      const idx=(py*PW+px)*4;
+      d[idx]=r;d[idx+1]=g;d[idx+2]=b2;d[idx+3]=255;
+    }
+  }
+  psctx.putImageData(imgData,0,0);
+
+  // NYU NW corner stats
+  let nyuNWplate=null;
+  const nyuWorldN = -nyuFtY;
+  const ddx=0-camFtX, ddy=nyuWorldN-camFtY;
+  const mf=ddx*aimDx+ddy*aimDy;
+  if(mf>0.5){
+    const ml=ddx*rightDx+ddy*rightDy;
+    nyuNWplate=Math.round((1-(Math.atan2(ml,mf)/(2*halfH)+0.5))*(PW-1));
+  }
+
+  const N=PW;
+  const dist=Math.round(Math.sqrt(camFtX*camFtX+camFtY*camFtY));
+  document.getElementById('ps-pos').textContent=`(${camFtX}, ${camFtY>=0?'+':''}${camFtY}) ft`;
+  document.getElementById('ps-rot').textContent=`${camRotation}°`;
+  document.getElementById('ps-fov').textContent=`${fovDeg}° / ${vFovDeg.toFixed(1)}°`;
+  document.getElementById('ps-nyu').textContent=`${Math.round((counts.NYU||0)/N*100)}%`;
+  document.getElementById('ps-ch').textContent=`${Math.round(((counts.ChN||0)+(counts.ChM||0)+(counts.ChS||0))/N*100)}%`;
+  document.getElementById('ps-rh1').textContent=`${Math.round((counts.RH1||0)/N*100)}%`;
+  document.getElementById('ps-rh2').textContent=`${Math.round((counts.RH2||0)/N*100)}%`;
+  document.getElementById('ps-sky').textContent=`${Math.round((counts.sky||0)/N*100)}%`;
+  document.getElementById('ps-dist').textContent=`${dist} ft`;
+  document.getElementById('ps-nwpos').textContent=nyuNWplate!==null
+    ?`${Math.round(nyuNWplate/PW*100)}% from left`:'outside frame';
+  document.getElementById('plate-caption').textContent='';
+}
+
+
+// ── Plate Size Management ──────────────────────────────────────────────────────
+function updatePlateSize(size) {
+  currentPlateSize = size;
+  const canvas = document.getElementById('plateStrip');
+  const display = document.getElementById('plate-size-display');
+  const title = document.getElementById('plate-title');
+  
+  if (size === '5x7') {
+    // 5×7 landscape - maintain 7:5 ratio (1.4:1)
+    // Use 400px as the width, calculate height to maintain ratio
+    const canvasWidth = 400;
+    const canvasHeight = Math.round(400 * (5/7)); // 400 * 0.714 = 286px
+    canvas.style.width = canvasWidth + 'px';
+    canvas.style.height = canvasHeight + 'px';
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+    display.textContent = '5×7';
+    title.textContent = '5 × 7 inch plate — landscape — camera\'s eye view';
+  } else if (size === '5x7-portrait') {
+    // 5×7 portrait - maintain 5:7 ratio (0.714:1)
+    // Use 286px as the width (same as landscape height), calculate height
+    const canvasWidth = 286;
+    const canvasHeight = 400; // Swap dimensions for portrait
+    canvas.style.width = canvasWidth + 'px';
+    canvas.style.height = canvasHeight + 'px';
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+    display.textContent = '5×7P';
+    title.textContent = '5 × 7 inch plate — portrait — camera\'s eye view';
+  } else if (size === '8x10') {
+    // 8×10 landscape - maintain 10:8 ratio (1.25:1)
+    // Use 400px as the width, calculate height to maintain ratio
+    const canvasWidth = 400;
+    const canvasHeight = Math.round(400 * (8/10)); // 400 * 0.8 = 320px
+    canvas.style.width = canvasWidth + 'px';
+    canvas.style.height = canvasHeight + 'px';
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+    display.textContent = '8×10';
+    title.textContent = '8 × 10 inch plate — landscape — camera\'s eye view';
+  } else if (size === '8x10-portrait') {
+    // 8×10 portrait - maintain 8:10 ratio (0.8:1)
+    // Use 320px as the width (same as landscape height), calculate height
+    const canvasWidth = 320;
+    const canvasHeight = 400; // Swap dimensions for portrait
+    canvas.style.width = canvasWidth + 'px';
+    canvas.style.height = canvasHeight + 'px';
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+    display.textContent = '8×10P';
+    title.textContent = '8 × 10 inch plate — portrait — camera\'s eye view';
+  } else if (size === '2x2.5') {
+    // 59x82 ratio - match plan view height
+    // Use plan height and calculate width to maintain 59:82 ratio
+    const planCanvas = document.getElementById('plan');
+    const canvasHeight = planCanvas.height; // Match plan view height
+    const canvasWidth = Math.round(canvasHeight * (59/82)); // Maintain 59:82 ratio
+    canvas.style.width = canvasWidth + 'px';
+    canvas.style.height = canvasHeight + 'px';
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+    display.textContent = '59×82';
+    title.textContent = '59 × 82 plate — camera\'s eye view';
+  }
+  
+  // Redraw the plate view with new dimensions
+  drawAll();
+}
+
+// Add event listeners for plate size radio buttons
+document.addEventListener('DOMContentLoaded', function() {
+  const plateSizeRadios = document.querySelectorAll('input[name="plate-size"]');
+  plateSizeRadios.forEach(radio => {
+    radio.addEventListener('change', function() {
+      if (this.checked) {
+        updatePlateSize(this.value);
+      }
+    });
+  });
+  
+  // Initialize with default 2x2.5 size
+  updatePlateSize('2x2.5');
+});
+
+</script>
+<script>
+// ── Temporary Map Controls ─────────────────────────────────────────────────────
+// Temporary map transformation variables
+let tempMapScale = 1.41;
+let tempMapRotation = -4.0; // degrees
+let tempMapX = -1680;
+let tempMapY = -2052;
+let tempMapOpacity = 50;
+let tempMapVisible = false;
+let showAlignmentGrid = true;
+
+
+
+</script>
+<script>
+(function(){
+  const opacitySlider = document.getElementById('overlayOpacity');
+  const opacityLabel  = document.getElementById('overlayOpacityVal');
+  const img    = document.getElementById('dagOverlay');
+  
+  // Opacity control
+  opacitySlider.addEventListener('input', function(){
+    const v = parseInt(this.value);
+    img.style.opacity = v / 100;
+    opacityLabel.textContent = v + '%';
+  });
+  
+
+  })();
+</script>
+</body>
+</html>
