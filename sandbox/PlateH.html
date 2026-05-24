@@ -262,9 +262,9 @@ ctx.scale(tempMapScale, tempMapScale);
       
       <div class="ctrl-section-title" style="margin-top:0.8rem;">Row Houses</div>
       <div class="sl"><label>RH1 position</label><input type="range" id="rh1slide" min="0" max="100" value="10" step="1"><span class="v" id="rh1-out">10 ft</span></div>
-      <div class="sl"><label>RH1 height</label><input type="range" id="rh1height" min="10" max="120" value="90" step="1"><span class="v" id="rh1height-out">90 ft</span></div>
+      <div class="sl"><label>RH1 height</label><input type="range" id="rh1height" min="10" max="120" value="45" step="1"><span class="v" id="rh1height-out">45 ft</span></div>
       <div class="sl"><label>RH2 position</label><input type="range" id="rh2slide" min="0" max="100" value="10" step="1"><span class="v" id="rh2-out">10 ft</span></div>
-      <div class="sl"><label>RH2 height</label><input type="range" id="rh2height" min="10" max="120" value="90" step="1"><span class="v" id="rh2height-out">90 ft</span></div>
+      <div class="sl"><label>RH2 height</label><input type="range" id="rh2height" min="10" max="120" value="45" step="1"><span class="v" id="rh2height-out">45 ft</span></div>
     </div>
 
     <!-- Church -->
@@ -340,7 +340,7 @@ let rh1FtY=10, rh2FtY=10;
 let churchFtY=28;
 let nyuFtY=9;
 // Building heights (ft)
-let nyuHeight=85, rh1Height=90, rh2Height=90;
+let nyuHeight=85, rh1Height=45, rh2Height=45;
 let chNHeight=50, chMHeight=90, chSHeight=50, chTHeight=120;
 // Plate size state
 let currentPlateSize = '2x2.5';
@@ -842,7 +842,7 @@ function drawPlan(){
   pctx.fillStyle='#faf5ec'; pctx.fillRect(0,0,W,PH);
 
   // Draw georeferenced historical map
-  if(_mapImg.complete && _mapImg.naturalWidth>0){
+  if(_mapImg.complete && _mapImg.naturalWidth>0 && tempMapVisible){
     pctx.save();
     
     // Use locked transformation values
@@ -1424,7 +1424,7 @@ let tempMapRotation = -4.0; // degrees
 let tempMapX = -1680;
 let tempMapY = -2052;
 let tempMapOpacity = 50;
-let tempMapVisible = false;
+let tempMapVisible = true;
 let showAlignmentGrid = true;
 
 
