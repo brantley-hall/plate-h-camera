@@ -2083,6 +2083,8 @@ let currentMapIndex = 0;
 
 _mapImg.onload = () => {
   console.log('Map loaded successfully:', _mapImg.naturalWidth + 'x' + _mapImg.naturalHeight);
+  // Load saved position settings after image loads
+  setTimeout(() => loadMapSettings(), 50);
   drawAll();
 };
 
