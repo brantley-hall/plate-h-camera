@@ -3,72 +3,4055 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Plate H — Washington Square 1839</title>
-<link rel="stylesheet" href="css/style.css">
+        <title>NYU from Washington Square Park - Forensic Image Analysis</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Source+Code+Pro:wght@400;600&family=Spectral:ital,wght@0,300;0,400;1,300&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--ink:#1a1208;--paper:#f4ede0;--aged:#e8d9c0;--aged-dark:#d4c4a8;--sepia:#8b6914;--rust:#c0392b;--muted:#6b5a3e;--rule:rgba(139,105,20,0.25);}
+body{background:var(--paper);color:var(--ink);font-family:'Spectral',Georgia,serif;font-size:14px;line-height:1.5;min-height:100vh;}
+.wrapper{max-width:1600px;margin:0 auto;padding:0.1rem 0.8rem 0.4rem;}
+
+header{border-top:3px double var(--sepia);border-bottom:1px solid var(--rule);padding:0.1rem 0;margin-bottom:0.2rem;text-align:center;}
+.eyebrow{font-family:'Source Code Pro',monospace;font-size:0.58rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--sepia);}
+h1{font-family:'Playfair Display',Georgia,serif;font-size:clamp(1.1rem,2vw,1.5rem);font-weight:600;color:var(--ink);}
+h1 em{font-style:italic;font-weight:400;color:var(--sepia);}
+
+/* ── Two-column workspace (plan + plate) ── */
+.workspace{display:grid;grid-template-columns:1fr 400px;gap:0.72rem;align-items:start;margin-bottom:0.1rem;}
+/* ── RIGHT: Plate view ── */
+.plate-col{display:flex;flex-direction:column;gap:0.1rem;justify-content:flex-end;max-height:calc(100vh - 250px);}
+
+/* ── Slider panel (full width below workspace) ── */
+.slider-panel{background:var(--aged);border:1px solid var(--rule);border-radius:4px;padding:0.4rem 1rem;margin-bottom:0.1rem;}
+.slider-panel-inner{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0.6rem 1.5rem;}
+.col-1{grid-column:1;}
+.col-2{grid-column:2;}
+.col-3{grid-column:3;}
+.col-4{grid-column:4;}
+
+/* ── Slider sections ── */
+.slider-group{}
+.ctrl-section{margin-bottom:0.3rem;padding-bottom:0.3rem;border-bottom:1px solid var(--rule);}
+.ctrl-section:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+.ctrl-section-title{font-family:'Source Code Pro',monospace;font-size:0.57rem;letter-spacing:0.13em;text-transform:uppercase;color:var(--sepia);font-weight:700;margin-bottom:0.2rem;}
+.sl{display:flex;align-items:center;gap:5px;margin-bottom:1px;max-width:75%;}
+.sl label{font-family:'Source Code Pro',monospace;font-size:0.6rem;color:var(--muted);flex:0 0 100px;line-height:1.2;}
+.sl input[type=range]{flex:1;height:3px;-webkit-appearance:none;appearance:none;background:var(--sepia);border-radius:2px;outline:none;cursor:pointer;}
+.sl input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;border-radius:50%;background:var(--ink);cursor:pointer;border:2px solid var(--paper);box-shadow:0 0 0 1px var(--sepia);}
+.sl .v{font-family:'Source Code Pro',monospace;font-size:0.6rem;font-weight:700;color:var(--ink);min-width:32px;text-align:right;}
+.sl-check{display:flex;align-items:center;gap:6px;font-family:'Source Code Pro',monospace;font-size:0.6rem;color:var(--muted);margin-top:2px;}
+.coord-display{font-family:'Source Code Pro',monospace;font-size:0.62rem;color:var(--muted);text-align:center;padding:1px 0;margin-bottom:2px;}
+.coord-display span{color:var(--rust);font-weight:700;}
+
+/* ── CENTRE: Plan view ── */
+.plan-col{display:flex;flex-direction:column;gap:0.2rem;}
+.plan-wrap{border:1px solid var(--sepia);border-radius:2px;overflow:hidden;box-shadow:3px 3px 0 rgba(139,105,20,0.1);}
+canvas#plan{display:block;width:100%;}
+.legend{display:flex;flex-wrap:wrap;gap:0.25rem 0.7rem;padding:0.35rem 0.6rem;background:var(--aged);border:1px solid var(--rule);border-radius:3px;}
+.leg{display:flex;align-items:center;gap:0.25rem;font-family:'Source Code Pro',monospace;font-size:0.57rem;color:var(--muted);}
+.sw{width:9px;height:9px;border-radius:1px;flex-shrink:0;}
+
+/* ── RIGHT: Plate view ── */
+/* plate-col defined in workspace block above */
+.plate-col-title{font-family:'Source Code Pro',monospace;font-size:0.57rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--sepia);text-align:center;}
+.plate-border{border:3px solid var(--sepia);padding:3px;background:var(--ink);display:block;line-height:0;box-shadow:4px 4px 0 rgba(139,105,20,0.12);align-self:center;}
+canvas#plateStrip{display:block;}
+.plate-caption{font-family:'Source Code Pro',monospace;font-size:0.57rem;color:var(--muted);text-align:center;}
+.plate-legend{display:flex;flex-wrap:wrap;gap:0.2rem 0.6rem;}
+.plate-leg{display:flex;align-items:center;gap:0.25rem;font-family:'Source Code Pro',monospace;font-size:0.57rem;color:var(--muted);}
+.plate-swatch{width:9px;height:9px;border-radius:1px;flex-shrink:0;}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:2px;}
+.stat{background:var(--aged);border:1px solid var(--rule);border-radius:2px;padding:3px 6px;}
+.stat-label{font-family:'Source Code Pro',monospace;font-size:0.52rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);}
+.stat-val{font-family:'Source Code Pro',monospace;font-size:0.68rem;font-weight:700;color:var(--ink);}
+
+/* ── Instructions (bottom) ── */
+.instructions{margin-top:0.4rem;border-top:2px solid var(--rule);padding-top:0.3rem;}
+.instr-title{font-family:'Playfair Display',Georgia,serif;font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:0.3rem;}
+.instr-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0.3rem;}
+.instr-card{background:var(--aged);border:1px solid var(--rule);border-radius:3px;padding:0.3rem 0.5rem;}
+.instr-head{font-family:'Source Code Pro',monospace;font-size:0.6rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--sepia);font-weight:700;margin-bottom:0.25rem;}
+.instr-body{font-size:0.75rem;color:var(--muted);line-height:1.45;}
+.instr-btn{width:100%;background:var(--paper);border:none;border-radius:3px;padding:0.6rem 0.8rem;cursor:pointer;text-align:left;font-family:inherit;transition:background 0.2s;}
+.instr-btn:hover{background:var(--ink);color:var(--paper);}
+.instr-btn:hover .instr-head{color:var(--aged);}
+.instr-btn:hover .instr-body{color:var(--aged);}
+
+footer{border-top:1px solid var(--rule);margin-top:1rem;padding-top:0.6rem;font-size:0.65rem;color:var(--muted);font-style:italic;text-align:center;}
+footer strong{font-style:normal;color:var(--sepia);}
+
+</style>
 </head>
 <body>
 <div class="wrapper">
 
-  <header>
-    <p class="eyebrow">Research Tool &nbsp;·&nbsp; Washington Square, New York &nbsp;·&nbsp; c. 1839–1895</p>
-    <h1>Plate H</h1>
-    <p class="tagline">A geometric and photographic analysis of the original NYU Gothic Revival building and its early documentation</p>
-  </header>
+<header>
+        <h1>NYU from Washington Square Park - <em>Forensic Image Analysis</em></h1>
+</header>
 
-  <div class="intro">
-    <strong>Working research site.</strong> This tool reconstructs the optical geometry of early photographs and engravings of the NYU University Building (1835–1895) at Washington Square East. Camera positions, sight lines, and plate projections are computed against a georeferenced 1852 plan.
+
+<div class="workspace">
+
+  <!-- CENTRE: PLAN VIEW -->
+  <div class="plan-col">
+    <div class="ctrl-section-title" style="margin-bottom:0.3rem;font-size:0.7rem;text-align:center;">Site Plan <span id="site-plan-map-name" style="font-family:'Georgia',serif;font-size:0.6rem;color:var(--rust);font-style:italic;">1852 Harrison</span></div>
+    
+        
+          
+            
+          
+    <div class="plan-wrap">
+      <canvas id="plan"></canvas>
+    </div>
+    <div class="legend">
+      <div class="leg"><div class="sw" style="background:rgba(255,0,0,0.7);border:1px dashed rgba(255,0,0,0.9)"></div>Red Shadow (Blind)</div>
+      <div class="leg"><div class="sw" style="background:rgba(0,210,255,0.45);border:1px dashed rgba(0,210,255,0.9)"></div>Blue Shadow (Visible)</div>
+            <div class="leg"><div class="sw" style="background:#c8d4e8;border:1px solid #8899aa"></div>Sky</div>
+      <div class="leg"><div class="sw" style="background:#c4a872;border:1px solid #8b6914"></div>Ground</div>
+      <div class="leg"><div class="sw" style="background:rgba(0,128,0,0.5);border:1px solid #006400"></div>Church N</div>
+      <div class="leg"><div class="sw" style="background:rgba(255,255,0,0.5);border:1px solid #cccc00"></div>Church M</div>
+      <div class="leg"><div class="sw" style="background:rgba(0,0,255,0.5);border:1px solid #0000cc"></div>Church S</div>
+      <div class="leg"><div class="sw" style="background:rgba(189,186,181,0.6);border:1px solid #8b8680"></div>NYU</div>
+      <div class="leg"><div class="sw" style="background:rgba(128,0,0,0.4);border:1px solid #800000"></div>RH1</div>
+      <div class="leg"><div class="sw" style="background:rgba(139,90,43,0.5);border:1px solid #8b5a2b"></div>RH2</div>
+    </div>
+    
+    <!-- Combined Interface Section -->
+    <div style="margin-top:0.5rem;padding:0.5rem;background:var(--aged);border:1px solid var(--rule);border-radius:3px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;">
+        <!-- User Interface Section -->
+        <div style="display:flex;align-items:center;gap:0.5rem;">
+          <div style="font-family:'Source Code Pro',monospace;font-size:0.7rem;color:var(--ink);white-space:nowrap;">User Interface</div>
+          <div style="display:flex;align-items:center;gap:0.5rem;">
+            <button id="site-scene-toggle" onclick="toggleSiteScene()" 
+              style="font-family:'Source Code Pro',monospace;font-size:0.7rem;background:var(--paper);color:var(--ink);border:1px solid var(--sepia);border-radius:3px;padding:0.4rem 0.8rem;cursor:pointer;transition:all 0.2s;">
+              SITE SCENE
+            </button>
+            <button id="tape-measure-toggle" onclick="toggleTapeMeasureMode()" 
+              style="font-family:'Source Code Pro',monospace;font-size:0.7rem;background:var(--paper);color:var(--ink);border:1px solid var(--sepia);border-radius:3px;padding:0.4rem 0.8rem;cursor:pointer;transition:all 0.2s;">
+              TAPE MEASURE
+            </button>
+            <button id="overlay-selector-toggle" onclick="toggleOverlaySelector()" 
+              style="font-family:'Source Code Pro',monospace;font-size:0.7rem;background:var(--paper);color:var(--ink);border:1px solid var(--sepia);border-radius:3px;padding:0.4rem 0.8rem;cursor:pointer;transition:all 0.2s;">
+              OVERLAY
+            </button>
+            <button id="help-toggle" onclick="toggleHelp()" 
+              style="font-family:'Source Code Pro',monospace;font-size:0.7rem;background:var(--paper);color:var(--ink);border:1px solid var(--sepia);border-radius:3px;padding:0.4rem 0.8rem;cursor:pointer;transition:all 0.2s;">
+              HELP
+            </button>
+            <div style="display:flex;align-items:center;gap:0.5rem;margin-left:1rem;">
+              <label style="font-family:'Source Code Pro',monospace;font-size:0.6rem;color:var(--muted);">Show Map</label>
+              <input type="checkbox" id="tempMapVisible" checked onchange="updateMapPosition()">
+              <label style="font-family:'Source Code Pro',monospace;font-size:0.6rem;color:var(--muted);margin-left:1rem;">Show Roads</label>
+              <input type="checkbox" id="showRoadways" checked onchange="updateMapPosition()">
+            </div>
+          </div>
+        </div>
+        
+        <!-- Developer Interface Section -->
+        <div style="display:flex;align-items:center;gap:0.5rem;">
+          <div style="font-family:'Source Code Pro',monospace;font-size:0.7rem;color:var(--ink);white-space:nowrap;">Developer Interface</div>
+          <button id="map-controls-toggle" onclick="toggleMapControls()" 
+            style="font-family:'Source Code Pro',monospace;font-size:0.7rem;background:var(--paper);color:var(--ink);border:1px solid var(--sepia);border-radius:3px;padding:0.4rem 0.8rem;cursor:pointer;transition:all 0.2s;">
+            MAP
+          </button>
+          <button id="bis-display-toggle" onclick="toggleBISDisplay()" 
+            style="font-family:'Source Code Pro',monospace;font-size:0.7rem;background:var(--paper);color:var(--ink);border:1px solid var(--sepia);border-radius:3px;padding:0.4rem 0.8rem;cursor:pointer;transition:all 0.2s;">
+            BUILDINGS
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Popup Displays Section -->
+    <!-- Tape Measure Display -->
+    <div id="tape-measure-display" style="display:none;background:var(--aged-dark);border:1px solid var(--rule);border-radius:3px;padding:0.3rem 0.5rem;margin-top:0.3rem;">
+      <div style="font-family:'Source Code Pro',monospace;font-size:0.6rem;color:var(--muted);">
+        Click and drag to measure
+      </div>
+    </div>
+    
+    <!-- BIS Display -->
+    <div id="bis-display" style="display:none;background:var(--aged-dark);border:1px solid var(--rule);border-radius:3px;padding:0.3rem 0.5rem;margin-top:0.3rem;max-height:300px;overflow-y:auto;">
+      <div id="bis-content" style="font-family:'Source Code Pro',monospace;font-size:0.6rem;color:var(--muted);">
+        Loading building information...
+      </div>
+    </div>
+    
+    <!-- Help Display -->
+    <div id="help-display" style="display:none;background:var(--aged-dark);border:1px solid var(--rule);border-radius:3px;padding:0.3rem 0.5rem;margin-top:0.3rem;max-height:400px;overflow-y:auto;">
+      <div class="instr-title" style="font-size:0.8rem;margin-bottom:0.3rem;">Instructions — click any card to hear it read aloud</div>
+      <div class="instr-grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0.3rem;">
+        <div class="instr-card"><button class="instr-btn" onclick="speakInstruction('camera-position')"><div class="instr-head">Camera position</div><div class="instr-body">Control camera with X/Y sliders for east-west and north-south movement, plus height adjustment. Use exact inputs for precision. Camera moves freely - negative X is west, positive Y is north. Height sets eye level from 3-35 feet.</div></button></div>
+        <div class="instr-card"><button class="instr-btn" onclick="speakInstruction('camera-rotation')"><div class="instr-head">Rotation</div><div class="instr-body">0° aims east toward NYU. Positive rotates north, negative south. Controls camera direction.</div></button></div>
+        <div class="instr-card"><button class="instr-btn" onclick="speakInstruction('field-of-view')"><div class="instr-head">Field of view</div><div class="instr-body">FOV calculated from focal length. At <span id="instr-focal">8"</span> focal length, horizontal FOV is <span id="instr-hfov">14°</span> and vertical is <span id="instr-vfov">16.8°</span> for <span id="instr-plate-size">5×7</span> inch plate. Adjust focal length to change perspective.</div></button></div>
+        <div class="instr-card"><button class="instr-btn" onclick="speakInstruction('image-overlay')"><div class="instr-head">Plate H overlay</div><div class="instr-body">Load the 1839 daguerreotype Plate H from McManus Collection to overlay on the simulated view. Adjust opacity slider (0-100%) to blend the historical photograph with the simulation for comparison.</div></button></div>
+        <div class="instr-card"><button class="instr-btn" onclick="speakInstruction('building-movement')"><div class="instr-head">Building positions</div><div class="instr-body">Shift buildings north or south. Changes appear instantly in plan and ray-casting views. Test historical placement hypotheses.</div></button></div>
+        <div class="instr-card"><button class="instr-btn" onclick="speakInstruction('historical-map')"><div class="instr-head">Historical map</div><div class="instr-body">The 1852 Harrison map underlies the plan at georeferenced scale. Origin (0,0) is the NYU NW corner. The Church of the Messiah is <span id="instruction-distance">777</span> ft to the east - matching current NYC online system measurements.</div></button></div>
+        <div class="instr-card"><button class="instr-btn" onclick="speakInstruction('map-controls')"><div class="instr-head">Map controls</div><div class="instr-body">Toggle map positioning controls to scale, rotate, and offset the 1852 Harrison map. Save and load map positions for consistent reference. Adjust opacity and visibility for overlay comparison.</div></button></div>
+        <div class="instr-card"><button class="instr-btn" onclick="speakInstruction('tape-measure')"><div class="instr-head">Tape measure</div><div class="instr-body">Click and drag to measure distances between any two points on the plan. Distance displays in feet with transparent blue label. Use for precise spatial analysis and measurements.</div></button></div>
+        <div class="instr-card"><button class="instr-btn" onclick="speakInstruction('building-info')"><div class="instr-head">Building info</div><div class="instr-body">Toggle building information display to view detailed data about NYU, Row Houses, and Church buildings. Shows coordinates, dimensions, and properties for historical analysis.</div></button></div>
+      </div>
+    </div>
+    
+    <!-- Map Controls Display -->
+    <div id="map-controls" style="display:none;background:var(--aged-dark);border:1px solid var(--rule);border-radius:3px;padding:0.3rem 0.5rem;margin-top:0.3rem;">
+      <div style="font-family:'Source Code Pro',monospace;font-size:0.6rem;color:var(--muted);margin-bottom:0.2rem;">Map Positioning & Scaling</div>
+      
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.3rem;">
+        <div class="sl">
+          <label>Scale</label>
+          <input type="range" id="mapScale" min="0.1" max="3" step="0.01" value="0.41" oninput="updateMapPosition()">
+          <input type="number" id="mapScale-input" min="0.1" max="3" step="0.01" value="0.41" style="width:60px;font-size:0.6rem;margin-left:0.2rem;" oninput="updateMapFromInput()">
+          <span class="v" id="mapScale-out">0.41</span>
+        </div>
+        <div class="sl">
+          <label>Rotation</label>
+          <input type="range" id="mapRotation" min="-180" max="180" step="0.1" value="-20.5" oninput="updateMapPosition()">
+          <input type="number" id="mapRotation-input" min="-180" max="180" step="0.1" value="-20.5" style="width:60px;font-size:0.6rem;margin-left:0.2rem;" oninput="updateMapFromInput()">
+          <span class="v" id="mapRotation-out">-20.5°</span>
+        </div>
+        <div class="sl">
+          <label>X Offset</label>
+          <input type="range" id="mapOffsetX" min="-3000" max="3000" step="1" value="-1587" oninput="updateMapPosition()">
+          <input type="number" id="mapOffsetX-input" min="-3000" max="3000" step="1" value="-1587" style="width:60px;font-size:0.6rem;margin-left:0.2rem;" oninput="updateMapFromInput()">
+          <span class="v" id="mapOffsetX-out">-1587</span>
+        </div>
+        <div class="sl">
+          <label>Y Offset</label>
+          <input type="range" id="mapOffsetY" min="-3000" max="5000" step="1" value="3500" oninput="updateMapPosition()">
+          <input type="number" id="mapOffsetY-input" min="-3000" max="5000" step="1" value="3500" style="width:60px;font-size:0.6rem;margin-left:0.2rem;" oninput="updateMapFromInput()">
+          <span class="v" id="mapOffsetY-out">3500</span>
+        </div>
+      </div>
+      
+      <div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.2rem;">
+        <label style="font-family:'Source Code Pro',monospace;font-size:0.6rem;color:var(--muted);">Map</label>
+        <select id="map-selector" disabled
+          style="font-family:'Source Code Pro',monospace;font-size:0.6rem;background:var(--aged);color:var(--muted);border:1px solid var(--sepia);border-radius:3px;padding:0.2rem;">
+          <option value="0">1852 Harrison</option>
+          <option value="1">1854 Perris</option>
+          <option value="2">2026 NYC Zoning</option>
+          <option value="3">1879 Brumley Map</option>
+          <option value="4">1891 NYU Bromley</option>
+          <option value="5">1893 Pincus Map</option>
+        </select>
+        <span id="current-map-name" style="font-family:'Source Code Pro',monospace;font-size:0.5rem;color:var(--sepia);margin-left:0.5rem;">1852 Harrison</span>
+      </div>
+      
+            
+      <div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.2rem;">
+        <label style="font-family:'Source Code Pro',monospace;font-size:0.6rem;color:var(--muted);">Opacity</label>
+        <input type="range" id="mapOpacity" min="0" max="100" value="50" oninput="updateMapPosition()"
+          style="width:120px;accent-color:var(--sepia);">
+        <span style="font-family:'Source Code Pro',monospace;font-size:0.6rem;color:var(--sepia);min-width:28px;text-align:right;" id="mapOpacity-out">50%</span>
+      </div>
+      
+      <div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.2rem;">
+        <button id="resetMapPosition" onclick="resetMapToOrigin()" 
+          style="font-family:'Source Code Pro',monospace;font-size:0.6rem;background:var(--paper);color:var(--ink);border:1px solid var(--sepia);border-radius:3px;padding:0.2rem 0.4rem;cursor:pointer;transition:all 0.2s;">
+          Reset to Origin
+        </button>
+        <button id="saveMapPosition" onclick="saveMapSettings()" 
+          style="font-family:'Source Code Pro',monospace;font-size:0.6rem;background:var(--paper);color:var(--ink);border:1px solid var(--sepia);border-radius:3px;padding:0.2rem 0.4rem;cursor:pointer;transition:all 0.2s;">
+          Save Position
+        </button>
+        <button id="testLoadMapPosition" onclick="testLoadMapSettings()" 
+          style="font-family:'Source Code Pro',monospace;font-size:0.6rem;background:var(--sepia);color:var(--paper);border:none;border-radius:3px;padding:0.2rem 0.4rem;cursor:pointer;transition:all 0.2s;">
+          Load
+        </button>
+        <button id="loadMapPosition" onclick="loadMapSettings()" 
+          style="font-family:'Source Code Pro',monospace;font-size:0.6rem;background:var(--paper);color:var(--ink);border:1px solid var(--sepia);border-radius:3px;padding:0.2rem 0.4rem;cursor:pointer;transition:all 0.2s;">
+          Load Position
+        </button>
+      </div>
+    </div>
+    
+    <!-- Site Scene Selector Display -->
+    <div id="site-scene-selector-display" style="display:none;background:var(--aged-dark);border:1px solid var(--rule);border-radius:3px;padding:0.3rem 0.5rem;margin-top:0.3rem;">
+      <div style="font-family:'Source Code Pro',monospace;font-size:0.6rem;color:var(--muted);margin-bottom:0.2rem;">Select Site Scene Map</div>
+      
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;">
+        <!-- 1852 Harrison Thumbnail -->
+        <div onclick="selectSiteScene(0)" style="cursor:pointer;border:1px solid var(--sepia);border-radius:3px;padding:0.3rem;background:var(--paper);transition:all 0.2s;" onmouseover="this.style.background='var(--sepia)'" onmouseout="this.style.background='var(--paper)'">
+          <div style="width:100%;height:120px;background-image:url('images/map/1852MapNew YorkHarrison');background-size:cover;background-position:center;border-radius:2px;margin-bottom:0.3rem;"></div>
+          <div style="font-family:'Source Code Pro',monospace;font-size:0.5rem;color:var(--ink);text-align:center;">1852 Harrison</div>
+        </div>
+        
+        <!-- 1854 Perris Thumbnail -->
+        <div onclick="selectSiteScene(1)" style="cursor:pointer;border:1px solid var(--sepia);border-radius:3px;padding:0.3rem;background:var(--paper);transition:all 0.2s;" onmouseover="this.style.background='var(--sepia)'" onmouseout="this.style.background='var(--paper)'">
+          <div style="width:100%;height:120px;background-image:url('images/map/1854 Perris Map Extract');background-size:cover;background-position:center;border-radius:2px;margin-bottom:0.3rem;"></div>
+          <div style="font-family:'Source Code Pro',monospace;font-size:0.5rem;color:var(--ink);text-align:center;">1854 Perris</div>
+        </div>
+        
+        <!-- 2026 NYC Zoning Thumbnail -->
+        <div onclick="selectSiteScene(2)" style="cursor:pointer;border:1px solid var(--sepia);border-radius:3px;padding:0.3rem;background:var(--paper);transition:all 0.2s;" onmouseover="this.style.background='var(--sepia)'" onmouseout="this.style.background='var(--paper)'">
+          <div style="width:100%;height:120px;background-image:url('images/photos/NYCZoning2026.jpg');background-size:cover;background-position:center;border-radius:2px;margin-bottom:0.3rem;"></div>
+          <div style="font-family:'Source Code Pro',monospace;font-size:0.5rem;color:var(--ink);text-align:center;">2026 NYC Zoning</div>
+        </div>
+        
+        <!-- 1879 Brumley Map Thumbnail -->
+        <div onclick="selectSiteScene(3)" style="cursor:pointer;border:1px solid var(--sepia);border-radius:3px;padding:0.3rem;background:var(--paper);transition:all 0.2s;" onmouseover="this.style.background='var(--sepia)'" onmouseout="this.style.background='var(--paper)'">
+          <div style="width:100%;height:120px;background-image:url('images/photos/1879 Washington Square Park Bromley.jpg');background-size:cover;background-position:center;border-radius:2px;margin-bottom:0.3rem;"></div>
+          <div style="font-family:'Source Code Pro',monospace;font-size:0.5rem;color:var(--ink);text-align:center;">1879 Brumley Map</div>
+        </div>
+        
+        <!-- 1891 NYU Bromley Thumbnail -->
+        <div onclick="selectSiteScene(4)" style="cursor:pointer;border:1px solid var(--sepia);border-radius:3px;padding:0.3rem;background:var(--paper);transition:all 0.2s;" onmouseover="this.style.background='var(--sepia)'" onmouseout="this.style.background='var(--paper)'">
+          <div style="width:100%;height:120px;background-image:url('images/map/1891 Bromley Map.jpg');background-size:cover;background-position:center;border-radius:2px;margin-bottom:0.3rem;"></div>
+          <div style="font-family:'Source Code Pro',monospace;font-size:0.5rem;color:var(--ink);text-align:center;">1891 NYU Bromley</div>
+        </div>
+        
+        <!-- 1893 Pincus Map Thumbnail -->
+        <div onclick="selectSiteScene(5)" style="cursor:pointer;border:1px solid var(--sepia);border-radius:3px;padding:0.3rem;background:var(--paper);transition:all 0.2s;" onmouseover="this.style.background='var(--sepia)'" onmouseout="this.style.background='var(--paper)'">
+          <div style="width:100%;height:120px;background-image:url('images/map/1893 Lionel Pincus and Princess Firyal Map Division.jpg');background-size:cover;background-position:center;border-radius:2px;margin-bottom:0.3rem;"></div>
+          <div style="font-family:'Source Code Pro',monospace;font-size:0.5rem;color:var(--ink);text-align:center;">1893 Pincus Map</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Overlay Selector Display -->
+    <div id="overlay-selector-display" style="display:none;background:var(--aged-dark);border:1px solid var(--rule);border-radius:3px;padding:0.3rem 0.5rem;margin-top:0.3rem;">
+      <div style="font-family:'Source Code Pro',monospace;font-size:0.6rem;color:var(--muted);margin-bottom:0.2rem;">Select Overlay Photo</div>
+      
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:0.5rem;">
+        <!-- Plate H Thumbnail -->
+        <div onclick="selectOverlay('PlateH')" style="cursor:pointer;border:1px solid var(--sepia);border-radius:3px;padding:0.3rem;background:var(--paper);transition:all 0.2s;" onmouseover="this.style.background='var(--sepia)'" onmouseout="this.style.background='var(--paper)'">
+          <div style="width:100%;height:120px;background-image:url('PlateH.png');background-size:cover;background-position:center;border-radius:2px;margin-bottom:0.3rem;"></div>
+          <div style="font-family:'Source Code Pro',monospace;font-size:0.5rem;color:var(--ink);text-align:center;">Plate H</div>
+        </div>
+        
+        <!-- NYU Collection Thumbnail -->
+        <div onclick="selectOverlay('KingsHandbookNYU')" style="cursor:pointer;border:1px solid var(--sepia);border-radius:3px;padding:0.3rem;background:var(--paper);transition:all 0.2s;" onmouseover="this.style.background='var(--sepia)'" onmouseout="this.style.background='var(--paper)'">
+          <div style="width:100%;height:120px;background-image:url('Kings Handbook NYU.jpg');background-size:cover;background-position:center;border-radius:2px;margin-bottom:0.3rem;"></div>
+          <div style="font-family:'Source Code Pro',monospace;font-size:0.5rem;color:var(--ink);text-align:center;">King's Handbook 1893</div>
+        </div>
+        
+        <!-- NYU Collection 1893 Thumbnail -->
+        <div onclick="selectOverlay('KingsHandbook1893')" style="cursor:pointer;border:1px solid var(--sepia);border-radius:3px;padding:0.3rem;background:var(--paper);transition:all 0.2s;" onmouseover="this.style.background='var(--sepia)'" onmouseout="this.style.background='var(--paper)'">
+          <div style="width:100%;height:120px;background-image:url('1890 NYU Archive.jpg');background-size:cover;background-position:center;border-radius:2px;margin-bottom:0.3rem;"></div>
+          <div style="font-family:'Source Code Pro',monospace;font-size:0.5rem;color:var(--ink);text-align:center;">NYU Collection 1893</div>
+        </div>
+        
+        <!-- NYU Collection 1870 Thumbnail -->
+        <div onclick="selectOverlay('NYUCollection1870')" style="cursor:pointer;border:1px solid var(--sepia);border-radius:3px;padding:0.3rem;background:var(--paper);transition:all 0.2s;" onmouseover="this.style.background='var(--sepia)'" onmouseout="this.style.background='var(--paper)'">
+          <div style="width:100%;height:120px;background-image:url('1870 NYU Collection.jpg');background-size:cover;background-position:center;border-radius:2px;margin-bottom:0.3rem;"></div>
+          <div style="font-family:'Source Code Pro',monospace;font-size:0.5rem;color:var(--ink);text-align:center;">NYU Collection 1870</div>
+        </div>
+        
+        <!-- NYU from Middle of Park Thumbnail -->
+        <div onclick="selectOverlay('NYUCollection1891')" style="cursor:pointer;border:1px solid var(--sepia);border-radius:3px;padding:0.3rem;background:var(--paper);transition:all 0.2s;" onmouseover="this.style.background='var(--sepia)'" onmouseout="this.style.background='var(--paper)'">
+          <div style="width:100%;height:120px;background-image:url('1891 NYU Collection.jpg');background-size:cover;background-position:center;border-radius:2px;margin-bottom:0.3rem;"></div>
+          <div style="font-family:'Source Code Pro',monospace;font-size:0.5rem;color:var(--ink);text-align:center;">NYU from Middle of Park</div>
+        </div>
+        
+        <!-- Austen 1894 Thumbnail -->
+        <div onclick="selectOverlay('Austen1894')" style="cursor:pointer;border:1px solid var(--sepia);border-radius:3px;padding:0.3rem;background:var(--paper);transition:all 0.2s;" onmouseover="this.style.background='var(--sepia)'" onmouseout="this.style.background='var(--paper)'">
+          <div style="width:100%;height:120px;background-image:url('Austen 1894.jpg');background-size:cover;background-position:center;border-radius:2px;margin-bottom:0.3rem;"></div>
+          <div style="font-family:'Source Code Pro',monospace;font-size:0.5rem;color:var(--ink);text-align:center;">Austen 1894</div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <p class="section-label">Camera Analysis Tools</p>
-
-  <div class="nav-grid">
-    <a href="plateh-camera.html" class="nav-card primary">
-      <p class="card-eyebrow">Plan view &nbsp;·&nbsp; Focal length control &nbsp;·&nbsp; 3D projection</p>
-      <p class="card-title">1. Plan View Tool</p>
-      <p class="card-desc">Camera projection with focal length variability. View through the camera lens with historically accurate optical simulation using focal length control (2-20") for Morse equipment analysis.</p>
-      <span class="card-arrow">Open plan view</span>
-    </a>
-    <a href="PlateH_v4_exp (1).html" class="nav-card primary">
-      <p class="card-eyebrow">Overlay view &nbsp;·&nbsp; Focal length control &nbsp;·&nbsp; Image comparison</p>
-      <p class="card-title">2. Overlay Tool</p>
-      <p class="card-desc">Photo overlay with focal length variability. Load historical daguerreotype images and adjust focal length for precise optical comparison with 3D camera projection.</p>
-      <span class="card-arrow">Launch overlay</span>
-    </a>
-    <a href="plateh-camera-original.html" class="nav-card">
-      <p class="card-eyebrow">Original design &nbsp;·&nbsp; FOV control &nbsp;·&nbsp; Reference version</p>
-      <p class="card-title">3. Original Tool</p>
-      <p class="card-desc">Original design with FOV variability (10-60°). The version referenced in perspective analysis discussions, using direct field-of-view control rather than focal length calculation.</p>
-      <span class="card-arrow">Open original</span>
-    </a>
+  <!-- RIGHT: PLATE VIEW -->
+  <div class="plate-col">
+    <div class="ctrl-section-title" style="margin-bottom:0.3rem;font-size:0.7rem;text-align:center;">Viewfinder <span id="viewfinder-overlay-name" style="font-family:'Georgia',serif;font-size:0.6rem;color:var(--rust);font-style:italic;">Plate H</span></div>
+    
+    <!-- Plate Size Selector -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-bottom:0.3rem;">
+      <span style="font-size:0.6rem;color:var(--sepia);font-family:'Source Code Pro',monospace;">Plate Size:</span>
+      <select id="plate-size-selector" onchange="changePlateSize(this.value)" 
+        style="font-family:'Source Code Pro',monospace;font-size:0.6rem;background:var(--paper);color:var(--ink);border:1px solid var(--sepia);border-radius:3px;padding:0.2rem;">
+        <option value="2x2.5">2×2.5</option>
+        <option value="5x7-portrait">5×7 Portrait</option>
+        <option value="5x7-landscape">5×7 Landscape</option>
+        <option value="8x10-portrait">8×10 Portrait</option>
+        <option value="8x10-landscape">8×10 Landscape</option>
+      </select>
+    </div>
+    
+    <div class="plate-col-title" id="plate-title">2×2.5 inch plate (269×336px) — portrait</div>
+        <div style="flex:1"></div>
+    <div style="position:relative;display:inline-block;align-self:center;">
+      <div class="plate-border">
+        <canvas id="plateStrip"></canvas>
+      </div>
+      <img id="dagOverlay"
+        src="PlateH.png"
+        style="position:absolute;top:3px;left:3px;width:calc(100% - 6px);height:calc(100% - 6px);
+               pointer-events:none;opacity:0;display:block;"
+        alt="Plate H overlay" />
+    </div>
+    <!-- Overlay Controls -->
+    <div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.3rem;align-self:center;flex-wrap:wrap;justify-content:center;">
+      <span style="font-size:0.6rem;color:var(--sepia);font-family:'Source Code Pro',monospace;">Overlay</span>
+      <input type="range" id="overlayOpacity" min="0" max="100" value="30"
+        style="width:120px;accent-color:var(--sepia);">
+      <span style="font-size:0.6rem;color:var(--sepia);font-family:'Source Code Pro',monospace;min-width:28px;text-align:right;" id="overlayOpacityVal">30%</span>
+    </div>
+    <div class="plate-caption" id="plate-caption">—</div>            </div>
   </div>
 
-  <p class="section-label">Research Archives</p>
-
-  <div class="nav-grid">
-    <a href="photos.html" class="nav-card">
-      <p class="card-eyebrow">Historical photographs &nbsp;·&nbsp; Engravings &nbsp;·&nbsp; Documentation</p>
-      <p class="card-title">Archives</p>
-      <p class="card-desc">Complete collection of historical photographs, engravings, and research documentation gathered for the NYU building analysis.</p>
-      <span class="card-arrow">View archives</span>
-    </a>
   </div>
 
+</div><!-- end workspace -->
+
+<!--
+MAP REPOSITIONING INSTRUCTIONS
+===========================
+Current map transformation values (locked):
+- Scale: 1.41x
+- Rotation: -4.0°
+- X Offset: -1680px
+- Y Offset: -2052px
+- Opacity: 50%
+
+To reposition the map for other photos:
+1. Find the drawMap() function in the JavaScript section
+2. Locate these transformation variables:
+   - tempMapScale (currently 1.41)
+   - tempMapRotation (currently -4.0)
+   - tempMapX (currently -1680)
+   - tempMapY (currently -2052)
+   - tempMapOpacity (currently 50)
+3. Adjust these values to align the map with new photo locations
+4. The map image is loaded from: '1893KingsHandbook_map.png'
+5. Use browser developer tools to debug positioning if needed
+
+For reference, the map transformation uses canvas context:
+ctx.translate(tempMapX, tempMapY);
+ctx.rotate(tempMapRotation * Math.PI / 180);
+ctx.scale(tempMapScale, tempMapScale);
+-->
+
+
+<!-- FULL-WIDTH SLIDER PANEL -->
+<div class="slider-panel">
+  <div class="slider-panel-inner" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+    
+    <!-- Left Column: Camera Variable Settings -->
+    <div>
+      <div class="ctrl-section-title" style="font-size:0.7rem;text-align:center;margin-bottom:0.6rem;padding-bottom:0.4rem;border-bottom:1px solid var(--rule);">Camera Variable Settings</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+        
+        <!-- Camera Position Sub-Column -->
+        <div>
+          <div class="slider-group">
+            <div class="ctrl-section-title">Camera Position</div>
+            <div class="coord-display">Position: <span id="coords">—</span></div>
+              <div class="sl"><label>Rotation</label><input type="range" id="rotation" min="-180" max="180" value="0" step="1"><span class="v" id="rot-out">0°</span></div>
+            
+            <!-- X Position Input Only -->
+            <div class="sl">
+              <label>X (E–W)</label>
+              <input type="number" id="camX-input" min="-400" max="400" step="1" value="-125" style="flex:1;padding:2px;font-size:0.6rem;" onchange="updateCameraFromInput()">
+              <span class="v">ft</span>
+            </div>
+            
+            <!-- Y Position Input Only -->
+            <div class="sl">
+              <label>Y (N–S)</label>
+              <input type="number" id="camY-input" min="-400" max="400" step="1" value="0" style="flex:1;padding:2px;font-size:0.6rem;" onchange="updateCameraFromInput()">
+              <span class="v">ft</span>
+            </div>
+            
+                        <div class="sl"><label>Height</label><input type="range" id="cameraHeight" min="3" max="35" value="5" step="0.5"><span class="v" id="cameraHeight-out">5.0 ft</span></div>
+          </div>
+        </div>
+
+        <!-- Camera Optics Sub-Column -->
+        <div>
+          <div class="slider-group">
+            <div class="ctrl-section-title">Camera Optics</div>
+            
+            <!-- Mode Toggle -->
+            <div class="sl" style="margin-bottom:0.8rem;">
+              <label style="flex:0 0 100px;">Mode</label>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <input type="radio" id="focal-mode" name="optics-mode" value="focal">
+                <label for="focal-mode" style="font-size:0.6rem;margin:0;">Focal Length</label>
+                <input type="radio" id="fov-mode" name="optics-mode" value="fov" checked>
+                <label for="fov-mode" style="font-size:0.6rem;margin:0;">FOV</label>
+                <input type="radio" id="camera-mode" name="optics-mode" value="camera">
+                <label for="camera-mode" style="font-size:0.6rem;margin:0;">Camera Type</label>
+              </div>
+            </div>
+            
+            <!-- Focal Length Controls -->
+            <div id="focal-controls" style="display:none;">
+              <div class="sl"><label>Focal Length</label><input type="range" id="focal" min="0.2" max="25" value="8" step="0.1"><span class="v" id="focal-out">8 inches</span></div>
+            </div>
+            
+            <!-- FOV Controls -->
+            <div id="fov-controls" style="display:none;">
+              <div class="sl"><label>Horizontal FOV</label><input type="range" id="fov-slider" min="5" max="120" value="15" step="1"><span class="v" id="fov-slider-out">15 degrees</span></div>
+            </div>
+            
+            <!-- Camera Type Controls -->
+            <div id="camera-controls">
+              <div class="sl"><label>Lens Type</label>
+                <select id="camera-type" style="flex:1;padding:2px;font-size:0.6rem;">
+                  <option value="engraving">🎯 Human Vision (Engravings) - 60 degrees Natural View</option>
+                  <option value="standard">35mm Equivalent - Standard FOV (45 degrees)</option>
+                  <option value="telephoto">Telephoto Equivalent - Narrow FOV (7.5 degrees)</option>
+                  <option value="wide" selected>Wide Angle Equivalent - Wide FOV (70 degrees)</option>
+                  <option value="fisheye">Fisheye Equivalent - Ultra Wide (120 degrees)</option>
+                </select>
+              </div>
+              <div class="sl"><label>Lens FOV</label><span style="flex:1"></span><span class="v" id="camera-fov-out">70 degrees</span></div>
+              <div class="sl"><label>Plate Focal</label><span style="flex:1"></span><span class="v" id="camera-focal-out">8 inches</span></div>
+            </div>
+            
+            <!-- Display Values (always shown) -->
+            <div class="sl"><label>Horizontal FOV</label><span style="flex:1"></span><span class="v" id="fov-out">15 degrees</span></div>
+            <div class="sl"><label>Vertical FOV</label><span style="flex:1"></span><span class="v" id="vfov-out">20.9 degrees</span></div>
+            
+                        
+                      </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Right Column: Building Settings -->
+    <div>
+      <div class="ctrl-section-title" style="font-size:0.7rem;text-align:center;margin-bottom:0.6rem;padding-bottom:0.4rem;border-bottom:1px solid var(--rule);">Building Settings</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+        
+        <!-- NYU & Row Houses Sub-Column -->
+        <div>
+          <!-- NYU Building -->
+          <div class="slider-group">
+            <div class="ctrl-section-title">NYU</div>
+            <div class="sl"><label>Position</label><input type="range" id="nyuslide" min="0" max="50" value="10" step="1" style="width:30px;"><span class="v" id="nyu-out">10</span></div>
+            <div class="sl"><label>Height</label><input type="range" id="nyuheight" min="10" max="120" value="85" step="1" style="width:30px;"><span class="v" id="nyuheight-out">85</span></div>
+          </div>
+
+          <!-- Row Houses -->
+          <div class="slider-group">
+            <div class="ctrl-section-title">Row Houses</div>
+            <div class="sl"><label>Position RH1</label><input type="range" id="rh1slide" min="0" max="100" value="10" step="1" style="width:30px;"><span class="v" id="rh1-out">10</span></div>
+            <div class="sl"><label>Height RH1</label><input type="range" id="rh1height" min="10" max="120" value="45" step="1" style="width:30px;"><span class="v" id="rh1height-out">45</span></div>
+            <div class="sl"><label>Position RH2</label><input type="range" id="rh2slide" min="0" max="100" value="10" step="1" style="width:30px;"><span class="v" id="rh2-out">10</span></div>
+            <div class="sl"><label>Height RH2</label><input type="range" id="rh2height" min="10" max="120" value="45" step="1" style="width:30px;"><span class="v" id="rh2height-out">45</span></div>
+          </div>
+        </div>
+
+        <!-- Church Sub-Column -->
+        <div>
+          <div class="slider-group">
+            <div class="ctrl-section-title">Church</div>
+            <div class="sl"><label>Distance</label><input type="range" id="churchdist" min="700" max="900" value="777" step="10" style="width:30px;"><span class="v" id="churchdist-out">777</span></div>
+            <div class="sl"><label>Position</label><input type="range" id="churchslide" min="0" max="100" value="0" step="1" style="width:30px;"><span class="v" id="church-out">0</span></div>
+            <div class="sl"><label>North Height</label><input type="range" id="chnheight" min="10" max="120" value="50" step="1" style="width:30px;"><span class="v" id="chnheight-out">50</span></div>
+            <div class="sl"><label>Ctr Height</label><input type="range" id="chmheight" min="10" max="120" value="90" step="1" style="width:30px;"><span class="v" id="chmheight-out">90</span></div>
+            <div class="sl"><label>South Height</label><input type="range" id="chsheight" min="10" max="120" value="50" step="1" style="width:30px;"><span class="v" id="chsheight-out">50</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
   </div>
-
-  <p class="section-label">Coming next</p>
-
-  <div class="coming-soon">
-    <p>Pages to be added as the research develops:</p>
-    <div class="placeholder-item">1839 engraving - camera position reconstruction</div>
-    <div class="placeholder-item">Comparison: engraving vs daguerreotype vs photograph</div>
-    <div class="placeholder-item">Church of the Messiah - visibility analysis</div>
-  </div>
-
-  <footer>
-    <span><strong>Plate H Camera</strong> &nbsp;·&nbsp; Washington Square research tool</span>
-    <span>NYU NW corner = origin (0,0) &nbsp;·&nbsp; 1852 Perris map georeferenced</span>
-  </footer>
-
 </div>
+
+
+<!-- hidden stubs for legacy JS refs -->
+<span style="display:none" id="zoom-coord"></span>
+<span style="display:none" id="ps-pos"></span>
+<span style="display:none" id="ps-rot"></span>
+<span style="display:none" id="ps-fov"></span>
+<span style="display:none" id="ps-zzz"></span>
+<span style="display:none" id="ps-ch"></span>
+
+<!-- Hidden RH1 and RH2 sliders - moved here to preserve JS dependencies -->
+<div style="display:none; position:absolute; left:-9999px; top:-9999px;">
+  <div class="sl"><label>RH1 position</label><input type="range" id="rh1slide" min="0" max="100" value="10" step="1"><span class="v" id="rh1-out">10 ft</span></div>
+  <div class="sl"><label>RH1 height</label><input type="range" id="rh1height" min="10" max="120" value="45" step="1"><span class="v" id="rh1height-out">45 ft</span></div>
+  <div class="sl"><label>RH2 position</label><input type="range" id="rh2slide" min="0" max="100" value="10" step="1"><span class="v" id="rh2-out">10 ft</span></div>
+  <div class="sl"><label>RH2 height</label><input type="range" id="rh2height" min="10" max="120" value="45" step="1"><span class="v" id="rh2height-out">45 ft</span></div>
+</div>
+
+<span style="display:none" id="ps-rh1"></span>
+<span style="display:none" id="ps-rh2"></span>
+<span style="display:none" id="ps-sky"></span>
+<span style="display:none" id="ps-dist"></span>
+<span style="display:none" id="ps-nwpos"></span>
+
+
+
+</div><!-- end wrapper -->
+<script>
+// ── Canvases ──────────────────────────────────────────────────────────────
+const plan       = document.getElementById('plan');
+const pctx       = plan.getContext('2d');
+// const zoom       = document.getElementById('zoom');
+// const zctx       = zoom.getContext('2d');
+
+
+// ── Constants ─────────────────────────────────────────────────────────────
+let churchDistance=777; // Initial value, will be controlled by slider
+const GAP=churchDistance;
+const MARGIN_LEFT_FT=220;
+
+// ── Grid System Constants ─────────────────────────────────────────────────
+const GRID_TOTAL_WIDTH_FT = 1300;  // Total grid width in feet
+const GRID_X_MIN = -300;             // Minimum X coordinate (feet)
+const GRID_X_MAX = 1000;             // Maximum X coordinate (feet)
+const GRID_Y_MIN = -300;             // Minimum Y coordinate (feet) 
+const GRID_Y_MAX = 300;              // Maximum Y coordinate (feet)
+const GRID_WIDTH_FT = GRID_X_MAX - GRID_X_MIN;  // 1300 feet
+const GRID_HEIGHT_FT = GRID_Y_MAX - GRID_Y_MIN; // 600 feet
+
+// ── Road System Constants ─────────────────────────────────────────────────
+const ROAD_WIDTH_FT = 40;           // Standard road width in feet
+const ROAD_HEIGHT_FT = 2.0;         // Roads are flat surfaces with visible height
+const ROAD_COLOR = 'rgba(80,80,80,0.8)';  // Gray road color
+const ROAD_LINE_COLOR = 'rgba(255,255,255,0.3)'; // White lane markings
+
+
+// ── Hard-Coded Road Segments (four-corner definition) ───────────────
+const roadSegments = [
+  // Washington Square East - 50 ft wide road along Y-axis, extends to south extent, bounded by Y-axis on right, moved up 30 ft
+  {
+    name: "Washington Square East",
+    corners: [
+      {x: -50, y: 30},     // Southwest corner (moved up 30 ft)
+      {x: 0, y: 30},       // Southeast corner (bounded by Y-axis, moved up 30 ft)
+      {x: 0, y: -300},     // Northeast corner (extends to south extent, moved up 30 ft)
+      {x: -50, y: -300}    // Northwest corner (extends to south extent, moved up 30 ft)
+    ],
+    color: 'rgba(205,133,63,0.8)',  // Clay-colored roadways
+    height: ROAD_HEIGHT_FT,  // Add height property for ray-casting
+    showLabel: true,
+    labelRotation: 270  // Rotated 180 degrees (90 + 180)
+  },
+  // University Place - 75 ft wide road moved 75 ft east, going northward
+  {
+    name: "University Place",
+    corners: [
+      {x: -50, y: 0},      // Southwest corner (moved 75 ft east)
+      {x: 25, y: 0},       // Southeast corner (moved 75 ft east)
+      {x: 25, y: 300},     // Northeast corner (extends northward)
+      {x: -50, y: 300}     // Northwest corner (moved 75 ft east)
+    ],
+    color: 'rgba(205,133,63,0.8)',  // Clay-colored roadways
+    height: ROAD_HEIGHT_FT,  // Add height property for ray-casting
+    showLabel: true,
+    labelRotation: 270  // Match Mercer Street orientation
+  },
+  // Waverly Place - 60 ft wide road running east along x-axis from origin for 702 ft, moved 30 ft north
+  {
+    name: "Waverly Place",
+    corners: [
+      {x: 0, y: 0},        // Southwest corner (moved 30 ft north)
+      {x: 702, y: 0},      // Southeast corner (extends 702 ft east, moved 30 ft north)
+      {x: 702, y: 60},     // Northeast corner (60 ft wide, moved 30 ft north)
+      {x: 0, y: 60}        // Northwest corner (moved 30 ft north)
+    ],
+    color: 'rgba(205,133,63,0.8)',  // Clay-colored roadways
+    height: ROAD_HEIGHT_FT,  // Add height property for ray-casting
+    showLabel: true,
+    labelRotation: 0  // No rotation for horizontal text
+  },
+  // Broadway - 75 ft wide road running from north edge to south edge of map, abutting Waverly Place
+  {
+    name: "Broadway",
+    corners: [
+      {x: 702, y: -300},   // Southwest corner (south edge of map, abuts Waverly Place)
+      {x: churchDistance, y: -300},   // Southeast corner (75 ft wide, south edge of map, right edge at churchDistance)
+      {x: churchDistance, y: 300},    // Northeast corner (75 ft wide, north edge of map, right edge at churchDistance)
+      {x: 702, y: 300}     // Northwest corner (north edge of map, abuts Waverly Place)
+    ],
+    color: 'rgba(205,133,63,0.8)',  // Clay-colored roadways
+    height: ROAD_HEIGHT_FT,  // Add height property for ray-casting
+    showLabel: true,
+    labelRotation: 270  // Rotated 180 degrees (90 + 180)
+  },
+  // Washington Square North - 60 ft wide road extension of Waverly Place, goes west to -300 mark
+  {
+    name: "Washington Square North",
+    corners: [
+      {x: -300, y: 0},     // Southwest corner (end of screen to west, same Y as Waverly Place)
+      {x: 0, y: 0},        // Southeast corner (where Waverly Place ends at origin)
+      {x: 0, y: 60},       // Northeast corner (60 ft wide, same Y as Waverly Place)
+      {x: -300, y: 60}     // Northwest corner (60 ft wide, end of screen to west)
+    ],
+    color: 'rgba(205,133,63,0.8)',  // Clay-colored roadways
+    height: ROAD_HEIGHT_FT,  // Add height property for ray-casting
+    showLabel: true,
+    labelRotation: 0  // Horizontal text for east-west road
+  },
+  // Greene Street - 40 ft wide road at x=208, runs entire screen height
+  {
+    name: "Greene Street",
+    corners: [
+      {x: 208, y: -300},   // Southwest corner (at 208 mark, south edge of map)
+      {x: 248, y: -300},   // Southeast corner (40 ft wide, south edge of map)
+      {x: 248, y: 300},    // Northeast corner (40 ft wide, north edge of map)
+      {x: 208, y: 300}     // Northwest corner (at 208 mark, north edge of map)
+    ],
+    color: 'rgba(205,133,63,0.8)',  // Clay-colored roadways
+    height: ROAD_HEIGHT_FT,  // Add height property for ray-casting
+    showLabel: true,
+    labelRotation: 270  // Rotated 180 degrees (90 + 180)
+  },
+  // Mercer Street - 48 ft wide road at x=458, runs entire screen height
+  {
+    name: "Mercer Street",
+    corners: [
+      {x: 458, y: -300},   // Southwest corner (at 458 mark, south edge of map)
+      {x: 506, y: -300},   // Southeast corner (48 ft wide, south edge of map)
+      {x: 506, y: 300},    // Northeast corner (48 ft wide, north edge of map)
+      {x: 458, y: 300}     // Northwest corner (at 458 mark, north edge of map)
+    ],
+    color: 'rgba(205,133,63,0.8)',  // Clay-colored roadways
+    height: ROAD_HEIGHT_FT,  // Add height property for ray-casting
+    showLabel: true,
+    labelRotation: 270  // Rotated 180 degrees (90 + 180)
+  },
+  // Washington Place - 70 ft wide road starting at y=-197, extends 70 ft south to y=-267
+  {
+    name: "Washington Place",
+    corners: [
+      {x: 0, y: -197},     // Northwest corner (starts at Washington Square East intersection, y=-197)
+      {x: 702, y: -197},    // Northeast corner (ends at Broadway intersection, y=-197)
+      {x: 702, y: -267},    // Southeast corner (ends at Broadway intersection, 70 ft south)
+      {x: 0, y: -267}       // Southwest corner (starts at Washington Square East intersection, 70 ft south)
+    ],
+    color: 'rgba(205,133,63,0.8)',  // Clay-colored roadways
+    height: ROAD_HEIGHT_FT,  // Add height property for ray-casting
+    showLabel: true,
+    labelRotation: 0  // Horizontal text for east-west road
+  }
+];
+
+function getPlanFtW(){return GRID_WIDTH_FT;}
+const GRID=100;
+
+// Zoom window: 15 ft wide × 15 ft tall centered on camera (40x plan scale)
+const ZOOM_HALF_W=15, ZOOM_HALF_H=15;
+
+// ── State ─────────────────────────────────────────────────────────────────
+let camFtX=-125, camFtY=0;
+let camRotation=0;
+// Plate size state
+let currentPlateSize = '2x2.5';
+
+// Function to handle plate size changes
+function changePlateSize(size) {
+  console.log('Changing plate size to:', size);
+  currentPlateSize = size;
+  
+  // Update canvas dimensions based on plate size
+  updatePlateCanvasSize();
+  
+  // Update plate title
+  updatePlateTitle();
+  
+  // Update instruction display
+  document.getElementById('instr-plate-size').textContent = getDisplayName(size);
+  
+  // Redraw everything with new plate dimensions
+  drawAll();
+}
+
+// Function to update plate canvas size based on plate dimensions
+function updatePlateCanvasSize() {
+  const canvas = document.getElementById('plateStrip');
+  if (!canvas) return;
+  
+  const plateWidth = getPlateWidth();
+  const plateHeight = getPlateHeight();
+  
+  // Define reasonable target sizes for each plate format
+  // These maintain aspect ratios but are proportional to each other
+  let targetWidth, targetHeight;
+  
+  if (currentPlateSize === '2x2.5') {
+    targetWidth = 320;  // Width for 400px height at 0.8 aspect ratio
+    targetHeight = 400; // Max height 400px
+  } else if (currentPlateSize === '5x7-portrait') {
+    targetWidth = 300;  // Scaled for 420px height (5/7 aspect ratio)
+    targetHeight = 420; // Max height 420px
+  } else if (currentPlateSize === '5x7-landscape') {
+    targetWidth = 420;  // Scaled for 420px width (7/5 aspect ratio)
+    targetHeight = 300; // Corresponding height for 7/5 aspect ratio
+  } else if (currentPlateSize === '8x10-portrait') {
+    targetWidth = 336;  // Scaled for 420px height (8/10 aspect ratio)
+    targetHeight = 420; // Max height 420px
+  } else if (currentPlateSize === '8x10-landscape') {
+    targetWidth = 420;  // Scaled for 420px width (10/8 aspect ratio)
+    targetHeight = 336; // Corresponding height for 10/8 aspect ratio
+  } else {
+    // Fallback
+    targetWidth = 400;
+    targetHeight = 500;
+  }
+  
+  // Update canvas size
+  canvas.width = targetWidth;
+  canvas.height = targetHeight;
+  
+  // Update CSS display size
+  canvas.style.width = targetWidth + 'px';
+  canvas.style.height = targetHeight + 'px';
+  
+  // Update plate border to fit exactly around canvas
+  const plateBorder = canvas.parentElement;
+  if (plateBorder && plateBorder.classList.contains('plate-border')) {
+    plateBorder.style.width = (targetWidth + 12) + 'px'; // 6px padding + 6px border (3px each side)
+    plateBorder.style.height = (targetHeight + 12) + 'px'; // 6px padding + 6px border (3px each side)
+    console.log('Updated plate border to fit canvas: ' + (targetWidth + 12) + 'x' + (targetHeight + 12) + 'px');
+    console.log('DEBUG: Border element found:', plateBorder);
+    console.log('DEBUG: Border computed width:', plateBorder.offsetWidth);
+    console.log('DEBUG: Border computed height:', plateBorder.offsetHeight);
+    console.log('DEBUG: Border style width:', plateBorder.style.width);
+    console.log('DEBUG: Border style height:', plateBorder.style.height);
+  } else {
+    console.log('DEBUG: Plate border element not found or does not have plate-border class');
+    console.log('DEBUG: Canvas parent element:', canvas.parentElement);
+    console.log('DEBUG: Canvas parent classes:', canvas.parentElement ? canvas.parentElement.className : 'null');
+  }
+  
+  console.log(`CANVAS SIZING DEBUG:`);
+  console.log(`- Target size: ${targetWidth}x${targetHeight}`);
+  console.log(`- Canvas.width: ${canvas.width}`);
+  console.log(`- Canvas.height: ${canvas.height}`);
+  console.log(`- Canvas.style.width: ${canvas.style.width}`);
+  console.log(`- Canvas.style.height: ${canvas.style.height}`);
+  console.log(`- Canvas.offsetWidth: ${canvas.offsetWidth}`);
+  console.log(`- Canvas.offsetHeight: ${canvas.offsetHeight}`);
+  
+  // Update overlay to fit properly within the plate border
+  const overlay = document.getElementById('dagOverlay');
+  if (overlay) {
+    // For 2x2.5 plate, ensure overlay stays completely within frame
+    if (currentPlateSize === '2x2.5') {
+      overlay.style.width = `calc(100% - 12px)`; // Leave more space to prevent peeking
+      overlay.style.height = `calc(100% - 12px)`; // Leave more space to prevent peeking
+      overlay.style.top = '6px'; // Position further from edge
+      overlay.style.left = '6px'; // Position further from edge
+      overlay.style.objectFit = 'cover'; // Fill entire canvas
+      console.log('DEBUG: 2x2.5 overlay positioned to prevent peeking');
+    } else {
+      overlay.style.width = `calc(100% - 6px)`;
+      overlay.style.height = `calc(100% - 6px)`;
+      overlay.style.top = '3px';
+      overlay.style.left = '3px';
+      overlay.style.objectFit = 'contain'; // Default behavior for other plates
+    }
+    
+    console.log(`DEBUG: Updated overlay for ${currentPlateSize} - size: ${targetWidth}x${targetHeight}`);
+  }
+  
+  // Force overlay repositioning with a small delay to ensure DOM updates
+  setTimeout(() => {
+    const overlayCheck = document.getElementById('dagOverlay');
+    if (overlayCheck) {
+      // Apply the same positioning logic as above
+      if (currentPlateSize === '2x2.5') {
+        overlayCheck.style.width = `calc(100% - 12px)`;
+        overlayCheck.style.height = `calc(100% - 12px)`;
+        overlayCheck.style.top = '6px';
+        overlayCheck.style.left = '6px';
+        overlayCheck.style.objectFit = 'cover';
+      } else {
+        overlayCheck.style.width = `calc(100% - 6px)`;
+        overlayCheck.style.height = `calc(100% - 6px)`;
+        overlayCheck.style.top = '3px';
+        overlayCheck.style.left = '3px';
+        overlayCheck.style.objectFit = 'contain';
+      }
+      
+      console.log(`DEBUG: Force updated overlay positioning for ${currentPlateSize}`);
+    }
+  }, 50);
+  
+  console.log(`Updated canvas size to ${targetWidth}x${targetHeight} for plate ${plateWidth}x${plateHeight} (aspect ratio: ${(plateWidth/plateHeight).toFixed(2)})`);
+  console.log(`DEBUG: Canvas actual size: ${canvas.width}x${canvas.height}, CSS size: ${canvas.style.width}x${canvas.style.height}`);
+  
+  // Verify the change took effect
+  setTimeout(() => {
+    const computedWidth = canvas.offsetWidth;
+    const computedHeight = canvas.offsetHeight;
+    console.log(`DEBUG: Computed canvas size after update: ${computedWidth}x${computedHeight}`);
+  }, 100);
+}
+
+// Function to get display name for plate size
+function getDisplayName(size) {
+  const names = {
+    '2x2.5': '2×2.5',
+    '5x7-portrait': '5×7 Portrait',
+    '5x7-landscape': '5×7 Landscape',
+    '8x10-portrait': '8×10 Portrait',
+    '8x10-landscape': '8×10 Landscape'
+  };
+  return names[size] || size;
+}
+
+// Overlay image configuration
+const OVERLAY_IMAGES = {
+  'PlateH': {
+    name: 'Plate H',
+    filename: 'PlateH.png',
+    alt: 'Plate H overlay'
+  },
+  'KingsHandbook1893': {
+    name: "NYU Collection 1893",
+    filename: '1890 NYU Archive.jpg',
+    alt: "NYU Collection 1893 overlay"
+  },
+  'KingsHandbookNYU': {
+    name: "NYU Collection",
+    filename: 'Kings Handbook NYU.jpg',
+    alt: "NYU Collection overlay"
+  },
+  'NYUCollection1870': {
+    name: "NYU Collection 1870",
+    filename: '1870 NYU Collection.jpg',
+    alt: "NYU Collection 1870 overlay"
+  },
+  'NYUCollection1891': {
+    name: "NYU Collection 1891",
+    filename: '1891 NYU Collection.jpg',
+    alt: "NYU Collection 1891 overlay"
+  },
+  'Austen1894': {
+    name: "Austen 1894",
+    filename: 'Austen 1894.jpg',
+    alt: "Austen 1894 overlay"
+  }
+};
+
+// Current overlay selection
+let currentOverlayImage = 'PlateH';
+
+// Function to toggle overlay selection
+function toggleOverlaySelection() {
+  // Cycle through overlay options
+  const overlayTypes = Object.keys(OVERLAY_IMAGES);
+  const currentIndex = overlayTypes.indexOf(currentOverlayImage);
+  const nextIndex = (currentIndex + 1) % overlayTypes.length;
+  const nextOverlayType = overlayTypes[nextIndex];
+  
+  changeOverlayImage(nextOverlayType);
+  
+  // Update button text to show current selection
+  const overlayButton = document.getElementById('overlay-toggle');
+  if (overlayButton && OVERLAY_IMAGES[nextOverlayType]) {
+    let shortName;
+    if (nextOverlayType === 'PlateH') {
+      shortName = 'PLATE H';
+    } else if (nextOverlayType === 'NYUCollection1870') {
+      shortName = '1870';
+    } else if (nextOverlayType === 'NYUCollection1891') {
+      shortName = '1891';
+    } else if (nextOverlayType === 'Austen1894') {
+      shortName = 'AUSTEN';
+    } else {
+      shortName = "KING'S";
+    }
+    overlayButton.textContent = shortName;
+    console.log(`Updated overlay button text to: ${shortName}`);
+  }
+}
+
+// Function to switch overlay (like switchMap)
+function switchOverlay(overlayType) {
+  currentOverlayImage = overlayType;
+  
+  // Update overlay image
+  const overlay = document.getElementById('dagOverlay');
+  if (overlay && OVERLAY_IMAGES[overlayType]) {
+    const overlayConfig = OVERLAY_IMAGES[overlayType];
+    overlay.src = overlayConfig.filename;
+    overlay.alt = overlayConfig.alt;
+    console.log(`Updated overlay to ${overlayConfig.name} (${overlayConfig.filename})`);
+  }
+  
+  // Update viewfinder overlay name display
+  const viewfinderOverlayNameSpan = document.getElementById('viewfinder-overlay-name');
+  if (viewfinderOverlayNameSpan && OVERLAY_IMAGES[overlayType]) {
+    viewfinderOverlayNameSpan.textContent = OVERLAY_IMAGES[overlayType].name;
+  }
+}
+
+// Function to toggle overlay selector popup
+function toggleOverlaySelector() {
+  const display = document.getElementById('overlay-selector-display');
+  const button = document.getElementById('overlay-selector-toggle');
+  if (display && button) {
+    const isVisible = display.style.display !== 'none';
+    display.style.display = isVisible ? 'none' : 'block';
+    
+    if (isVisible) {
+      button.textContent = 'OVERLAY';
+      button.style.background = 'var(--paper)';
+      button.style.color = 'var(--ink)';
+    } else {
+      button.textContent = 'Exit Overlay';
+      button.style.background = 'var(--rust)';
+      button.style.color = 'var(--paper)';
+    }
+    
+    console.log('Overlay selector popup ' + (isVisible ? 'hidden' : 'shown'));
+  }
+}
+
+// Function to select overlay from thumbnail
+function selectOverlay(overlayType) {
+  switchOverlay(overlayType);
+  
+  // Hide the popup after selection and reset button text
+  const display = document.getElementById('overlay-selector-display');
+  const button = document.getElementById('overlay-selector-toggle');
+  if (display) {
+    display.style.display = 'none';
+  }
+  if (button) {
+    button.textContent = 'OVERLAY';
+  }
+  
+  console.log('Selected overlay: ' + overlayType);
+}
+
+// Function to change overlay image (legacy)
+function changeOverlayImage(overlayType) {
+  switchOverlay(overlayType);
+}
+
+// Function to initialize overlay object-fit based on current plate size
+function initializeOverlayFit() {
+  const overlay = document.getElementById('dagOverlay');
+  if (overlay) {
+    if (currentPlateSize === '2x2.5') {
+      overlay.style.objectFit = 'cover'; // Fill entire canvas
+      console.log('DEBUG: Initialized 2x2.5 overlay to cover entire canvas');
+    } else {
+      overlay.style.objectFit = 'contain'; // Default behavior for other plates
+      console.log('DEBUG: Initialized overlay to contain for ' + currentPlateSize);
+    }
+  }
+}
+
+// Function to update plate title
+function updatePlateTitle() {
+  const titleElement = document.getElementById('plate-title');
+  if (titleElement) {
+    const displayName = getDisplayName(currentPlateSize);
+    const orientation = currentPlateSize.includes('portrait') ? 'portrait' : 'landscape';
+    
+    // Get actual canvas dimensions
+    const canvas = document.getElementById('plateStrip');
+    const canvasWidth = canvas ? canvas.width : 0;
+    const canvasHeight = canvas ? canvas.height : 0;
+    
+    titleElement.textContent = `${displayName} inch plate (${canvasWidth}×${canvasHeight}px) — ${orientation}`;
+  }
+}
+
+function clampCam(){
+  camFtX=Math.round(Math.max(GRID_X_MIN,Math.min(GRID_X_MAX,camFtX)));
+  camFtY=Math.round(Math.max(GRID_Y_MIN,Math.min(GRID_Y_MAX,camFtY)));
+}
+clampCam();
+
+// ── Layout setup ──────────────────────────────────────────────────────────
+function setup(){
+  const planCol = plan.parentElement;
+  const W = planCol.offsetWidth || 700;
+  plan.width = W;
+  plan.height = Math.round(W * 0.375); // Reduced from 0.5 to 0.375 (25% reduction)
+  
+  
+  // Initialize instruction spans with current focal length values
+  const focalLength = parseFloat(document.getElementById('focal').value);
+  const plateWidthInches = getPlateWidth();
+  const plateHeightInches = getPlateHeight();
+  const fovRad = 2 * Math.atan(plateWidthInches / (2 * focalLength));
+  const fovDeg = fovRad * 180 / Math.PI;
+  const vFovDeg = fovDeg * (plateHeightInches/plateWidthInches);
+  
+  document.getElementById('instr-focal').textContent = focalLength + '"';
+  document.getElementById('instr-hfov').textContent = fovDeg.toFixed(1) + '°';
+  document.getElementById('instr-vfov').textContent = vFovDeg.toFixed(1) + '°';
+  document.getElementById('instr-plate-size').textContent = currentPlateSize;
+  
+  drawAll();
+}
+
+function planScale(){return(plan.width-10)/getPlanFtW();}
+
+// Plan pixel coords of grid origin (0,0 at center of grid)
+function planOrigin(){
+  const s=planScale();
+  // Center the grid: origin (0,0) is at grid center, not ZZZ NW corner
+  // Grid spans from -300 to +1000 in X, so center is at (X_MIN + X_MAX)/2 = 350
+  // But we want (0,0) at actual coordinate origin, so offset by X_MIN
+  const gridOffsetX = -GRID_X_MIN * s; // Offset to make (0,0) visible
+  return{x:Math.round(gridOffsetX)+5, y:Math.round(plan.height*0.45)};
+}
+
+
+
+// ── Slider wiring ─────────────────────────────────────────────────────────
+document.getElementById('focal').addEventListener('input',e=>{
+  const focalLength=parseFloat(e.target.value);
+  document.getElementById('focal-out').textContent=focalLength+'"';
+  
+  // Calculate FOV from focal length: FOV = 2 * arctan(width/(2*focal_length))
+  const plateWidthInches = getPlateWidth();
+  const plateHeightInches = getPlateHeight();
+  const fovRad = 2 * Math.atan(plateWidthInches / (2 * focalLength));
+  const fovDeg = fovRad * 180 / Math.PI;
+  const vFovDeg = fovDeg * (plateHeightInches/plateWidthInches); // aspect ratio
+  
+  document.getElementById('fov-out').textContent=fovDeg.toFixed(1)+'°';
+  document.getElementById('vfov-out').textContent=vFovDeg.toFixed(1)+'°';
+  
+  // Update instruction spans with current values
+  document.getElementById('instr-focal').textContent=focalLength+'"';
+  document.getElementById('instr-hfov').textContent=fovDeg.toFixed(1)+'°';
+  document.getElementById('instr-vfov').textContent=vFovDeg.toFixed(1)+'°';
+  document.getElementById('instr-plate-size').textContent=currentPlateSize;
+  
+  drawAll();});
+
+// Store previous FOV for proportional scaling
+let previousFOV = 15; // Start with default FOV
+
+// FOV slider event listener
+document.getElementById('fov-slider').addEventListener('input',e=>{
+  const fovDeg=parseFloat(e.target.value);
+  document.getElementById('fov-slider-out').textContent=fovDeg+'°';
+  
+  // Calculate focal length from FOV: focal_length = width / (2 * tan(FOV/2))
+  const plateWidthInches = getPlateWidth();
+  const plateHeightInches = getPlateHeight();
+  const fovRad = fovDeg * Math.PI / 180;
+  const focalLength = plateWidthInches / (2 * Math.tan(fovRad / 2));
+  
+  // Update focal length display (read-only in FOV mode)
+  document.getElementById('focal-out').textContent=focalLength.toFixed(1)+'"';
+  
+  // Update FOV displays
+  const vFovDeg = fovDeg * (plateHeightInches/plateWidthInches); // aspect ratio
+  document.getElementById('fov-out').textContent=fovDeg.toFixed(1)+'°';
+  document.getElementById('vfov-out').textContent=vFovDeg.toFixed(1)+'°';
+  
+  // GEOMETRICALLY CORRECT FOV BEHAVIOR:
+  // When FOV changes, recalculate camera distance to maintain apparent object size
+  // scalingFactor = tan(oldFOV/2) / tan(newFOV/2)
+  const oldFovRad = previousFOV * Math.PI / 180;
+  const newFovRad = fovDeg * Math.PI / 180;
+  const scalingFactor = Math.tan(oldFovRad / 2) / Math.tan(newFovRad / 2);
+  
+  // Calculate new camera distance proportionally from current position
+  const currentDistance = Math.abs(camFtX);
+  const newDistance = currentDistance * scalingFactor;
+  
+  // Update camera X position (distance from buildings)
+  camFtX = -Math.abs(newDistance); // Keep negative (west of buildings)
+  
+  // Update camera position display
+  document.getElementById('camX-out').textContent = Math.abs(newDistance).toFixed(0);
+  
+  // Update instruction spans with current values
+  document.getElementById('instr-focal').textContent=focalLength.toFixed(1)+'"';
+  document.getElementById('instr-hfov').textContent=fovDeg.toFixed(1)+'°';
+  document.getElementById('instr-vfov').textContent=vFovDeg.toFixed(1)+'°';
+  document.getElementById('instr-plate-size').textContent=currentPlateSize;
+  
+  // Store current FOV for next change
+  previousFOV = fovDeg;
+  
+  // Update coordinates and redraw
+  clampCam(); 
+  updateCoords(); 
+  drawAll();
+});
+
+
+// Mode toggle event listeners
+function updateModeDisplay() {
+  const isFocalMode = document.getElementById('focal-mode').checked;
+  const isFovMode = document.getElementById('fov-mode').checked;
+  const isCameraMode = document.getElementById('camera-mode').checked;
+  
+  document.getElementById('focal-controls').style.display = isFocalMode ? 'block' : 'none';
+  document.getElementById('fov-controls').style.display = isFovMode ? 'block' : 'none';
+  document.getElementById('camera-controls').style.display = isCameraMode ? 'block' : 'none';
+  
+  drawAll();
+}
+
+// Initialize mode display
+document.addEventListener('DOMContentLoaded', function() {
+  updateModeDisplay();
+  initializeOverlayFit(); // Initialize overlay object-fit for 2x2.5 plate
+});
+
+document.getElementById('focal-mode').addEventListener('change', updateModeDisplay);
+document.getElementById('focal-mode').addEventListener('click', updateModeDisplay);
+
+document.getElementById('fov-mode').addEventListener('change', updateModeDisplay);
+document.getElementById('fov-mode').addEventListener('click', updateModeDisplay);
+
+document.getElementById('camera-mode').addEventListener('change', updateModeDisplay);
+document.getElementById('camera-mode').addEventListener('click', updateModeDisplay);
+
+document.getElementById('rotation').addEventListener('input',e=>{
+  document.getElementById('rot-out').textContent=e.target.value+'°'; camRotation=parseInt(e.target.value); drawAll();});
+let cameraTiltUp = 0; // Global variable for camera tilt in radians (always 0)
+let cameraHeight = 5; // Global variable for camera height in feet
+
+// Camera position function (input only)
+function updateCameraFromInput() {
+  console.log('updateCameraFromInput called');
+  
+  // Update from number inputs
+  const camXInput = document.getElementById('camX-input');
+  const camYInput = document.getElementById('camY-input');
+  
+  console.log('camXInput:', camXInput, 'camYInput:', camYInput);
+  
+  if (!camXInput || !camYInput) {
+    console.log('Input elements not found');
+    return;
+  }
+  
+  const newX = parseFloat(camXInput.value);
+  const newY = parseFloat(camYInput.value);
+  
+  console.log('New values - X:', newX, 'Y:', newY);
+  
+  // Validate and update camera position
+  if (newX >= -400 && newX <= 400) {
+    camFtX = newX;
+    console.log('Updated camFtX to:', camFtX);
+  }
+  if (newY >= -400 && newY <= 400) {
+    camFtY = newY;
+    console.log('Updated camFtY to:', camFtY);
+  }
+  
+  console.log('Before clampCam - camFtX:', camFtX, 'camFtY:', camFtY);
+  clampCam(); 
+  console.log('After clampCam - camFtX:', camFtX, 'camFtY:', camFtY);
+  updateCoords(); 
+  drawAll();
+  console.log('updateCameraFromInput completed');
+}
+
+document.getElementById('cameraHeight').addEventListener('input',e=>{
+  const height = parseFloat(e.target.value);
+  document.getElementById('cameraHeight-out').textContent = height.toFixed(1) + ' ft';
+  cameraHeight = height;
+  drawAll();
+});
+
+// Add event listeners for camera input controls
+document.addEventListener('DOMContentLoaded', function() {
+  const camXInput = document.getElementById('camX-input');
+  const camYInput = document.getElementById('camY-input');
+  
+  if (camXInput) {
+    camXInput.addEventListener('input', updateCameraFromInput);
+    camXInput.addEventListener('change', updateCameraFromInput);
+    console.log('Added event listeners to camX-input');
+  }
+  
+  if (camYInput) {
+    camYInput.addEventListener('input', updateCameraFromInput);
+    camYInput.addEventListener('change', updateCameraFromInput);
+    console.log('Added event listeners to camY-input');
+  }
+});
+
+// RH1 position slider - update BIS data
+document.getElementById('rh1slide').addEventListener('input',e=>{
+  const position = parseInt(e.target.value);
+  document.getElementById('rh1-out').textContent = position;
+  
+  // Update RH1 position in BIS (negative for south movement)
+  if (BIS && BIS.updateBuildingPosition) {
+    BIS.updateBuildingPosition('RH1', { y: -position });
+    console.log('Updated RH1 position in BIS:', -position);
+  }
+  drawAll();
+});
+
+// RH1 height slider - update BIS data
+document.getElementById('rh1height').addEventListener('input',e=>{
+  const height = parseInt(e.target.value);
+  document.getElementById('rh1height-out').textContent = height + ' ft';
+  
+  // Update RH1 height in BIS
+  if (BIS && BIS.updateBuildingHeight) {
+    BIS.updateBuildingHeight('RH1', height);
+    console.log('Updated RH1 height in BIS:', height);
+  }
+  drawAll();
+});
+
+// RH2 position slider - update BIS data
+document.getElementById('rh2slide').addEventListener('input',e=>{
+  const position = parseInt(e.target.value);
+  document.getElementById('rh2-out').textContent = position;
+  
+  // Update RH2 position in BIS (negative for south movement)
+  if (BIS && BIS.updateBuildingPosition) {
+    BIS.updateBuildingPosition('RH2', { y: -position });
+    console.log('Updated RH2 position in BIS:', -position);
+  }
+  drawAll();
+});
+
+// RH2 height slider - update BIS data
+document.getElementById('rh2height').addEventListener('input',e=>{
+  const height = parseInt(e.target.value);
+  document.getElementById('rh2height-out').textContent = height + ' ft';
+  
+  // Update RH2 height in BIS
+  if (BIS && BIS.updateBuildingHeight) {
+    BIS.updateBuildingHeight('RH2', height);
+    console.log('Updated RH2 height in BIS:', height);
+  }
+  drawAll();
+});
+
+// Camera type selection event listener
+document.getElementById('camera-type').addEventListener('change',e=>{
+  const cameraType = e.target.value;
+  const cameraSettings = getCameraSettings(cameraType);
+  
+  // Update focal length slider
+  document.getElementById('focal').value = cameraSettings.focal;
+  document.getElementById('focal-out').textContent = cameraSettings.focal + '"';
+  
+  // Update FOV displays
+  document.getElementById('fov-out').textContent = cameraSettings.fov.toFixed(1) + '°';
+  document.getElementById('vfov-out').textContent = cameraSettings.vFov.toFixed(1) + '°';
+  
+  // Update camera mode displays
+  document.getElementById('camera-fov-out').textContent = cameraSettings.fov.toFixed(1) + '°';
+  document.getElementById('camera-focal-out').textContent = cameraSettings.focal + '"';
+  
+  // Update instruction spans
+  document.getElementById('instr-focal').textContent = cameraSettings.focal + '"';
+  document.getElementById('instr-hfov').textContent = cameraSettings.fov.toFixed(1) + '°';
+  document.getElementById('instr-vfov').textContent = cameraSettings.vFov.toFixed(1) + '°';
+  document.getElementById('instr-plate-size').textContent = currentPlateSize;
+  
+  drawAll();
+});
+
+// Church position slider - update BIS data for all three church buildings
+document.getElementById('churchslide').addEventListener('input',e=>{
+  const position = parseInt(e.target.value);
+  document.getElementById('church-out').textContent = position;
+  
+  // Update all three church buildings position in BIS
+  if (BIS && BIS.updateBuildingPosition) {
+    // Calculate the offset from original position
+    const originalPositions = {
+      'Church North': { y: 0 },
+      'Church Middle': { y: -25 },
+      'Church South': { y: -50 }
+    };
+    
+    // Move all three churches together maintaining their relative positions
+    const offset = position - 0; // Use Church North as reference (now at y=0)
+    BIS.updateBuildingPosition('Church North', { y: 0 + offset });
+    BIS.updateBuildingPosition('Church Middle', { y: -25 + offset });
+    BIS.updateBuildingPosition('Church South', { y: -50 + offset });
+    
+    console.log('Updated all Church positions in BIS with offset:', offset);
+  }
+  drawAll();
+});
+
+// Church building height sliders - update BIS data for individual buildings
+document.getElementById('chnheight').addEventListener('input',e=>{
+  const height = parseInt(e.target.value);
+  document.getElementById('chnheight-out').textContent = height + ' ft';
+  
+  // Update Church North building height in BIS
+  if (BIS && BIS.updateBuildingHeight) {
+    BIS.updateBuildingHeight('Church North', height);
+    console.log('Updated Church North height:', height);
+  }
+  drawAll();
+});
+
+document.getElementById('chmheight').addEventListener('input',e=>{
+  const height = parseInt(e.target.value);
+  document.getElementById('chmheight-out').textContent = height + ' ft';
+  
+  // Update Church Middle building height in BIS
+  if (BIS && BIS.updateBuildingHeight) {
+    BIS.updateBuildingHeight('Church Middle', height);
+    console.log('Updated Church Middle height:', height);
+  }
+  drawAll();
+});
+
+document.getElementById('chsheight').addEventListener('input',e=>{
+  const height = parseInt(e.target.value);
+  document.getElementById('chsheight-out').textContent = height + ' ft';
+  
+  // Update Church South building height in BIS
+  if (BIS && BIS.updateBuildingHeight) {
+    BIS.updateBuildingHeight('Church South', height);
+    console.log('Updated Church South height:', height);
+  }
+  drawAll();
+});
+// Church distance slider event listener
+const churchDistElement = document.getElementById('churchdist');
+console.log('Church distance slider element:', churchDistElement);
+if (churchDistElement) {
+  churchDistElement.addEventListener('input',e=>{
+    console.log('Church distance slider input event fired!');
+    const distance = parseInt(e.target.value);
+    console.log('Slider value:', distance);
+    
+    // Update the global churchDistance variable
+    churchDistance = distance;
+    console.log('Updated churchDistance variable:', churchDistance);
+    
+    // Update display elements
+    const outElement = document.getElementById('churchdist-out');
+    if (outElement) {
+      outElement.textContent = distance + ' ft';
+      console.log('Updated churchdist-out display:', outElement.textContent);
+    }
+    
+    const distElement = document.getElementById('church-distance');
+    if (distElement) {
+      distElement.textContent = distance + ' ft';
+      console.log('Updated church-distance display:', distElement.textContent);
+    }
+    
+    const instElement = document.getElementById('instruction-distance');
+    if (instElement) {
+      instElement.textContent = distance;
+      console.log('Updated instruction-distance display:', instElement.textContent);
+    }
+    
+    // Update all three Church buildings distance (X position) in BIS
+    if (BIS && BIS.updateBuildingPosition) {
+      BIS.updateBuildingPosition('Church North', { x: distance });
+      BIS.updateBuildingPosition('Church Middle', { x: distance });
+      BIS.updateBuildingPosition('Church South', { x: distance });
+      console.log('Updated BIS church positions');
+    }
+    drawAll();
+  });
+} else {
+  console.error('Church distance slider element not found!');
+}
+// NYU position slider - update BIS data for both NYU and NYU Corner
+document.getElementById('nyuslide').addEventListener('input',e=>{
+  const position = parseInt(e.target.value);
+  document.getElementById('nyu-out').textContent = position;
+  
+  // Update both NYU and NYU Corner position in BIS (move South = negative Y)
+  if (BIS && BIS.updateBuildingPosition) {
+    BIS.updateBuildingPosition('NYU', { y: -position });
+    BIS.updateBuildingPosition('NYU Corner', { y: -position });
+    console.log('Updated both NYU positions in BIS (South):', -position);
+    
+    // Debug: Check NYU Corner source after update
+    setTimeout(() => {
+      const corner = BIS.getBuildingInfo('NYU Corner');
+      if (corner) {
+        console.log('NYU Corner after position update:', corner.source, corner.dimensions);
+      }
+    }, 50);
+  }
+  drawAll();
+});
+
+// NYU height slider - update BIS data for both NYU and NYU Corner
+document.getElementById('nyuheight').addEventListener('input',e=>{
+  const height = parseInt(e.target.value);
+  document.getElementById('nyuheight-out').textContent = height + ' ft';
+  
+  // Update both NYU and NYU Corner height in BIS
+  if (BIS && BIS.updateBuildingHeight) {
+    BIS.updateBuildingHeight('NYU', height);
+    BIS.updateBuildingHeight('NYU Corner', height);
+    console.log('Updated both NYU heights in BIS:', height);
+    
+    // Debug: Check NYU Corner source after height update
+    setTimeout(() => {
+      const corner = BIS.getBuildingInfo('NYU Corner');
+      if (corner) {
+        console.log('NYU Corner after height update:', corner.source, corner.dimensions);
+      }
+    }, 50);
+  }
+  drawAll();
+});
+
+function updateCoords(){
+  // Calculate distance from camera's current position (0,0 reference)
+  const absX = Math.abs(camFtX);
+  const absY = Math.abs(camFtY);
+  
+  const xDirection = camFtX < 0 ? 'West' : 'East';
+  const yDirection = camFtY < 0 ? 'South' : 'North';
+  
+  const descriptiveText = `${absX} ${xDirection} and ${absY} ${yDirection} of origin`;
+  const coordText = `(${camFtX}, ${camFtY>0?'+':''}${camFtY}) ft`;
+  
+  document.getElementById('coords').textContent = descriptiveText;
+  document.getElementById('zoom-coord').textContent = coordText;
+  
+  // Update camera inputs to match current position
+  document.getElementById('camX-input').value = Math.round(camFtX);
+  document.getElementById('camY-input').value = Math.round(camFtY);
+}
+
+// ── Road System Functions ─────────────────────────────────────────────────
+
+function drawRoadSegments(ctx, scale, originX, originY) {
+  ctx.save();
+  
+  roadSegments.forEach(segment => {
+    // Draw road polygon with 20% fill opacity and 100% stroke opacity
+    const fillColor = segment.color.replace(/[\d.]+\)$/, '0.2)');  // Change opacity to 20%
+    const strokeColor = segment.color.replace(/[\d.]+\)$/, '1)');   // Change opacity to 100%
+    ctx.fillStyle = fillColor;
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth = 2;
+    
+    ctx.beginPath();
+    segment.corners.forEach((corner, index) => {
+      const px = originX + corner.x * scale;
+      const py = originY - corner.y * scale; // Y is flipped
+      
+      if (index === 0) {
+        ctx.moveTo(px, py);
+      } else {
+        ctx.lineTo(px, py);
+      }
+    });
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    
+    // Draw road name if enabled
+    if (segment.showLabel && segment.name) {
+      // Calculate center point for label placement
+      const centerX = segment.corners.reduce((sum, c) => sum + c.x, 0) / segment.corners.length;
+      const centerY = segment.corners.reduce((sum, c) => sum + c.y, 0) / segment.corners.length;
+      
+      const labelX = originX + centerX * scale;
+      const labelY = originY - centerY * scale; // Y is flipped
+      
+      ctx.fillStyle = 'rgba(0,0,0,0.8)';
+      ctx.font = '10px "Source Code Pro", monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      
+      // Apply rotation if specified
+      if (segment.labelRotation) {
+        ctx.save();
+        ctx.translate(labelX, labelY);
+        ctx.rotate(segment.labelRotation * Math.PI / 180);
+        ctx.fillText(segment.name, 0, 0);
+        ctx.restore();
+      } else {
+        ctx.fillText(segment.name, labelX, labelY);
+      }
+    }
+  });
+  
+  ctx.restore();
+}
+
+function getRoadBuildings() {
+  const buildings = [];
+  
+  roadSegments.forEach(segment => {
+    // Convert road segment to AABB for ray-casting
+    const minX = Math.min(...segment.corners.map(c => c.x));
+    const maxX = Math.max(...segment.corners.map(c => c.x));
+    const minY = Math.min(...segment.corners.map(c => c.y));
+    const maxY = Math.max(...segment.corners.map(c => c.y));
+    
+    buildings.push({
+      x0: minX,
+      x1: maxX,
+      y0: minY,
+      y1: maxY,
+      h: segment.height,
+      col: segment.color,
+      name: segment.name || 'Custom Road'
+    });
+  });
+  
+  return buildings;
+}
+
+
+// ── Cursor position tracking ─────────────────────────────────────────────────
+let cursorFtX = 0, cursorFtY = 0;
+
+function updateCursorPosition(pixelX, pixelY) {
+  const s = planScale();
+  const {x: ox, y: oy} = planOrigin();
+  
+  // Convert pixel coordinates to world coordinates (feet)
+  // World coordinates: X east, Y north, origin at (0,0)
+  cursorFtX = (pixelX - ox) / s;
+  cursorFtY = -(pixelY - oy) / s; // Y is flipped in canvas coordinates
+  
+  // Update cursor position display
+  const cursorDisplay = document.getElementById('cursor-position');
+  if (cursorDisplay) {
+    cursorDisplay.textContent = `Cursor: (${Math.round(cursorFtX)}, ${cursorFtY >= 0 ? '+' : ''}${Math.round(cursorFtY)}) ft`;
+  }
+}
+
+// ── Tape measure helper functions ─────────────────────────────────────────
+function pxToWorld(pixelX, pixelY) {
+  const s = planScale();
+  const {x: ox, y: oy} = planOrigin();
+  
+  // Convert pixel coordinates to world coordinates (feet)
+  // World coordinates: X east, Y north, origin at (0,0)
+  const worldX = (pixelX - ox) / s;
+  const worldY = -(pixelY - oy) / s; // Y is flipped in canvas coordinates
+  
+  return {x: worldX, y: worldY};
+}
+
+function worldToPx(worldX, worldY) {
+  const s = planScale();
+  const {x: ox, y: oy} = planOrigin();
+  
+  // Convert world coordinates to pixel coordinates
+  // World coordinates: X east, Y north, origin at (0,0)
+  const pixelX = ox + worldX * s;
+  const pixelY = oy - worldY * s; // Y is flipped in canvas coordinates
+  
+  return {x: pixelX, y: pixelY};
+}
+
+function calculateDistance(start, end) {
+  const dx = end.x - start.x;
+  const dy = end.y - start.y;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+function updateTapeMeasureDisplay() {
+  const display = document.getElementById('tape-measure-display');
+  if (!display) return;
+  
+  if (tapeMeasureStart && tapeMeasureEnd) {
+    const distance = calculateDistance(tapeMeasureStart, tapeMeasureEnd);
+    const dx = tapeMeasureEnd.x - tapeMeasureStart.x;
+    const dy = tapeMeasureEnd.y - tapeMeasureStart.y;
+    
+    display.innerHTML = `
+      <div style="font-family:'Source Code Pro',monospace;font-size:0.6rem;color:var(--sepia);">
+        Distance: <span style="color:var(--rust);font-weight:700;">${distance.toFixed(1)} ft</span><br>
+        ΔX: <span style="color:var(--ink);">${dx >= 0 ? '+' : ''}${dx.toFixed(1)} ft</span><br>
+        ΔY: <span style="color:var(--ink);">${dy >= 0 ? '+' : ''}${dy.toFixed(1)} ft</span>
+      </div>
+    `;
+  } else {
+    display.innerHTML = `
+      <div style="font-family:'Source Code Pro',monospace;font-size:0.6rem;color:var(--muted);">
+        Click and drag to measure
+      </div>
+    `;
+  }
+}
+
+function toggleTapeMeasureMode() {
+  tapeMeasureMode = !tapeMeasureMode;
+  const button = document.getElementById('tape-measure-toggle');
+  const display = document.getElementById('tape-measure-display');
+  
+  if (tapeMeasureMode) {
+    button.textContent = 'Exit Tape Measure';
+    button.style.background = 'var(--rust)';
+    button.style.color = 'var(--paper)';
+    display.style.display = 'block';
+    updateTapeMeasureDisplay();
+  } else {
+    button.textContent = 'Tape Measure';
+    button.style.background = 'var(--paper)';
+    button.style.color = 'var(--ink)';
+    display.style.display = 'none';
+    // Clear tape measure
+    tapeMeasureStart = null;
+    tapeMeasureEnd = null;
+    tapeMeasureActive = false;
+    drawAll();
+  }
+}
+
+// ── Plan canvas drag ───────────────────────────────────────────────────────
+// ── Plan drag — move camera in main plan view ───────────────────────────────
+// The plan canvas uses planScale(), so 1 ft = planScale() px on plan canvas.
+// Camera moves in variable increments (1 ft or 2 ft).
+let pDrag=false;
+let pLastPx=0, pLastPy=0;
+
+// ── Site Scene functionality ─────────────────────────────────────────────
+let siteSceneMode=false;
+
+function toggleSiteScene() {
+  const display = document.getElementById('site-scene-selector-display');
+  const button = document.getElementById('site-scene-toggle');
+  
+  if (display && button) {
+    const isVisible = display.style.display !== 'none';
+    display.style.display = isVisible ? 'none' : 'block';
+    
+    if (isVisible) {
+      button.textContent = 'SITE SCENE';
+      button.style.background = 'var(--paper)';
+      button.style.color = 'var(--ink)';
+    } else {
+      button.textContent = 'Exit Site Scene';
+      button.style.background = 'var(--rust)';
+      button.style.color = 'var(--paper)';
+    }
+    
+    console.log('Site Scene selector popup ' + (isVisible ? 'hidden' : 'shown'));
+  }
+}
+
+function selectSiteScene(mapIndex) {
+  // Set the selected map index
+  currentMapIndex = mapIndex;
+  
+  // Save the selection to localStorage
+  localStorage.setItem('plateH_selectedMap', mapIndex.toString());
+  
+  // Load the selected map directly without calling getSelectedMapIndex
+  const config = MAP_CONFIGS[currentMapIndex];
+  
+  console.log('DEBUG: selectSiteScene called');
+  console.log('DEBUG: currentMapIndex:', currentMapIndex);
+  console.log('DEBUG: config:', config);
+  console.log('Loading map:', config.name);
+  console.log('File:', config.filename);
+  
+  mapLoadAttempted = false;
+  
+  // Store existing onload handler if it exists
+  const originalOnload = _mapImg.onload;
+  
+  // Set new onload handler that loads settings and calls original handler
+  _mapImg.onload = function() {
+    console.log('Map loaded, now loading saved settings for:', config.name);
+    loadMapSettings();
+    updateMapPosition(); // Apply the loaded settings
+    
+    // Call original onload handler if it existed
+    if (originalOnload) {
+      originalOnload.call(this);
+    }
+  };
+  
+  _mapImg.src = config.filename;
+  
+  // Update the map selector dropdown
+  updateMapSelector();
+  
+  // Update the site plan callout
+  const sitePlanMapNameSpan = document.getElementById('site-plan-map-name');
+  if (sitePlanMapNameSpan && MAP_CONFIGS[currentMapIndex]) {
+    sitePlanMapNameSpan.textContent = MAP_CONFIGS[currentMapIndex].name;
+  }
+  
+  // Hide the popup after selection and reset button text
+  const display = document.getElementById('site-scene-selector-display');
+  const button = document.getElementById('site-scene-toggle');
+  if (display) {
+    display.style.display = 'none';
+  }
+  if (button) {
+    button.textContent = 'SITE SCENE';
+    button.style.background = 'var(--paper)';
+    button.style.color = 'var(--ink)';
+  }
+  
+  console.log('Selected site scene map:', MAP_CONFIGS[mapIndex].name);
+}
+
+function toggleHelp() {
+  const display = document.getElementById('help-display');
+  const button = document.getElementById('help-toggle');
+  
+  if (display && button) {
+    const isVisible = display.style.display !== 'none';
+    display.style.display = isVisible ? 'none' : 'block';
+    
+    if (isVisible) {
+      button.textContent = 'HELP';
+      button.style.background = 'var(--paper)';
+      button.style.color = 'var(--ink)';
+    } else {
+      button.textContent = 'Exit Help';
+      button.style.background = 'var(--rust)';
+      button.style.color = 'var(--paper)';
+    }
+    
+    console.log('Help display ' + (isVisible ? 'hidden' : 'shown'));
+  }
+}
+
+// ── Tape measure functionality ───────────────────────────────────────────
+let tapeMeasureMode=false;
+let tapeMeasureStart=null;
+let tapeMeasureEnd=null;
+let tapeMeasureActive=false;
+
+function getPP(e){
+  const r=plan.getBoundingClientRect(), s=plan.width/r.width;
+  const src=e.touches?e.touches[0]:e;
+  return{x:(src.clientX-r.left)*s, y:(src.clientY-r.top)*s};
+}
+
+plan.addEventListener('mousedown',e=>{
+  if(tapeMeasureMode){
+    // Start tape measure
+    const p=getPP(e);
+    const worldPos=pxToWorld(p.x, p.y);
+    tapeMeasureStart=worldPos;
+    tapeMeasureEnd=worldPos;
+    tapeMeasureActive=true;
+    updateTapeMeasureDisplay();
+    drawAll();
+  } else {
+    // Normal camera drag
+    pDrag=true;
+    const p=getPP(e); pLastPx=p.x; pLastPy=p.y;
+  }
+});
+plan.addEventListener('mousemove',e=>{
+  const p=getPP(e);
+  // Update cursor position regardless of drag state
+  updateCursorPosition(p.x, p.y);
+  
+  if(tapeMeasureMode && tapeMeasureActive){
+    // Update tape measure end point
+    const worldPos=pxToWorld(p.x, p.y);
+    tapeMeasureEnd=worldPos;
+    updateTapeMeasureDisplay();
+    drawAll();
+  } else if(!pDrag){
+    return;
+  } else {
+    // Normal camera drag
+    const ps=planScale();
+    const dFtX=Math.round((p.x-pLastPx)/ps/1)*1; // Fixed 1-foot increments
+    const dFtY=Math.round(-(p.y-pLastPy)/ps/1)*1; // Fixed 1-foot increments
+    if(dFtX!==0||dFtY!==0){
+      camFtX=Math.max(GRID_X_MIN,Math.min(GRID_X_MAX, camFtX+dFtX));
+      camFtY=Math.max(GRID_Y_MIN,Math.min(GRID_Y_MAX,camFtY+dFtY));
+      pLastPx=p.x; pLastPy=p.y;
+      clampCam(); updateCoords(); drawAll();
+    }
+  }
+});
+plan.addEventListener('mouseup',()=>{
+  if(tapeMeasureMode){
+    tapeMeasureActive=false;
+  } else {
+    pDrag=false;
+  }
+});
+plan.addEventListener('mouseleave',()=>{
+  pDrag=false;
+  // Clear cursor position when mouse leaves canvas
+  const cursorDisplay = document.getElementById('cursor-position');
+  if (cursorDisplay) {
+    cursorDisplay.textContent = 'Cursor: (---, ---) ft';
+  }
+});
+plan.addEventListener('touchstart',e=>{
+  e.preventDefault(); pDrag=true;
+  const p=getPP(e); pLastPx=p.x; pLastPy=p.y;
+},{passive:false});
+plan.addEventListener('touchmove',e=>{
+  e.preventDefault(); if(!pDrag)return;
+  const p=getPP(e);
+  const ps=planScale();
+  const dFtX=Math.round((p.x-pLastPx)/ps/1)*1; // Fixed 1-foot increments
+  const dFtY=Math.round(-(p.y-pLastPy)/ps/1)*1; // Fixed 1-foot increments 
+  if(dFtX!==0||dFtY!==0){
+    camFtX=Math.max(-400,Math.min(400, camFtX+dFtX));
+    camFtY=Math.max(-400,Math.min(400,camFtY+dFtY));
+    pLastPx=p.x; pLastPy=p.y;
+    clampCam(); updateCoords(); drawAll();
+  }
+},{passive:false});
+plan.addEventListener('touchend',()=>pDrag=false);
+
+// ── Geometry helpers ──────────────────────────────────────────────────────
+function getPlateWidth() {
+  // Return plate width in inches based on current selection
+  if (currentPlateSize === '5x7-landscape') {
+    return 7.0; // 7 inches wide for 5x7 landscape
+  } else if (currentPlateSize === '5x7-portrait') {
+    return 5.0; // 5 inches wide for 5x7 portrait
+  } else if (currentPlateSize === '8x10-landscape') {
+    return 10.0; // 10 inches wide for 8x10 landscape
+  } else if (currentPlateSize === '8x10-portrait') {
+    return 8.0; // 8 inches wide for 8x10 portrait
+  } else if (currentPlateSize === '2x2.5') {
+    return 2.0; // 2 inches wide for 2x2.5 plate
+  }
+  return 2.0; // default to 2x2.5
+}
+
+function getPlateHeight() {
+  // Return plate height in inches based on current selection
+  if (currentPlateSize === '5x7-landscape') {
+    return 5.0; // 5 inches tall for 5x7 landscape
+  } else if (currentPlateSize === '5x7-portrait') {
+    return 7.0; // 7 inches tall for 5x7 portrait
+  } else if (currentPlateSize === '8x10-landscape') {
+    return 8.0; // 8 inches tall for 8x10 landscape
+  } else if (currentPlateSize === '8x10-portrait') {
+    return 10.0; // 10 inches tall for 8x10 portrait
+  } else if (currentPlateSize === '2x2.5') {
+    return 2.5; // 2.5 inches tall for 2x2.5 plate
+  }
+  return 2.5; // default to 2x2.5
+}
+
+function getFovDeg(){
+  // Check which mode is active with fallbacks for uninitialized DOM
+  try {
+    const fovModeEl = document.getElementById('fov-mode');
+    const cameraModeEl = document.getElementById('camera-mode');
+    
+    if (!fovModeEl || !cameraModeEl) {
+      return 15; // Default FOV during initialization
+    }
+    
+    const isFovMode = fovModeEl.checked;
+    const isCameraMode = cameraModeEl.checked;
+    
+    if (isCameraMode) {
+      // Return FOV from camera type settings
+      const cameraTypeEl = document.getElementById('camera-type');
+      if (!cameraTypeEl) return 15;
+      const cameraType = cameraTypeEl.value;
+      return getCameraSettings(cameraType).fov;
+    } else if (isFovMode) {
+      // Return FOV directly from slider
+      const fovSliderEl = document.getElementById('fov-slider');
+      if (!fovSliderEl) return 15;
+      return parseFloat(fovSliderEl.value);
+    } else {
+      // Calculate FOV from focal length using current plate width
+      const focalEl = document.getElementById('focal');
+      if (!focalEl) return 15;
+      const focalLength=parseFloat(focalEl.value);
+      const plateWidthInches = getPlateWidth();
+      const fovRad = 2 * Math.atan(plateWidthInches / (2 * focalLength));
+      return fovRad * 180 / Math.PI;
+    }
+  } catch (e) {
+    return 15; // Fallback to 15 degrees on any error
+  }
+}
+
+function getCameraSettings(cameraType) {
+  // Use actual 2x2.5 inch plate dimensions for realistic FOV calculations
+  const plateWidth = 2.0; // 2 inches wide
+  const plateHeight = 2.5; // 2.5 inches tall
+  
+  const settings = {
+    'engraving': { 
+      focal: 8.5, 
+      fov: 2 * Math.atan(plateWidth / (2 * 8.5)) * 180 / Math.PI, 
+      vFov: 2 * Math.atan(plateWidth / (2 * 8.5)) * 180 / Math.PI * (plateHeight/plateWidth) 
+    },
+    'standard': { 
+      focal: 12.2, 
+      fov: 2 * Math.atan(plateWidth / (2 * 12.2)) * 180 / Math.PI, 
+      vFov: 2 * Math.atan(plateWidth / (2 * 12.2)) * 180 / Math.PI * (plateHeight/plateWidth) 
+    },
+    'telephoto': { 
+      focal: 24.0, 
+      fov: 2 * Math.atan(plateWidth / (2 * 24.0)) * 180 / Math.PI, 
+      vFov: 2 * Math.atan(plateWidth / (2 * 24.0)) * 180 / Math.PI * (plateHeight/plateWidth) 
+    },
+    'wide': { 
+      focal: 6.9, 
+      fov: 2 * Math.atan(plateWidth / (2 * 6.9)) * 180 / Math.PI, 
+      vFov: 2 * Math.atan(plateWidth / (2 * 6.9)) * 180 / Math.PI * (plateHeight/plateWidth) 
+    },
+    'fisheye': { 
+      focal: 4.0, 
+      fov: 2 * Math.atan(plateWidth / (2 * 4.0)) * 180 / Math.PI, 
+      vFov: 2 * Math.atan(plateWidth / (2 * 4.0)) * 180 / Math.PI * (plateHeight/plateWidth) 
+    }
+  };
+  return settings[cameraType] || settings['standard'];
+}
+// Convert rotation degrees (-90 to +90) to canvas math angle (0=east, CCW positive)
+// Rotation 0° = east, +90° = north, -90° = south
+function getCamAngle(){ return camRotation * Math.PI / 180; }
+
+function getConeParams(s, ox, oy){
+  const cx=ox+camFtX*s, cy=oy-camFtY*s;
+  
+  // Camera cone parameters - no hard-coded building data
+  const fovDeg=getFovDeg();
+  const ca=getCamAngle(), fR=fovDeg*Math.PI/180, FAR=9000;
+  const rv1={x:cx+Math.cos(ca-fR/2)*FAR, y:cy+Math.sin(ca-fR/2)*FAR};
+  const rv2={x:cx+Math.cos(ca+fR/2)*FAR, y:cy+Math.sin(ca+fR/2)*FAR};
+  
+  return{cx,cy,ca,fR,FAR,rv1,rv2};
+}
+
+function extPt(cx,cy,ca,FAR,tx,ty){
+  const dx=tx-cx,dy=ty-cy,d=Math.sqrt(dx*dx+dy*dy);
+  if(d<0.001)return{x:cx+Math.cos(ca)*FAR,y:cy+Math.sin(ca)*FAR};
+  return{x:cx+(dx/d)*FAR,y:cy+(dy/d)*FAR};
+}
+
+// ── Draw plan view ────────────────────────────────────────────────────────
+
+// ── Historical map (1852) georeferencing ─────────────────────────
+const MAP_SCALE  = 0.652362;
+const MAP_THETA  = -0.520630;
+const MAP_TX     = 118;
+const MAP_TY     = 55;
+const mapDx      = 0;
+const mapDy      = -42;
+// Map positioning and scaling variables
+let mapScale = 1.0;
+let mapOffsetX = 0;
+let mapOffsetY = 0;
+let mapRotation = 30 * Math.PI / 180;
+const mapOpacity = 0.55;
+
+// Simple map configuration
+const MAP_CONFIGS = {
+  0: {
+    name: "1852 Harrison",
+    filename: '1852MapNew YorkHarrison',
+    fallback: '1852MapNew YorkHarrison'
+  },
+  1: {
+    name: "1854 Perris", 
+    filename: '1854 Perris Map Extract',
+    fallback: '1854 Perris Map Extract'
+  },
+  2: {
+    name: "2026 NYC Zoning",
+    filename: 'NYCZoning2026.jpg',
+    fallback: 'NYCZoning2026.jpg'
+  },
+  3: {
+    name: "1879 Brumley Map",
+    filename: '1879 Washington Square Park Bromley.jpg',
+    fallback: '1879 Washington Square Park Bromley.jpg'
+  },
+  4: {
+    name: "1891 NYU Bromley",
+    filename: '1891 Bromley Map.jpg',
+    fallback: '1891 Bromley Map.jpg'
+  },
+  5: {
+    name: "1893 Pincus Map",
+    filename: '1893 Lionel Pincus and Princess Firyal Map Division.jpg',
+    fallback: '1893 Lionel Pincus and Princess Firyal Map Division.jpg'
+  }
+};
+
+const _mapImg = new Image();
+let mapLoadAttempted = false;
+let currentMapIndex = 0;
+
+_mapImg.onload = () => {
+  console.log('Map loaded successfully:', _mapImg.naturalWidth + 'x' + _mapImg.naturalHeight);
+  drawAll();
+};
+
+_mapImg.onerror = () => {
+  console.error('Failed to load map image:', _mapImg.src);
+  if (!mapLoadAttempted) {
+    mapLoadAttempted = true;
+    const config = MAP_CONFIGS[currentMapIndex];
+    if (config && config.fallback) {
+      console.log('Trying fallback file:', config.fallback);
+      _mapImg.src = config.fallback;
+    } else {
+      console.error('No fallback file available');
+    }
+  } else {
+    console.error('Both map filenames failed. Map will not be displayed.');
+  }
+};
+
+// Function to get selected map from URL or localStorage
+function getSelectedMapIndex() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const mapParam = urlParams.get('map');
+  if (mapParam !== null) {
+    const index = parseInt(mapParam);
+    if (index in MAP_CONFIGS) return index;
+  }
+  
+  const stored = localStorage.getItem('plateH_selectedMap');
+  if (stored !== null) {
+    const index = parseInt(stored);
+    if (index in MAP_CONFIGS) return index;
+  }
+  
+  return 0; // Default to first map
+}
+
+// Function to load selected map
+function loadSelectedMap() {
+  currentMapIndex = getSelectedMapIndex();
+  const config = MAP_CONFIGS[currentMapIndex];
+  
+  console.log('DEBUG: loadSelectedMap called');
+  console.log('DEBUG: currentMapIndex:', currentMapIndex);
+  console.log('DEBUG: config:', config);
+  console.log('Loading map:', config.name);
+  console.log('File:', config.filename);
+  
+  mapLoadAttempted = false;
+  _mapImg.src = config.filename;
+  
+  // Update UI
+  updateMapSelector();
+  
+  // Load map-specific calibration settings after DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => loadMapSettings(), 100);
+    });
+  } else {
+    setTimeout(() => loadMapSettings(), 100);
+  }
+  
+  // Don't call drawAll here - wait for image to load
+}
+
+// Function to switch maps
+function switchMap(index) {
+  localStorage.setItem('plateH_selectedMap', index.toString());
+  const newUrl = window.location.pathname + '?map=' + index;
+  window.location.href = newUrl;
+}
+
+// Function to update map selector UI
+function updateMapSelector() {
+  const selector = document.getElementById('map-selector');
+  if (selector) {
+    selector.value = currentMapIndex;
+  }
+  
+  const nameSpan = document.getElementById('current-map-name');
+  if (nameSpan) nameSpan.textContent = MAP_CONFIGS[currentMapIndex].name;
+}
+
+// Initialize map system
+loadSelectedMap();
+
+// Initialize plate canvas size
+updatePlateCanvasSize();
+
+
+// Test function to manually load map settings
+function testLoadMapSettings() {
+  console.log('=== MANUAL TEST LOAD ===');
+  console.log('Current map index:', currentMapIndex);
+  console.log('Map name:', MAP_CONFIGS[currentMapIndex].name);
+  
+  // Force load settings
+  loadMapSettings();
+  
+  // Check what's in localStorage
+  const storageKey = 'plateH_map' + currentMapIndex + '_settings';
+  const savedSettings = localStorage.getItem(storageKey);
+  console.log('Raw localStorage data:', savedSettings);
+  
+  if (savedSettings) {
+    const parsed = JSON.parse(savedSettings);
+    console.log('Parsed settings:', parsed);
+  }
+  
+  console.log('=== END TEST LOAD ===');
+}
+
+// Debug function to check localStorage - can be called from console
+window.debugMapStorage = function() {
+  console.log('=== MAP STORAGE DEBUG ===');
+  console.log('Current map index:', currentMapIndex);
+  console.log('Available localStorage keys:');
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && key.includes('plateH_map')) {
+      const value = localStorage.getItem(key);
+      console.log(key, ':', value);
+    }
+  }
+  console.log('Map 0 settings:', localStorage.getItem('plateH_map0_settings'));
+  console.log('Map 1 settings:', localStorage.getItem('plateH_map1_settings'));
+  console.log('======================');
+};
+
+// Auto-run debug after 1 second
+setTimeout(() => {
+  console.log('Auto-running map storage debug...');
+  if (typeof window.debugMapStorage === 'function') {
+    window.debugMapStorage();
+  }
+}, 1000);
+
+// Initialize NYU position to match slider value
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(() => {
+    const nyuSlider = document.getElementById('nyuslide');
+    if (nyuSlider && BIS && BIS.updateBuildingPosition) {
+      const position = parseInt(nyuSlider.value);
+      BIS.updateBuildingPosition('NYU', { y: -position });
+      BIS.updateBuildingPosition('NYU Corner', { y: -position });
+      console.log('Initialized both NYU positions to:', -position, '(slider value:', position, ')');
+      drawAll();
+    }
+  }, 500); // Wait for BIS to initialize
+});
+
+function drawPlan(){
+  const W=plan.width,PH=plan.height,s=planScale();
+  const{x:ox,y:oy}=planOrigin();
+  const{cx,cy,ca,fR,FAR,rv1,rv2}=getConeParams(s,ox,oy);
+  const tc='#1a1208',mc='#6b5a3e',gc='rgba(139,105,20,0.16)',gl='rgba(100,75,14,0.18)';
+
+  pctx.fillStyle='#faf5ec'; pctx.fillRect(0,0,W,PH);
+
+  // Draw georeferenced historical map
+  if(_mapImg.complete && _mapImg.naturalWidth>0 && tempMapVisible){
+    pctx.save();
+    
+    // Debug: Log map info
+    console.log('Drawing map:', {
+      width: _mapImg.naturalWidth,
+      height: _mapImg.naturalHeight,
+      scale: tempMapScale,
+      rotation: tempMapRotation,
+      x: tempMapX,
+      y: tempMapY,
+      opacity: tempMapOpacity / 100
+    });
+    
+    // Use locked transformation values
+    const currentScale = tempMapScale;
+    const currentRotation = tempMapRotation * Math.PI / 180;
+    const currentX = tempMapX;
+    const currentY = tempMapY;
+    const currentOpacity = tempMapOpacity / 100;
+    
+    // Transform: world ft → plan canvas px
+    // Plan canvas: px = ox + wx*s, py = oy - wy*s
+    // Map image: world (wx,wy) → image px via scale/rotation/anchor
+    // We need to position/rotate the image so its anchor aligns with plan canvas anchor
+    // Plan canvas position of world origin (0,0):
+    const planOx = ox, planOy = oy;
+    // The map image pixel (MAP_TX, MAP_TY) corresponds to world (0,0)
+    // Map is rotated by currentRotation radians in image space
+    // Map scale is currentScale img_px/ft
+    // Plan scale is s plan_px/ft
+    // Combined scale: s/currentScale plan_px/img_px
+    const drawScale = s / currentScale;
+    // Move canvas origin to plan position of world (0,0)
+    pctx.translate(planOx + currentX*s, planOy + currentY*s);
+    // Rotate: map theta is rotation of map grid vs true east
+    // In plan canvas, east=+x, north=-y (canvas y flipped)
+    // Map rotation in canvas coords = currentRotation (already in correct sign)
+    pctx.rotate(currentRotation);
+    pctx.scale(drawScale, drawScale);
+    // Now draw image so that pixel (MAP_TX, MAP_TY) sits at canvas origin
+    pctx.globalAlpha = currentOpacity;
+    pctx.drawImage(_mapImg, -MAP_TX, -MAP_TY);
+    pctx.globalAlpha = 1.0;
+    pctx.restore();
+  } else {
+    // Debug: Show why map isn't drawing
+    console.log('Map not drawing:', {
+      complete: _mapImg.complete,
+      naturalWidth: _mapImg.naturalWidth,
+      naturalHeight: _mapImg.naturalHeight,
+      visible: tempMapVisible,
+      src: _mapImg.src
+    });
+    
+    // Fallback: Draw test pattern to verify rendering system works
+    if(tempMapVisible) {
+      // Draw a test pattern to show map area
+      pctx.save();
+      pctx.translate(W/2, PH/2);
+      
+      // Draw colored grid pattern
+      const gridSize = 50;
+      for(let x = -W/2; x < W/2; x += gridSize) {
+        for(let y = -PH/2; y < PH/2; y += gridSize) {
+          pctx.fillStyle = ((x/gridSize + y/gridSize) % 2 === 0) ? 'rgba(255,200,200,0.5)' : 'rgba(200,200,255,0.5)';
+          pctx.fillRect(x, y, gridSize, gridSize);
+        }
+      }
+      
+      // Draw text
+      pctx.fillStyle = 'black';
+      pctx.font = 'bold 16px Arial';
+      pctx.textAlign = 'center';
+      pctx.fillText('TEST MAP PATTERN', 0, -PH/2 + 30);
+      pctx.font = '12px Arial';
+      pctx.fillText('Map rendering works - image failed to load', 0, -PH/2 + 50);
+      pctx.fillText('Check console for image loading errors', 0, -PH/2 + 70);
+      
+      pctx.restore();
+    }
+  }
+
+  // grid removed
+
+  // axes
+  pctx.strokeStyle='rgba(100,75,14,0.28)'; pctx.lineWidth=1;
+  pctx.beginPath();pctx.moveTo(ox,0);pctx.lineTo(ox,PH);pctx.stroke();
+  pctx.beginPath();pctx.moveTo(0,oy);pctx.lineTo(W,oy);pctx.stroke();
+  pctx.font='9px "Source Code Pro",monospace'; pctx.fillStyle=mc; pctx.textAlign='left';
+  pctx.fillText('(0,0)',ox+3,oy-4);
+
+  // Draw road segments if enabled
+  if (showRoadways) {
+    drawRoadSegments(pctx, s, ox, oy);
+  }
+
+  // cone fill
+  pctx.beginPath();pctx.moveTo(cx,cy);pctx.lineTo(rv1.x,rv1.y);pctx.lineTo(rv2.x,rv2.y);pctx.closePath();
+  pctx.fillStyle='rgba(0,210,255,0.45)';pctx.fill();
+
+  // blind zones
+  function blind(ctx2, px,py,ax,ay,bx,by){
+    const sp=extPt(cx,cy,ca,FAR,px,py),sa=extPt(cx,cy,ca,FAR,ax,ay),sb=extPt(cx,cy,ca,FAR,bx,by);
+    ctx2.save();
+    ctx2.beginPath();ctx2.moveTo(cx,cy);ctx2.lineTo(rv1.x,rv1.y);ctx2.lineTo(rv2.x,rv2.y);ctx2.closePath();ctx2.clip();
+    ctx2.fillStyle='rgba(255,0,0,0.7)';
+    ctx2.beginPath();ctx2.moveTo(px,py);ctx2.lineTo(ax,ay);ctx2.lineTo(sa.x,sa.y);ctx2.lineTo(sp.x,sp.y);ctx2.closePath();ctx2.fill();
+    ctx2.beginPath();ctx2.moveTo(px,py);ctx2.lineTo(bx,by);ctx2.lineTo(sb.x,sb.y);ctx2.lineTo(sp.x,sp.y);ctx2.closePath();ctx2.fill();
+    ctx2.restore();
+    ctx2.setLineDash([]);
+  }
+  // Draw shadow zones from BIS
+  if (BIS && BIS.getForShadowCasting) {
+    const shadowBuildings = BIS.getForShadowCasting();
+    shadowBuildings.forEach(building => {
+      const { coords } = building;
+      const x0 = ox + coords.x0 * s;
+      const y0 = oy - coords.y1 * s;  // y1 is the north edge, so subtract from oy
+      const width = (coords.x1 - coords.x0) * s;
+      const height = (coords.y1 - coords.y0) * s;
+      
+      blind(pctx, x0, y0, x0 + width, y0, x0, y0 + height);
+    });
+  }
+
+  // cone edges
+  pctx.setLineDash([]);pctx.lineWidth=1.5;pctx.strokeStyle='rgba(255,0,0,1)'; // Bright red for middle line
+  pctx.beginPath();pctx.moveTo(cx,cy);pctx.lineTo(cx+Math.cos(ca)*120,cy+Math.sin(ca)*120);pctx.stroke();
+
+  // Draw all buildings from BIS (Building Info System)
+  if (BIS && BIS.getForPlanView) {
+    const bisBuildings = BIS.getForPlanView();
+    console.log('Plan view BIS buildings:', bisBuildings);
+    console.log('Number of buildings for plan view:', bisBuildings.length);
+    bisBuildings.forEach(building => {
+      const { coords, col, name, sections } = building;
+      const x0 = ox + coords.x0 * s;
+      const y0 = oy - coords.y1 * s;  // y1 is the north edge, so subtract from oy
+      const width = (coords.x1 - coords.x0) * s;
+      const height = (coords.y1 - coords.y0) * s;
+      
+      console.log(`Plan view drawing ${name}: coords(${coords.x0},${coords.y0}) to (${coords.x1},${coords.y1}) -> pixels(${x0},${y0}) size(${width},${height})`);
+      
+      // Regular building rendering for all buildings
+        pctx.fillStyle = col;
+        pctx.strokeStyle = col.replace(/[\d.]+\)$/, '1)');
+        pctx.lineWidth = 1.5;
+        pctx.beginPath();
+        pctx.rect(x0, y0, width, height);
+        pctx.fill();
+        pctx.stroke();
+        
+        // Building label
+        pctx.fillStyle = '#000000';
+        pctx.font = '700 8px "Source Code Pro", monospace';
+        pctx.textAlign = 'center';
+        pctx.fillText(name, x0 + width/2, y0 + height/2 + 3);
+        
+        // Add NYU corner stripes for face boundaries
+        if (name === 'NYU') {
+          pctx.strokeStyle = 'rgba(50,50,50,0.8)';
+          pctx.lineWidth = 2;
+          
+          // West edge stripe
+          pctx.beginPath();
+          pctx.moveTo(x0, y0);
+          pctx.lineTo(x0, y0 + height);
+          pctx.stroke();
+          
+          // East edge stripe  
+          pctx.beginPath();
+          pctx.moveTo(x0 + width, y0);
+          pctx.lineTo(x0 + width, y0 + height);
+          pctx.stroke();
+          
+          // North edge stripe
+          pctx.beginPath();
+          pctx.moveTo(x0, y0);
+          pctx.lineTo(x0 + width, y0);
+          pctx.stroke();
+          
+          // South edge stripe
+          pctx.beginPath();
+          pctx.moveTo(x0, y0 + height);
+          pctx.lineTo(x0 + width, y0 + height);
+          pctx.stroke();
+        }
+    });
+  }
+
+  
+  // corner dots - origin only
+  pctx.fillStyle='#3a3020';
+  pctx.beginPath();pctx.arc(ox,oy,3,0,Math.PI*2);pctx.fill();
+
+  // camera crosshair
+  pctx.strokeStyle='rgba(192,57,43,0.22)';pctx.lineWidth=0.8;pctx.setLineDash([3,3]);
+  pctx.beginPath();pctx.moveTo(cx,0);pctx.lineTo(cx,PH);pctx.stroke();
+  pctx.beginPath();pctx.moveTo(0,cy);pctx.lineTo(W,cy);pctx.stroke();pctx.setLineDash([]);
+
+  // camera dot
+  pctx.fillStyle='#c0392b';pctx.beginPath();pctx.arc(cx,cy,4,0,Math.PI*2);pctx.fill();
+  pctx.fillStyle='black';pctx.font='bold 6px monospace';pctx.textAlign='center';pctx.fillText('C',cx,cy+2);
+
+  // cursor indicator
+  if (cursorFtX !== 0 || cursorFtY !== 0) {
+    const cursorPx = ox + cursorFtX * s;
+    const cursorPy = oy - cursorFtY * s; // Y is flipped
+    
+    // Only draw if cursor is within canvas bounds
+    if (cursorPx >= 0 && cursorPx <= W && cursorPy >= 0 && cursorPy <= PH) {
+      // Draw cursor crosshair
+      pctx.strokeStyle='rgba(52,152,219,0.6)';pctx.lineWidth=1;pctx.setLineDash([2,2]);
+      pctx.beginPath();pctx.moveTo(cursorPx, cursorPy - 8);pctx.lineTo(cursorPx, cursorPy + 8);pctx.stroke();
+      pctx.beginPath();pctx.moveTo(cursorPx - 8, cursorPy);pctx.lineTo(cursorPx + 8, cursorPy);pctx.stroke();pctx.setLineDash([]);
+      
+      // Draw cursor dot
+      pctx.fillStyle='#3498db';pctx.beginPath();pctx.arc(cursorPx, cursorPy, 3, 0, Math.PI * 2);pctx.fill();
+    }
+  }
+
+  // Permanent ruler (1300 feet total, from -300 to +1000)
+  const rulerY = oy - 30 * s; // Position 30 feet north of origin
+  const rulerStartX = ox - 300 * s; // Start 300 feet left of origin
+  const rulerEndX = ox + 1000 * s;  // End 1000 feet right of origin (total 1300 feet)
+  
+  // Ruler line
+  pctx.strokeStyle = '#333333';
+  pctx.lineWidth = 2;
+  pctx.beginPath();
+  pctx.moveTo(rulerStartX, rulerY);
+  pctx.lineTo(rulerEndX, rulerY);
+  pctx.stroke();
+  
+  // Ruler tick marks every 100 feet (asymmetric range -300 to +1000)
+  pctx.strokeStyle = '#333333';
+  pctx.lineWidth = 1;
+  
+  // Create tick marks for -300 to +1000
+  const tickPositions = [-300, -200, -100, 0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000];
+  
+  tickPositions.forEach(position => {
+    const x = ox + (position * s);
+    const tickHeight = (position === 0) ? 10 : 8; // Taller tick at origin
+    
+    pctx.beginPath();
+    pctx.moveTo(x, rulerY - tickHeight/2);
+    pctx.lineTo(x, rulerY + tickHeight/2);
+    pctx.stroke();
+  });
+  
+  // Ruler labels
+  pctx.fillStyle = '#333333';
+  pctx.font = '10px "Source Code Pro", monospace';
+  pctx.textAlign = 'center';
+  pctx.textBaseline = 'top';
+  
+  // Label from -300 to +1000 feet, with 0 at origin
+  tickPositions.forEach(position => {
+    const x = ox + (position * s);
+    const label = (position === 0) ? '0' : (position > 0 ? `+${position}` : `${position}`);
+    pctx.fillText(label, x, rulerY + 6);
+  });
+
+  
+  // N arrow removed - not true north
+
+  // ── Draw tape measure ───────────────────────────────────────────────────────
+  if (tapeMeasureMode && tapeMeasureStart && tapeMeasureEnd) {
+    const startPx = worldToPx(tapeMeasureStart.x, tapeMeasureStart.y);
+    const endPx = worldToPx(tapeMeasureEnd.x, tapeMeasureEnd.y);
+    
+    // Draw tape measure line
+    pctx.strokeStyle = '#e74c3c';
+    pctx.lineWidth = 3;
+    pctx.setLineDash([8, 4]);
+    pctx.beginPath();
+    pctx.moveTo(startPx.x, startPx.y);
+    pctx.lineTo(endPx.x, endPx.y);
+    pctx.stroke();
+    pctx.setLineDash([]);
+    
+    // Draw start point
+    pctx.fillStyle = '#e74c3c';
+    pctx.beginPath();
+    pctx.arc(startPx.x, startPx.y, 5, 0, Math.PI * 2);
+    pctx.fill();
+    
+    // Draw end point
+    pctx.fillStyle = '#e74c3c';
+    pctx.beginPath();
+    pctx.arc(endPx.x, endPx.y, 5, 0, Math.PI * 2);
+    pctx.fill();
+    
+    // Draw distance label at midpoint
+    const midPx = {
+      x: (startPx.x + endPx.x) / 2,
+      y: (startPx.y + endPx.y) / 2
+    };
+    const distance = calculateDistance(tapeMeasureStart, tapeMeasureEnd);
+    
+    // Background for text (transparent)
+    pctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+    pctx.fillRect(midPx.x - 30, midPx.y - 12, 60, 24);
+    
+    // Text
+    pctx.fillStyle = '#000000';
+    pctx.font = 'bold 12px "Source Code Pro", monospace';
+    pctx.textAlign = 'center';
+    pctx.textBaseline = 'middle';
+    pctx.fillText(`${distance.toFixed(1)} ft`, midPx.x, midPx.y);
+  }
+
+  
+  pctx.restore();
+}
+
+// ── Ray-Casting System ────────────────────────────────────────
+let plateStrip, psctx;
+
+function drawAll(){
+  updateCoords();
+  drawPlan();
+  updateRayCasting();
+}
+
+// ── Text-to-Speech for Accessibility ───────────────────────────────────────
+function speakInstruction(topic) {
+  // Cancel any ongoing speech
+  window.speechSynthesis.cancel();
+  
+  const instructions = {
+    'camera-position': 'Camera Position: Control camera with X/Y sliders for east-west and north-south movement, plus height adjustment. Use exact inputs for precision. Camera moves freely - negative X is west, positive Y is north. Height sets eye level from 3-35 feet.',
+    
+    'camera-rotation': 'Camera Rotation: 0° aims east toward NYU. Positive rotates north, negative south. Controls camera direction.',
+    
+    'field-of-view': function() {
+      const focalLength = parseFloat(document.getElementById('focal').value);
+      const fovDeg = getFovDeg();
+      const plateWidthInches = getPlateWidth();
+      const plateHeightInches = getPlateHeight();
+      const vFovDeg = fovDeg * (plateHeightInches/plateWidthInches);
+      const plateSize = currentPlateSize;
+      return `Field of View: FOV calculated from focal length. At ${focalLength}" focal length, horizontal FOV is ${fovDeg.toFixed(1)}° and vertical is ${vFovDeg.toFixed(1)}° for ${plateSize} inch plate. Adjust focal length to change perspective.`;
+    },
+    
+    'image-overlay': 'Plate H Overlay: Load the 1839 daguerreotype Plate H from McManus Collection to overlay on the simulated view. Adjust opacity slider (0-100%) to blend the historical photograph with the simulation for comparison.',
+    
+    'building-movement': 'Building Movement: Shift buildings north or south. Changes appear instantly in plan and ray-casting views. Test historical placement hypotheses.',
+    
+    'historical-map': 'Historical Map: The 1852 Harrison map underlies the plan at georeferenced scale. Origin (0,0) is the NYU NW corner. The Church of the Messiah is 777 ft to the east - matching current NYC online system measurements.',
+    
+    'map-controls': 'Map Controls: Toggle map positioning controls to scale, rotate, and offset the 1852 Harrison map. Save and load map positions for consistent reference. Adjust opacity and visibility for overlay comparison.',
+    
+    'tape-measure': 'Tape Measure: Click and drag to measure distances between any two points on the plan. Distance displays in feet with transparent blue label. Use for precise spatial analysis and measurements.',
+    
+    'building-info': 'Building Info: Toggle building information display to view detailed data about NYU, Row Houses, and Church buildings. Shows coordinates, dimensions, and properties for historical analysis.'
+  };
+  
+  const text = typeof instructions[topic] === 'function' ? instructions[topic]() : instructions[topic];
+  if (text) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.9; // Slightly slower for clarity
+    utterance.pitch = 1.0;
+    utterance.volume = 1.0;
+    
+    // Find a voice that speaks clearly
+    const voices = window.speechSynthesis.getVoices();
+    const preferredVoice = voices.find(voice => 
+      voice.name.includes('Google') || 
+      voice.name.includes('Microsoft') ||
+      voice.lang.startsWith('en')
+    );
+    
+    if (preferredVoice) {
+      utterance.voice = preferredVoice;
+    }
+    
+    window.speechSynthesis.speak(utterance);
+  }
+}
+
+// Load voices when available
+window.speechSynthesis.getVoices();
+if (speechSynthesis.onvoiceschanged !== undefined) {
+  speechSynthesis.onvoiceschanged = function() {
+    speechSynthesis.getVoices();
+  };
+}
+
+window.addEventListener('resize',setup);
+
+// Initialize setup after DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+  setup();
+  // Initialize camera inputs with current position
+  const camXInput = document.getElementById('camX-input');
+  const camYInput = document.getElementById('camY-input');
+  if (camXInput) camXInput.value = Math.round(camFtX);
+  if (camYInput) camYInput.value = Math.round(camFtY);
+  
+  // Force an initial redraw after a short delay to ensure all elements are ready
+  setTimeout(() => drawAll(), 100);
+});
+
+// Building AABBs in world coords (X=east, Y=north, origin=ZZZ NW corner)
+// Each: {x0,x1,y0,y1, wCol (west face), sCol (other faces), name}
+// Unified coordinate system - single source of truth for all building positions
+function getUnifiedBuildingCoordinates(){
+  // ZZZ building (hidden)
+  const zzz = {
+    x0: -999999, x1: -999998, y0: -999999, y1: -999998,
+    h: 0.001, col: 'rgba(216,213,208,0.01)', name: 'ZZZ'
+  };
+  
+  // RH1 building - hidden at far coordinates to preserve dependencies
+  const rh1 = {
+    x0: -999999, x1: -999998, y0: -999999, y1: -999998,
+    h: 0.001, col: 'rgba(196,98,64,0.01)', name: 'RH1'  // Almost transparent
+  };
+  
+  // RH2 building - hidden at far coordinates to preserve dependencies  
+  const rh2 = {
+    x0: -999999, x1: -999998, y0: -999999, y1: -999998,
+    h: 0.001, col: 'rgba(210,140,60,0.01)', name: 'RH2'  // Almost transparent
+  };
+  
+  // Church building - hidden at far coordinates to preserve dependencies
+  const church = {
+    x0: -999999, x1: -999998,
+    y0: -999999, y1: -999998,
+    sections: [
+      {x0: -999999, x1: -999998, y0: -999999, y1: -999998, h: 0.001, col: 'rgba(26,79,204,0.01)', name: 'ChN'},
+      {x0: -999999, x1: -999998, y0: -999999, y1: -999998, h: 0.001, col: 'rgba(105,190,40,0.01)', name: 'ChM'},
+      {x0: -999999, x1: -999998, y0: -999999, y1: -999998, h: 0.001, col: 'rgba(160,190,40,0.01)', name: 'ChMid'},
+      {x0: -999999, x1: -999998, y0: -999999, y1: -999998, h: 0.001, col: 'rgba(255,238,0,0.01)', name: 'ChS'}
+    ]
+  };
+  
+  return { zzz, rh1, rh2, church };
+}
+
+// ── Intermediate Building Coordinate System ────────────────────────────
+class BuildingCoordinates {
+  constructor() {
+    this.buildings = new Map();
+    this.initializeDefaults();
+  }
+  
+  initializeDefaults() {
+    // Default building coordinates using NW, WDist, NDist, Ht system
+    this.buildings.set('NYU', {
+      nw: { x: 0, y: 0 },      // NW corner coordinates
+      wDist: 95,                // West-to-East distance (width)
+      nDist: 180,               // North-to-South distance (length)
+      ht: 85,                   // Height
+      color: 'rgba(128,128,128,0.6)',  // NYU gray building color
+      type: 'building',
+      faceColors: {
+        w: null,
+        e: null,
+        n: null,
+        s: 'rgba(98,98,98,0.6)',  // South face - darker gray shade
+        t: null
+      }
+    });
+    
+    // NYU Corner building - 1x1 black block at upper left corner
+    this.buildings.set('NYU Corner', {
+      nw: { x: -1, y: 1 },      // Position at NYU upper left corner (NW corner with offset)
+      wDist: 1,                  // 1ft width
+      nDist: 1,                  // 1ft length
+      ht: 85,                    // Same height as NYU
+      color: 'black',            // Black block
+      type: 'building',
+      source: 'user',            // Required for ray-casting visibility
+      faceColors: {
+        w: null,
+        e: null,
+        n: null,
+        s: null,
+        t: null
+      }
+    });
+    
+    this.buildings.set('RH1', {
+      nw: { x: 0, y: 10 },     // NW corner coordinates
+      wDist: 112,               // West-to-East distance
+      nDist: 50,                // North-to-South distance
+      ht: 45,                   // Height
+      color: 'rgba(128,0,0,0.4)',  // Maroon rowhouse color
+      type: 'building',
+      faceColors: {
+        w: 'rgba(98,0,0,0.4)',  // West face - darker maroon shade
+        e: null,
+        n: null,
+        s: null,
+        t: null
+      }
+    });
+    
+    this.buildings.set('RH2', {
+      nw: { x: 0, y: 10 },     // NW corner coordinates
+      wDist: 180,               // West-to-East distance
+      nDist: 50,                // North-to-South distance
+      ht: 45,                   // Height
+      color: 'rgba(139,90,43,0.5)',  // Brown earth tone rowhouse color
+      type: 'building',
+      faceColors: {
+        w: null,
+        e: 'rgba(109,60,13,0.5)',  // East face - darker brown shade
+        n: null,
+        s: null,
+        t: null
+      }
+    });
+    
+    // Three separate church buildings with different heights and colors
+    this.buildings.set('Church North', {
+      nw: { x: churchDistance, y: 0 },   // NW corner coordinates (dynamic from slider)
+      wDist: 92,                // West-to-East distance (reduced by 8 ft for wider Mercer Street)
+      nDist: 25,                // North-to-South distance (1/3 of original)
+      ht: 50,                   // Height
+      color: 'rgba(0,128,0,0.5)',  // Green - 50% opaque
+      type: 'building',
+      faceColors: {
+        w: null,
+        e: null,
+        n: 'rgba(0,102,0,0.5)',  // North face - darker shade, 50% opaque
+        s: null,
+        t: null
+      }
+    });
+    
+    this.buildings.set('Church Middle', {
+      nw: { x: churchDistance, y: -25 },    // NW corner coordinates (dynamic from slider)
+      wDist: 92,                // West-to-East distance (reduced by 8 ft for wider Mercer Street)
+      nDist: 25,                // North-to-South distance (1/3 of original)
+      ht: 90,                   // Height
+      color: 'rgba(255,255,0,0.5)',  // Yellow - 50% opaque
+      type: 'building',
+      faceColors: {
+        w: null,
+        e: null,
+        n: null,
+        s: 'rgba(204,204,0,0.5)',  // South face - darker shade, 50% opaque
+        t: null
+      }
+    });
+    
+    this.buildings.set('Church South', {
+      nw: { x: churchDistance, y: -50 },  // NW corner coordinates (dynamic from slider)
+      wDist: 92,                // West-to-East distance (reduced by 8 ft for wider Mercer Street)
+      nDist: 25,                // North-to-South distance (1/3 of original)
+      ht: 50,                   // Height
+      color: 'rgba(0,0,255,0.5)',  // Blue - 50% opaque
+      type: 'building',
+      faceColors: {
+        w: 'rgba(0,0,204,0.5)',  // West face - darker shade, 50% opaque
+        e: null,
+        n: null,
+        s: null,
+        t: null
+      }
+    });
+    
+    // Streets using NW, WDist, NDist, Ht system
+    this.buildings.set('Washington Square East', {
+      nw: { x: -50, y: 30 },    // NW corner coordinates
+      wDist: 50,                // West-to-East distance (width)
+      nDist: 330,               // North-to-South distance (length)
+      ht: 2,                    // Height (road height)
+      color: 'rgba(205,133,63,0.8)',  // Clay-colored roadways
+      type: 'street'
+    });
+    
+    this.buildings.set('University Place', {
+      nw: { x: -50, y: 300 },   // NW corner coordinates
+      wDist: 75,                // West-to-East distance (width)
+      nDist: 300,               // North-to-South distance (length)
+      ht: 2,                    // Height (road height)
+      color: 'rgba(205,133,63,0.8)',  // Clay-colored roadways
+      type: 'street'
+    });
+    
+    this.buildings.set('Waverly Place', {
+      nw: { x: 0, y: 60 },      // NW corner coordinates
+      wDist: 702,               // West-to-East distance (width)
+      nDist: 60,                // North-to-South distance (length)
+      ht: 2,                    // Height (road height)
+      color: 'rgba(205,133,63,0.8)',  // Clay-colored roadways
+      type: 'street'
+    });
+    
+    this.buildings.set('Broadway', {
+      nw: { x: 702, y: 300 },   // NW corner coordinates
+      wDist: 75,                // West-to-East distance (width) - updated to 75ft
+      nDist: 600,               // North-to-South distance (length)
+      ht: 2,                    // Height (road height)
+      color: 'rgba(205,133,63,0.8)',  // Clay-colored roadways
+      type: 'street'
+    });
+    
+    this.buildings.set('Washington Square North', {
+      nw: { x: -300, y: 60 },   // NW corner coordinates
+      wDist: 300,               // West-to-East distance (width)
+      nDist: 60,                // North-to-South distance (length)
+      ht: 2,                    // Height (road height)
+      color: 'rgba(205,133,63,0.8)',  // Clay-colored roadways
+      type: 'street'
+    });
+    
+    this.buildings.set('Greene Street', {
+      nw: { x: 208, y: 300 },   // NW corner coordinates
+      wDist: 40,                // West-to-East distance (width)
+      nDist: 600,               // North-to-South distance (length)
+      ht: 2,                    // Height (road height)
+      color: 'rgba(205,133,63,0.8)',  // Clay-colored roadways
+      type: 'street'
+    });
+    
+    this.buildings.set('Mercer Street', {
+      nw: { x: 458, y: 300 },   // NW corner coordinates
+      wDist: 48,                // West-to-East distance (width)
+      nDist: 600,               // North-to-South distance (length)
+      ht: 2,                    // Height (road height)
+      color: 'rgba(205,133,63,0.8)',  // Clay-colored roadways
+      type: 'street'
+    });
+    
+    this.buildings.set('Washington Place', {
+      nw: { x: 0, y: -197 },    // NW corner coordinates
+      wDist: 702,               // West-to-East distance (width)
+      nDist: 70,                // North-to-South distance (length)
+      ht: 2,                    // Height (road height)
+      color: 'rgba(205,133,63,0.8)',  // Clay-colored roadways
+      type: 'street'
+    });
+  }
+  
+  // Convert to BIS format
+  toBISFormat() {
+    const bisData = new Map();
+    
+    this.buildings.forEach((building, name) => {
+      const nw = building.nw;
+      
+      // Debug: Log building dimensions during conversion
+      console.log(`Converting ${name} to BIS format: wDist=${building.wDist}, nDist=${building.nDist}`);
+      console.log(`Full building object for ${name}:`, building);
+      
+      // Special debugging for NYU Corner
+      if (name === 'NYU Corner') {
+        console.log('NYU Corner detailed debug:');
+        console.log('  building.wDist:', building.wDist, 'type:', typeof building.wDist);
+        console.log('  building.nDist:', building.nDist, 'type:', typeof building.nDist);
+        console.log('  building.nw:', building.nw);
+        console.log('  Is wDist undefined?', building.wDist === undefined);
+        console.log('  Is nDist undefined?', building.nDist === undefined);
+      }
+      
+      // Hardcode NYU Corner to 1 foot square
+      let width = building.wDist;
+      let length = building.nDist;
+      
+      if (name === 'NYU Corner') {
+        width = 0.25;
+        length = 0.25;
+        console.log('Hardcoding NYU Corner to 0.25ft x 0.25ft');
+      }
+      
+      const bisBuilding = {
+        name: name,
+        nwCoordinate: { x: nw.x, y: nw.y },
+        dimensions: { width: width, length: length },
+        height: building.ht,
+        color: building.color,
+        position: {
+          x0: nw.x,                    // NW corner
+          x1: nw.x + width,            // NE corner (use hardcoded width)
+          y0: nw.y - length,           // SW corner (use hardcoded length)
+          y1: nw.y                     // NW corner
+        },
+        source: 'user',
+        type: building.type || 'building'
+      };
+      
+      // Add sections for Church
+      if (building.sections) {
+        bisBuilding.sections = building.sections;
+      }
+      
+      bisData.set(name, bisBuilding);
+    });
+    
+    return bisData;
+  }
+  
+  // Update building coordinates
+  updateBuilding(buildingName, updates) {
+    const building = this.buildings.get(buildingName);
+    if (building) {
+      Object.assign(building, updates);
+      console.log(`Updated ${buildingName}:`, building);
+    }
+  }
+}
+
+// ── Building Info System (BIS) - Primary Data Source ───────────────────────
+class BuildingInfoSystem {
+  constructor() {
+    this.buildingData = new Map();
+    this.coordinateSystem = new BuildingCoordinates();
+    this.initializeBuildingData();
+  }
+  
+  initializeBuildingData() {
+    // Initialize from intermediate coordinate system
+    this.buildingData = this.coordinateSystem.toBISFormat();
+  }
+  
+  getAllBuildings() {
+    return Array.from(this.buildingData.values());
+  }
+  
+  getBuildingInfo(buildingName) {
+    return this.buildingData.get(buildingName);
+  }
+  
+  getBuildingsByType(type) {
+    const buildings = Array.from(this.buildingData.values());
+    switch(type) {
+      case 'visible':
+        return buildings.filter(b => b.source === 'user' && b.type !== 'street'); // Exclude streets from ray-casting
+      case 'hidden':
+        return buildings.filter(b => b.source === 'unified');
+      case 'multi-section':
+        return buildings.filter(b => b.sections);
+      default:
+        return buildings;
+    }
+  }
+  
+  // System-specific methods
+  getForPlanView() {
+    // For plan view, include all user buildings except streets (streets handled by drawRoadSegments)
+    const buildings = Array.from(this.buildingData.values());
+    const planBuildings = buildings.filter(b => b.source === 'user' && b.type !== 'street');
+    return planBuildings.map(building => ({
+      name: building.name,
+      coords: building.position,
+      col: building.color
+    }));
+  }
+  
+  getForShadowCasting() {
+    const visibleBuildings = this.getBuildingsByType('visible');
+    return visibleBuildings.map(building => ({
+      coords: building.position
+    }));
+  }
+  
+  getForRayCasting() {
+    // Only return visible buildings for ray-casting
+    const visibleBuildings = this.getBuildingsByType('visible');
+    
+    // Debug: Log all buildings and their source properties
+    console.log('All BIS buildings and their source:');
+    this.getAllBuildings().forEach(b => {
+      console.log(`  ${b.name}: source="${b.source}", type="${b.type}"`);
+    });
+    
+    console.log('Visible buildings for ray-casting:', visibleBuildings.map(b => b.name));
+    
+    return visibleBuildings.map(building => ({
+      name: building.name,
+      x0: building.position.x0,
+      x1: building.position.x1,
+      y0: building.position.y0,
+      y1: building.position.y1,
+      h: building.height,
+      col: building.color
+    }));
+  }
+
+  // Update building position
+  updateBuildingPosition(buildingName, position) {
+    const coordBuilding = this.coordinateSystem.buildings.get(buildingName);
+    if (coordBuilding) {
+      // Update NW coordinate in intermediate system
+      if (position.y !== undefined) {
+        coordBuilding.nw.y = position.y;
+      }
+      if (position.x !== undefined) {
+        coordBuilding.nw.x = position.x;
+      }
+      
+      // Update BIS data from intermediate system
+      const bisBuilding = this.buildingData.get(buildingName);
+      if (bisBuilding) {
+        bisBuilding.nwCoordinate = { ...coordBuilding.nw };
+        
+        // Hardcode NYU Corner dimensions in position updates
+        let wDist = coordBuilding.wDist;
+        let nDist = coordBuilding.nDist;
+        
+        if (buildingName === 'NYU Corner') {
+          wDist = 0.25;
+          nDist = 0.25;
+          console.log('Hardcoding NYU Corner position to 0.25ft x 0.25ft');
+        }
+        
+        bisBuilding.position = {
+          x0: coordBuilding.nw.x,
+          x1: coordBuilding.nw.x + wDist,
+          y0: coordBuilding.nw.y - nDist,
+          y1: coordBuilding.nw.y
+        };
+        // Ensure source property is always preserved during updates
+        bisBuilding.source = 'user';
+        
+        // Special handling for NYU Corner to ensure it's always visible
+        if (buildingName === 'NYU Corner') {
+          bisBuilding.source = 'user';
+          bisBuilding.dimensions = { width: 0.25, length: 0.25 };
+          console.log('Force-preserved source and dimensions for NYU Corner');
+        }
+      }
+      console.log(`Updated ${buildingName} position:`, coordBuilding.nw);
+    }
+  }
+
+  // Update building height
+  updateBuildingHeight(buildingName, height) {
+    const coordBuilding = this.coordinateSystem.buildings.get(buildingName);
+    if (coordBuilding) {
+      coordBuilding.ht = height;
+      
+      // Update BIS data from intermediate system
+      const bisBuilding = this.buildingData.get(buildingName);
+      if (bisBuilding) {
+        bisBuilding.height = height;
+        // Ensure source property is always preserved during height updates
+        bisBuilding.source = 'user';
+        
+        // Special handling for NYU Corner to ensure it's always visible
+        if (buildingName === 'NYU Corner') {
+          bisBuilding.source = 'user';
+          console.log('Force-preserved source for NYU Corner in height update');
+        }
+      }
+      console.log(`Updated ${buildingName} height:`, height);
+    }
+  }
+
+  // Update building WDIST (West-to-East distance)
+  updateBuildingWDist(buildingName, wDist) {
+    const coordBuilding = this.coordinateSystem.buildings.get(buildingName);
+    if (coordBuilding) {
+      coordBuilding.wDist = parseInt(wDist);
+      
+      // Update BIS data from intermediate system
+      const bisBuilding = this.buildingData.get(buildingName);
+      if (bisBuilding) {
+        bisBuilding.dimensions.width = coordBuilding.wDist;
+        bisBuilding.position.x1 = coordBuilding.nw.x + coordBuilding.wDist;
+      }
+      console.log(`Updated ${buildingName} WDIST:`, wDist);
+    }
+  }
+
+  // Update building NDIST (North-to-South distance)
+  updateBuildingNDist(buildingName, nDist) {
+    const coordBuilding = this.coordinateSystem.buildings.get(buildingName);
+    if (coordBuilding) {
+      coordBuilding.nDist = parseInt(nDist);
+      
+      // Update BIS data from intermediate system
+      const bisBuilding = this.buildingData.get(buildingName);
+      if (bisBuilding) {
+        bisBuilding.dimensions.length = coordBuilding.nDist;
+        bisBuilding.position.y0 = coordBuilding.nw.y - coordBuilding.nDist;
+      }
+      console.log(`Updated ${buildingName} NDIST:`, nDist);
+    }
+  }
+
+  // Update Church section height
+  updateChurchSectionHeight(sectionName, height) {
+    const church = this.buildingData.get('Church');
+    if (church && church.sections) {
+      const section = church.sections.find(s => s.name === sectionName);
+      if (section) {
+        section.height = height;
+        // Update overall church height to max of sections
+        church.height = Math.max(...church.sections.map(s => s.height));
+        console.log(`Updated Church ${sectionName} height:`, height, 'Overall church height:', church.height);
+      }
+    }
+  }
+
+  // Get specific building
+  getBuilding(buildingName) {
+    return this.buildingData.get(buildingName);
+  }
+}
+
+// Global functions for BIS input updates
+function updateBuildingNW(buildingName, axis, value) {
+  if (BIS && BIS.updateBuildingPosition) {
+    const position = {};
+    position[axis] = parseInt(value);
+    BIS.updateBuildingPosition(buildingName, position);
+    drawAll(); // Redraw all canvases
+  }
+}
+
+function updateBuildingWDist(buildingName, wDist) {
+  if (BIS && BIS.updateBuildingWDist) {
+    BIS.updateBuildingWDist(buildingName, wDist);
+    drawAll(); // Redraw all canvases
+  }
+}
+
+function updateBuildingNDist(buildingName, nDist) {
+  if (BIS && BIS.updateBuildingNDist) {
+    BIS.updateBuildingNDist(buildingName, nDist);
+    drawAll(); // Redraw all canvases
+  }
+}
+
+function updateBuildingHeight(buildingName, height) {
+  if (BIS && BIS.updateBuildingHeight) {
+    BIS.updateBuildingHeight(buildingName, parseInt(height));
+    drawAll(); // Redraw all canvases
+  }
+}
+
+function refreshScene() {
+  drawAll(); // Redraw all canvases
+  console.log('Scene refreshed');
+}
+
+// Map controls functions
+function toggleMapControls() {
+  const mapControls = document.getElementById('map-controls');
+  const toggle = document.getElementById('map-controls-toggle');
+  
+  if (mapControls.style.display === 'none') {
+    mapControls.style.display = 'block';
+    toggle.textContent = 'Exit Map';
+    toggle.style.background = 'var(--rust)';
+    toggle.style.color = 'var(--paper)';
+  } else {
+    mapControls.style.display = 'none';
+    toggle.textContent = 'MAP';
+    toggle.style.background = 'var(--paper)';
+    toggle.style.color = 'var(--ink)';
+  }
+}
+
+function updateMapPosition() {
+  // Update temporary map variables from sliders
+  tempMapScale = parseFloat(document.getElementById('mapScale').value);
+  tempMapRotation = parseFloat(document.getElementById('mapRotation').value);
+  tempMapX = parseFloat(document.getElementById('mapOffsetX').value);
+  tempMapY = parseFloat(document.getElementById('mapOffsetY').value);
+  tempMapVisible = document.getElementById('tempMapVisible').checked;
+  showRoadways = document.getElementById('showRoadways').checked;
+  tempMapOpacity = parseFloat(document.getElementById('mapOpacity').value);
+  
+  // Update display values and input fields
+  document.getElementById('mapScale-out').textContent = tempMapScale.toFixed(2);
+  document.getElementById('mapScale-input').value = tempMapScale.toFixed(2);
+  document.getElementById('mapRotation-out').textContent = tempMapRotation.toFixed(1) + '°';
+  document.getElementById('mapRotation-input').value = tempMapRotation.toFixed(1);
+  document.getElementById('mapOffsetX-out').textContent = Math.round(tempMapX);
+  document.getElementById('mapOffsetX-input').value = Math.round(tempMapX);
+  document.getElementById('mapOffsetY-out').textContent = Math.round(tempMapY);
+  document.getElementById('mapOffsetY-input').value = Math.round(tempMapY);
+  document.getElementById('mapOpacity-out').textContent = Math.round(tempMapOpacity) + '%';
+  
+  // Redraw the scene
+  drawAll();
+}
+
+function updateMapFromInput() {
+  // Update temporary map variables from input fields
+  tempMapScale = parseFloat(document.getElementById('mapScale-input').value);
+  tempMapRotation = parseFloat(document.getElementById('mapRotation-input').value);
+  tempMapX = parseFloat(document.getElementById('mapOffsetX-input').value);
+  tempMapY = parseFloat(document.getElementById('mapOffsetY-input').value);
+  tempMapVisible = document.getElementById('tempMapVisible').checked;
+  tempMapOpacity = parseFloat(document.getElementById('mapOpacity').value);
+  
+  // Update sliders and display values
+  document.getElementById('mapScale').value = tempMapScale;
+  document.getElementById('mapScale-out').textContent = tempMapScale.toFixed(2);
+  document.getElementById('mapRotation').value = tempMapRotation;
+  document.getElementById('mapRotation-out').textContent = tempMapRotation.toFixed(1) + '°';
+  document.getElementById('mapOffsetX').value = tempMapX;
+  document.getElementById('mapOffsetX-out').textContent = Math.round(tempMapX);
+  document.getElementById('mapOffsetY').value = tempMapY;
+  document.getElementById('mapOffsetY-out').textContent = Math.round(tempMapY);
+  document.getElementById('mapOpacity').value = tempMapOpacity;
+  document.getElementById('mapOpacity-out').textContent = Math.round(tempMapOpacity) + '%';
+  
+  // Redraw the scene
+  drawAll();
+}
+
+function saveMapSettings() {
+  const mapSettings = {
+    scale: tempMapScale,
+    rotation: tempMapRotation,
+    x: tempMapX,
+    y: tempMapY,
+    visible: tempMapVisible,
+    timestamp: new Date().toISOString()
+  };
+  
+  // Save to map-specific localStorage
+  const storageKey = 'plateH_map' + currentMapIndex + '_settings';
+  localStorage.setItem(storageKey, JSON.stringify(mapSettings));
+  
+  console.log('DEBUG: Saving settings for map index:', currentMapIndex);
+  console.log('DEBUG: Storage key:', storageKey);
+  console.log('Map settings saved for', MAP_CONFIGS[currentMapIndex].name, ':', mapSettings);
+  
+  // Visual feedback
+  const saveBtn = document.getElementById('saveMapPosition');
+  const originalText = saveBtn.textContent;
+  saveBtn.textContent = 'Saved!';
+  saveBtn.style.background = 'var(--sepia)';
+  saveBtn.style.color = 'var(--paper)';
+  
+  setTimeout(() => {
+    saveBtn.textContent = originalText;
+    saveBtn.style.background = 'var(--paper)';
+    saveBtn.style.color = 'var(--ink)';
+  }, 1500);
+}
+
+function resetMapToOrigin() {
+  // Reset map to origin position
+  tempMapScale = 1.0;
+  tempMapRotation = 0.0;
+  tempMapX = 0;
+  tempMapY = 0;
+  tempMapVisible = true;
+  
+  // Update all controls
+  document.getElementById('mapScale').value = tempMapScale;
+  document.getElementById('mapScale-input').value = tempMapScale;
+  document.getElementById('mapScale-out').textContent = tempMapScale.toFixed(2);
+  
+  document.getElementById('mapRotation').value = tempMapRotation;
+  document.getElementById('mapRotation-input').value = tempMapRotation;
+  document.getElementById('mapRotation-out').textContent = tempMapRotation.toFixed(1) + '°';
+  
+  document.getElementById('mapOffsetX').value = tempMapX;
+  document.getElementById('mapOffsetX-input').value = tempMapX;
+  document.getElementById('mapOffsetX-out').textContent = Math.round(tempMapX);
+  
+  document.getElementById('mapOffsetY').value = tempMapY;
+  document.getElementById('mapOffsetY-input').value = tempMapY;
+  document.getElementById('mapOffsetY-out').textContent = Math.round(tempMapY);
+  
+  document.getElementById('tempMapVisible').checked = tempMapVisible;
+  
+  // Redraw the scene
+  drawAll();
+  
+  // Visual feedback
+  const resetBtn = document.getElementById('resetMapPosition');
+  const originalText = resetBtn.textContent;
+  resetBtn.textContent = 'Reset!';
+  resetBtn.style.background = 'var(--sepia)';
+  resetBtn.style.color = 'var(--paper)';
+  
+  setTimeout(() => {
+    resetBtn.textContent = originalText;
+    resetBtn.style.background = 'var(--paper)';
+    resetBtn.style.color = 'var(--ink)';
+  }, 1500);
+  
+  console.log('Map reset to origin position');
+}
+
+function loadMapSettings() {
+  // Load map-specific settings
+  const storageKey = 'plateH_map' + currentMapIndex + '_settings';
+  const savedSettings = localStorage.getItem(storageKey);
+  
+  console.log('DEBUG: Loading settings for map index:', currentMapIndex);
+  console.log('DEBUG: Storage key:', storageKey);
+  console.log('DEBUG: Saved settings found:', !!savedSettings);
+  
+  if (savedSettings) {
+    const mapSettings = JSON.parse(savedSettings);
+    console.log('Loading map settings for', MAP_CONFIGS[currentMapIndex].name, ':', mapSettings);
+    
+    // Apply loaded settings
+    tempMapScale = mapSettings.scale || 1.0;
+    tempMapRotation = mapSettings.rotation || 0.0;
+    tempMapX = mapSettings.x || 0;
+    tempMapY = mapSettings.y || 0;
+    tempMapVisible = mapSettings.visible !== undefined ? mapSettings.visible : true;
+    
+    // Update all controls - with debugging and safety checks
+    console.log('DEBUG: Updating UI controls with loaded values');
+    console.log('DEBUG: tempMapScale =', tempMapScale);
+    console.log('DEBUG: tempMapRotation =', tempMapRotation);
+    console.log('DEBUG: tempMapX =', tempMapX);
+    console.log('DEBUG: tempMapY =', tempMapY);
+    
+    const scaleSlider = document.getElementById('mapScale');
+    const scaleInput = document.getElementById('mapScale-input');
+    const scaleOut = document.getElementById('mapScale-out');
+    
+    if (scaleSlider && scaleInput && scaleOut) {
+      scaleSlider.value = tempMapScale;
+      scaleInput.value = tempMapScale;
+      scaleOut.textContent = tempMapScale.toFixed(2);
+      console.log('DEBUG: Updated scale controls to', tempMapScale);
+    } else {
+      console.log('DEBUG: Scale controls not found in DOM');
+    }
+    
+    const rotSlider = document.getElementById('mapRotation');
+    const rotInput = document.getElementById('mapRotation-input');
+    const rotOut = document.getElementById('mapRotation-out');
+    
+    if (rotSlider && rotInput && rotOut) {
+      rotSlider.value = tempMapRotation;
+      rotInput.value = tempMapRotation;
+      rotOut.textContent = tempMapRotation.toFixed(1) + '°';
+      console.log('DEBUG: Updated rotation controls to', tempMapRotation);
+    } else {
+      console.log('DEBUG: Rotation controls not found in DOM');
+    }
+    
+    const xSlider = document.getElementById('mapOffsetX');
+    const xInput = document.getElementById('mapOffsetX-input');
+    const xOut = document.getElementById('mapOffsetX-out');
+    
+    if (xSlider && xInput && xOut) {
+      xSlider.value = tempMapX;
+      xInput.value = tempMapX;
+      xOut.textContent = Math.round(tempMapX);
+      console.log('DEBUG: Updated X offset controls to', tempMapX);
+    } else {
+      console.log('DEBUG: X offset controls not found in DOM');
+    }
+    
+    const ySlider = document.getElementById('mapOffsetY');
+    const yInput = document.getElementById('mapOffsetY-input');
+    const yOut = document.getElementById('mapOffsetY-out');
+    
+    if (ySlider && yInput && yOut) {
+      ySlider.value = tempMapY;
+      yInput.value = tempMapY;
+      yOut.textContent = Math.round(tempMapY);
+      console.log('DEBUG: Updated Y offset controls to', tempMapY);
+    } else {
+      console.log('DEBUG: Y offset controls not found in DOM');
+    }
+    
+    const visibleCheck = document.getElementById('tempMapVisible');
+    if (visibleCheck) {
+      visibleCheck.checked = tempMapVisible;
+      console.log('DEBUG: Updated visible checkbox to', tempMapVisible);
+    } else {
+      console.log('DEBUG: Visible checkbox not found in DOM');
+    }
+    
+    // Don't call drawAll here - wait for image to load to avoid BIS initialization issues
+    
+    // Visual feedback
+    const loadBtn = document.getElementById('loadMapPosition');
+    const originalText = loadBtn.textContent;
+    loadBtn.textContent = 'Loaded!';
+    loadBtn.style.background = 'var(--sepia)';
+    loadBtn.style.color = 'var(--paper)';
+    
+    setTimeout(() => {
+      loadBtn.textContent = originalText;
+      loadBtn.style.background = 'var(--paper)';
+      loadBtn.style.color = 'var(--ink)';
+    }, 1500);
+    
+    console.log('Map settings loaded successfully');
+  } else {
+    console.log('No saved map settings found');
+    
+    // Visual feedback for no settings
+    const loadBtn = document.getElementById('loadMapPosition');
+    const originalText = loadBtn.textContent;
+    loadBtn.textContent = 'None Found';
+    loadBtn.style.background = 'var(--rust)';
+    loadBtn.style.color = 'var(--paper)';
+    
+    setTimeout(() => {
+      loadBtn.textContent = originalText;
+      loadBtn.style.background = 'var(--paper)';
+      loadBtn.style.color = 'var(--ink)';
+    }, 1500);
+  }
+}
+
+function saveBISDefaults() {
+  if (BIS && BIS.getAllBuildings) {
+    const currentBuildings = BIS.getAllBuildings();
+    const defaults = {};
+    
+    console.log('Current buildings to save:', currentBuildings);
+    
+    currentBuildings.forEach(building => {
+      console.log(`Saving building ${building.name}:`, building);
+      defaults[building.name] = {
+        nwCoordinate: { ...building.nwCoordinate },
+        dimensions: { ...building.dimensions },
+        height: building.height,
+        color: building.color,
+        type: building.type
+      };
+      
+      // Save church sections if present
+      if (building.sections) {
+        defaults[building.name].sections = building.sections.map(section => ({ ...section }));
+        console.log(`Saved sections for ${building.name}:`, building.sections);
+      }
+    });
+    
+    // Save to localStorage
+    const defaultsJSON = JSON.stringify(defaults);
+    localStorage.setItem('bisDefaults', defaultsJSON);
+    console.log('BIS defaults saved to localStorage:', defaults);
+    console.log('localStorage size:', defaultsJSON.length);
+    
+    // Verify save by reading back
+    const verifySaved = localStorage.getItem('bisDefaults');
+    console.log('Verification - read back from localStorage:', verifySaved);
+    
+    // Show confirmation
+    const bisContent = document.getElementById('bis-content');
+    if (bisContent) {
+      const confirmation = document.createElement('div');
+      confirmation.style.cssText = 'background:var(--sepia);color:var(--paper);padding:0.5rem;text-align:center;margin-bottom:0.5rem;border-radius:3px;font-size:0.6rem;';
+      confirmation.textContent = `✓ Saved ${Object.keys(defaults).length} buildings`;
+      bisContent.insertBefore(confirmation, bisContent.firstChild);
+      setTimeout(() => confirmation.remove(), 3000);
+    }
+  } else {
+    console.error('BIS not available for saving defaults');
+  }
+}
+
+function loadBISDefaults() {
+  const savedDefaults = localStorage.getItem('bisDefaults');
+  console.log('loadBISDefaults called. Found saved defaults:', !!savedDefaults);
+  
+  if (savedDefaults && BIS) {
+    try {
+      const defaults = JSON.parse(savedDefaults);
+      console.log('Loading BIS defaults:', defaults);
+      console.log('Number of buildings in defaults:', Object.keys(defaults).length);
+      
+      // Update each building with saved defaults
+      Object.keys(defaults).forEach(buildingName => {
+        const defaultData = defaults[buildingName];
+        console.log(`Loading ${buildingName}:`, defaultData);
+        
+        // Update building coordinates and properties
+        if (typeof updateBuildingNW === 'function') {
+          console.log(`Updating ${buildingName} NW to:`, defaultData.nwCoordinate);
+          updateBuildingNW(buildingName, 'x', defaultData.nwCoordinate.x);
+          updateBuildingNW(buildingName, 'y', defaultData.nwCoordinate.y);
+        }
+        
+        if (BIS.updateBuildingWDist) {
+          console.log(`Updating ${buildingName} WDIST to:`, defaultData.dimensions.width);
+          BIS.updateBuildingWDist(buildingName, defaultData.dimensions.width);
+        }
+        
+        if (BIS.updateBuildingNDist) {
+          console.log(`Updating ${buildingName} NDIST to:`, defaultData.dimensions.length);
+          BIS.updateBuildingNDist(buildingName, defaultData.dimensions.length);
+        }
+        
+        if (BIS.updateBuildingHeight) {
+          console.log(`Updating ${buildingName} height to:`, defaultData.height);
+          BIS.updateBuildingHeight(buildingName, defaultData.height);
+        }
+        
+        // Update church sections if present
+        if (defaultData.sections && BIS.updateChurchSectionHeight) {
+          console.log(`Loading ${buildingName} sections:`, defaultData.sections);
+          defaultData.sections.forEach(section => {
+            console.log(`Updating ${buildingName} section ${section.name} height to:`, section.height);
+            BIS.updateChurchSectionHeight(section.name, section.height);
+          });
+        }
+      });
+      
+      // Update UI to reflect loaded defaults
+      if (typeof updateBISDisplay === 'function') {
+        updateBISDisplay();
+      }
+      
+      drawAll(); // Redraw with loaded defaults
+      console.log('BIS defaults loaded successfully');
+      
+    } catch (error) {
+      console.error('Error loading BIS defaults:', error);
+      console.error('Saved defaults string:', savedDefaults);
+    }
+  } else {
+    console.log('No saved defaults found or BIS not available');
+  }
+}
+
+// Global BIS instance - ensure proper initialization
+let BIS;
+try {
+  BIS = new BuildingInfoSystem();
+  console.log('BIS Debug: Successfully initialized');
+  
+  // Debug: Check NYU Corner immediately after initialization
+  setTimeout(() => {
+    const nyuCorner = BIS.getBuildingInfo('NYU Corner');
+    if (nyuCorner) {
+      console.log('NYU Corner after initialization:', nyuCorner);
+      console.log('NYU Corner dimensions:', nyuCorner.dimensions);
+      console.log('NYU Corner position:', nyuCorner.position);
+    } else {
+      console.log('NYU Corner not found after initialization!');
+    }
+  }, 100);
+  
+  // Load saved defaults after initialization - with delay to ensure BIS is ready
+  setTimeout(() => {
+    console.log('Attempting to load BIS defaults...');
+    loadBISDefaults();
+  }, 100);
+} catch (error) {
+  console.error('BIS Debug: Initialization failed:', error);
+  BIS = null;
+}
+
+// ── BIS Display Functions ───────────────────────────────────────────────
+function displayBISEntries() {
+  console.log('=== BUILDING INFO SYSTEM (BIS) ENTRIES ===');
+  const allBuildings = BIS.getAllBuildings();
+  
+  allBuildings.forEach(building => {
+    console.log(`\n🏗️ ${building.name}`);
+    console.log(`  NW Coordinate: (${building.nwCoordinate.x}, ${building.nwCoordinate.y})`);
+    console.log(`  Dimensions: ${building.dimensions.width}ft × ${building.dimensions.length}ft`);
+    console.log(`  Height: ${building.height}ft`);
+    console.log(`  Color: ${building.color}`);
+    console.log(`  Position: (${building.position.x0}, ${building.position.y0}) to (${building.position.x1}, ${building.position.y1})`);
+    console.log(`  Source: user`);
+    
+    if (building.sections) {
+      console.log(`  Sections (${building.sections.length}):`);
+      building.sections.forEach(section => {
+        console.log(`    ${section.name}: ${section.height}ft, ${section.color}`);
+      });
+    }
+  });
+  
+  console.log(`\n📊 Total BIS Entries: ${allBuildings.length}`);
+  console.log('========================================');
+}
+
+// Auto-display BIS entries after DOM is ready
+setTimeout(() => {
+  console.log('BIS Debug: About to display entries...');
+  displayBISEntries();
+}, 1000);
+
+// BIS Display Functions for UI
+function toggleBISDisplay() {
+  const display = document.getElementById('bis-display');
+  const button = document.getElementById('bis-display-toggle');
+  const content = document.getElementById('bis-content');
+  
+  if (display.style.display === 'none') {
+    // Show BIS display
+    display.style.display = 'block';
+    button.textContent = 'Exit Buildings';
+    button.style.background = 'var(--rust)';
+    button.style.color = 'var(--paper)';
+    
+    // Generate BIS content with retry mechanism
+    content.innerHTML = generateBISContent();
+    
+    // If BIS not ready, retry after a short delay
+    if (content.innerHTML.includes('not initialized') || content.innerHTML.includes('No buildings found')) {
+      setTimeout(() => {
+        content.innerHTML = generateBISContent();
+      }, 500);
+    }
+  } else {
+    // Hide BIS display
+    display.style.display = 'none';
+    button.textContent = 'BUILDINGS';
+    button.style.background = 'var(--paper)';
+    button.style.color = 'var(--ink)';
+  }
+}
+
+function generateBISContent() {
+  // Debug logging
+  console.log('BIS Debug: generateBISContent called');
+  console.log('BIS Debug: typeof BIS:', typeof BIS);
+  console.log('BIS Debug: BIS exists:', !!BIS);
+  console.log('BIS Debug: BIS.getAllBuildings exists:', !!(BIS && BIS.getAllBuildings));
+  
+  // Check if BIS is available
+  if (typeof BIS === 'undefined' || !BIS || !BIS.getAllBuildings) {
+    console.log('BIS Debug: BIS not available');
+    return '<div style="color:var(--rust);">BIS not initialized yet. Please try again.</div>';
+  }
+  
+  const allBuildings = BIS.getAllBuildings();
+  if (!allBuildings || allBuildings.length === 0) {
+    return '<div style="color:var(--rust);">No buildings found in BIS.</div>';
+  }
+  
+  let html = '<div style="font-weight:700;color:var(--sepia);margin-bottom:0.5rem;">🏗️ Building Info System (BIS)</div>';
+  
+  // Add Save Defaults button
+  html += '<div style="margin-bottom:0.5rem;text-align:center;">';
+  html += '<button onclick="saveBISDefaults()" style="font-family:\'Source Code Pro\',monospace;font-size:0.6rem;background:var(--sepia);color:var(--paper);border:none;border-radius:3px;padding:0.4rem 0.8rem;cursor:pointer;margin-right:0.5rem;">Save Defaults</button>';
+  html += '<button onclick="refreshScene()" style="font-family:\'Source Code Pro\',monospace;font-size:0.6rem;background:var(--paper);color:var(--ink);border:1px solid var(--sepia);border-radius:3px;padding:0.4rem 0.8rem;cursor:pointer;">Refresh Scene</button>';
+  html += '</div>';
+  
+  allBuildings.forEach(building => {
+    html += `<div style="margin-bottom:0.8rem;padding-bottom:0.5rem;border-bottom:1px solid var(--rule);">
+      <div style="font-weight:700;color:var(--ink);margin-bottom:0.3rem;">${building.name}</div>
+      <div style="font-size:0.55rem;">
+        ${building.type === 'street' ? `
+        <!-- Streets are read-only -->
+        <div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.2rem;">
+          <span style="color:var(--muted);">NW:</span>
+          <span style="color:var(--muted);">X:</span>
+          <span style="color:var(--ink);font-weight:700;">${building.nwCoordinate.x}</span>
+          <span style="color:var(--muted);">Y:</span>
+          <span style="color:var(--ink);font-weight:700;">${building.nwCoordinate.y}</span>
+        </div>
+        <div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.2rem;">
+          <span style="color:var(--muted);">WDIST:</span> 
+          <span style="color:var(--ink);font-weight:700;">${building.dimensions.width}</span> ft
+          <span style="color:var(--muted);font-weight:700;">X</span>
+          <span style="color:var(--muted);">NDIST:</span> 
+          <span style="color:var(--ink);font-weight:700;">${building.dimensions.length}</span> ft
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.2rem;">
+          <div><span style="color:var(--muted);">Height:</span> 
+            <span style="color:var(--ink);font-weight:700;">${building.height}</span> ft
+          </div>
+          <div><span style="color:var(--muted);">Color:</span> <span style="display:inline-block;width:12px;height:12px;background:${building.color};border:1px solid var(--rule);vertical-align:middle;margin-right:4px;"></span>${building.color}</div>
+          <div><span style="color:var(--muted);">Source:</span> user</div>
+          <div><span style="color:var(--muted);">Type:</span> <span style="color:var(--sepia);font-weight:700;">Road (Read-only)</span></div>
+        </div>
+        ` : `
+        <!-- Buildings are editable -->
+        <div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.2rem;">
+          <span style="color:var(--muted);">NW:</span>
+          <span style="color:var(--muted);">X:</span>
+          <input type="number" id="nwx-${building.name}" value="${building.nwCoordinate.x}" 
+                 style="width:45px;font-size:0.5rem;font-family:'Source Code Pro',monospace;border:1px solid var(--rule);background:var(--paper);color:var(--ink);padding:1px;"
+                 onchange="updateBuildingNW('${building.name}', 'x', this.value)">
+          <span style="color:var(--muted);">Y:</span>
+          <input type="number" id="nwy-${building.name}" value="${building.nwCoordinate.y}" 
+                 style="width:45px;font-size:0.5rem;font-family:'Source Code Pro',monospace;border:1px solid var(--rule);background:var(--paper);color:var(--ink);padding:1px;"
+                 onchange="updateBuildingNW('${building.name}', 'y', this.value)">
+        </div>
+        <div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.2rem;">
+          <span style="color:var(--muted);">WDIST:</span> 
+          <input type="number" id="wdist-${building.name}" value="${building.dimensions.width}" 
+                 style="width:45px;font-size:0.5rem;font-family:'Source Code Pro',monospace;border:1px solid var(--rule);background:var(--paper);color:var(--ink);padding:1px;"
+                 onchange="updateBuildingWDist('${building.name}', this.value)"> ft
+          <span style="color:var(--muted);font-weight:700;">X</span>
+          <span style="color:var(--muted);">NDIST:</span> 
+          <input type="number" id="ndist-${building.name}" value="${building.dimensions.length}" 
+                 style="width:45px;font-size:0.5rem;font-family:'Source Code Pro',monospace;border:1px solid var(--rule);background:var(--paper);color:var(--ink);padding:1px;"
+                 onchange="updateBuildingNDist('${building.name}', this.value)"> ft
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.2rem;">
+          ${building.name === 'Church' ? `
+          <div><span style="color:var(--muted);">N Height:</span> 
+            <input type="number" id="chn-height-${building.name}" value="${building.sections ? building.sections.find(s => s.name === 'ChN')?.height || 50 : 50}" 
+                   style="width:45px;font-size:0.5rem;font-family:'Source Code Pro',monospace;border:1px solid var(--rule);background:var(--paper);color:var(--ink);padding:1px;"
+                   onchange="updateChurchSectionHeight('ChN', this.value)"> ft
+          </div>
+          <div><span style="color:var(--muted);">M Height:</span> 
+            <input type="number" id="chm-height-${building.name}" value="${building.sections ? building.sections.find(s => s.name === 'ChM')?.height || 90 : 90}" 
+                   style="width:45px;font-size:0.5rem;font-family:'Source Code Pro',monospace;border:1px solid var(--rule);background:var(--paper);color:var(--ink);padding:1px;"
+                   onchange="updateChurchSectionHeight('ChM', this.value)"> ft
+          </div>
+          <div><span style="color:var(--muted);">S Height:</span> 
+            <input type="number" id="chs-height-${building.name}" value="${building.sections ? building.sections.find(s => s.name === 'ChS')?.height || 50 : 50}" 
+                   style="width:45px;font-size:0.5rem;font-family:'Source Code Pro',monospace;border:1px solid var(--rule);background:var(--paper);color:var(--ink);padding:1px;"
+                   onchange="updateChurchSectionHeight('ChS', this.value)"> ft
+          </div>
+        ` : `
+          <div><span style="color:var(--muted);">Height:</span> 
+            <input type="number" id="height-${building.name}" value="${building.height}" 
+                   style="width:45px;font-size:0.5rem;font-family:'Source Code Pro',monospace;border:1px solid var(--rule);background:var(--paper);color:var(--ink);padding:1px;"
+                   onchange="updateBuildingHeight('${building.name}', this.value)"> ft
+          </div>
+        `}
+          <div><span style="color:var(--muted);">Color:</span> <span style="display:inline-block;width:12px;height:12px;background:${building.color};border:1px solid var(--rule);vertical-align:middle;margin-right:4px;"></span>${building.color}</div>
+          <div><span style="color:var(--muted);">Source:</span> user</div>
+        </div>
+        `}
+      </div>`;
+    
+    if (building.sections) {
+      html += `<div style="font-size:0.55rem;margin-top:0.2rem;">
+        <span style="color:var(--muted);">Sections:</span> ${building.sections.length}
+      </div>`;
+    }
+    
+    html += '</div>';
+  });
+  
+  html += `<div style="font-size:0.55rem;color:var(--sepia);margin-top:0.5rem;text-align:center;">
+    📊 Total: ${allBuildings.length} buildings
+  </div>`;
+  
+  return html;
+}
+
+// Update BIS status on load
+document.addEventListener('DOMContentLoaded', function() {
+  const bisStatus = document.getElementById('bis-status');
+  if (bisStatus) {
+    const totalBuildings = BIS.getAllBuildings().length;
+    bisStatus.textContent = `${totalBuildings} buildings`;
+  }
+});
+
+// Also make it available globally for manual testing
+window.showBISEntries = displayBISEntries;
+console.log('BIS Debug: Type showBISEntries() in console to display BIS entries');
+
+
+// ZZZ: west face x=0, north face y=0, extends east 100ft, south 180ft
+// Row houses and church use same Y positions as plan (slider-adjustable at render time)
+function getBuildings(){
+  // Only use BIS data for ray-casting
+  const buildings = [];
+  
+  // Add all buildings from BIS (Building Info System)
+  const bisBuildings = BIS.getForRayCasting();
+  console.log('Ray-casting BIS buildings:', bisBuildings);
+  bisBuildings.forEach(building => {
+    console.log(`Adding ${building.name} to ray-casting: x0=${building.x0}, x1=${building.x1}, y0=${building.y0}, y1=${building.y1}`);
+    console.log(`Camera position: camFtX=${camFtX}, camFtY=${camFtY}, rotation=${camRotation}°`);
+    
+    // Use consistent coordinates without flipping
+    buildings.push({
+      x0: building.x0,
+      x1: building.x1,
+      y0: building.y0,  // Use original Y coordinate
+      y1: building.y1,  // Use original Y coordinate
+      h: building.h,
+      col: building.col,
+      name: building.name
+    });
+    
+    console.log(`Using consistent coordinates for ${building.name}: y0=${building.y0}, y1=${building.y1}`);
+  });
+  
+  return buildings;
+}
+
+function rayAABB(ox,oy,dx,dy,b){
+  let tmin=-1e9, tmax=1e9;
+  if(Math.abs(dx)>1e-10){
+    const t1=(b.x0-ox)/dx, t2=(b.x1-ox)/dx;
+    tmin=Math.max(tmin,Math.min(t1,t2)); tmax=Math.min(tmax,Math.max(t1,t2));
+  } else if(ox<=b.x0||ox>=b.x1) return null;
+  if(Math.abs(dy)>1e-10){
+    const t1=(b.y0-oy)/dy, t2=(b.y1-oy)/dy;
+    tmin=Math.max(tmin,Math.min(t1,t2)); tmax=Math.min(tmax,Math.max(t1,t2));
+  } else if(oy<=b.y0||oy>=b.y1) return null;
+  if(tmax<0.5||tmin>tmax) return null;
+  const t=tmin>0.5?tmin:tmax;
+  if(t<0.5) return null;
+  // Determine which face was hit
+  let col=b.col;
+  if(b.faceColors){
+      const hx=ox+dx*t, hy=oy+dy*t, eps=0.5;
+      // Check side faces first (vertical surfaces)
+      if(Math.abs(hx-b.x0)<eps)      col=b.faceColors.w;
+      else if(Math.abs(hx-b.x1)<eps) col=b.faceColors.e;
+      else if(Math.abs(hy-b.y1)<eps) col=b.faceColors.n;
+      else if(Math.abs(hy-b.y0)<eps) col=b.faceColors.s;
+      // If not a side face, check if it's the top face (horizontal surface)
+      else if(b.faceColors.t)        col=b.faceColors.t;
+  }
+  return {t, col, name:b.name};
+}
+
+function castRay(ox,oy,angle,buildings){
+  const dx=Math.cos(angle), dy=Math.sin(angle);
+  let best=null;
+  for(const b of buildings){
+    const h=rayAABB(ox,oy,dx,dy,b);
+    if(h&&(!best||h.t<best.t)) best=h;
+  }
+  return best||{col:'#c8d4e8',name:'sky',t:9999};
+}
+
+function updateRayCasting(){
+  if(!plateStrip){
+    plateStrip=document.getElementById('plateStrip');
+    psctx=plateStrip.getContext('2d');
+  }
+  const PW=plateStrip.width, PH=plateStrip.height;
+  const fovDeg=getFovDeg();
+  const plateWidthInches = getPlateWidth();
+  const plateHeightInches = getPlateHeight();
+  const vFovDeg = fovDeg * (plateHeightInches/plateWidthInches); // aspect ratio
+  const aimRad=-camRotation*Math.PI/180;
+  const halfH=fovDeg/2*Math.PI/180;
+  const halfV=vFovDeg/2*Math.PI/180;
+  const CAM_H=cameraHeight;
+  const CAMERA_TILT_UP=cameraTiltUp; // Use global camera tilt variable
+  const aimDx=Math.cos(aimRad),aimDy=Math.sin(aimRad);
+  const rightDx=Math.sin(aimRad),rightDy=-Math.cos(aimRad);
+  const blds=getBuildings();
+  const imgData=psctx.createImageData(PW,PH);
+  const d=imgData.data;
+  const SKY=[200,212,232],GND=[196,168,114];
+  
+    // Dynamic counts object - will be populated as buildings are encountered
+  const counts={sky:0,ground:0};
+  const midRow=Math.floor(PH/2);
+  const horizAng=Math.atan2(-CAM_H,1000);
+
+  // Color parser cache
+  const _tmp=document.createElement('canvas');_tmp.width=_tmp.height=1;
+  const _tx=_tmp.getContext('2d');
+  const _cc={};
+  function rgb(col){
+    if(_cc[col])return _cc[col];
+    _tx.clearRect(0,0,1,1);_tx.fillStyle=col;_tx.fillRect(0,0,1,1);
+    const p=_tx.getImageData(0,0,1,1).data;
+    return _cc[col]=[p[0],p[1],p[2]];
+  }
+
+  function bldH(b){
+    if(b.h !== undefined) return b.h; // Use height from building object
+    return 0; // Default height if not specified
+  }
+
+  for(let py=0;py<PH;py++){
+    const vAng=((1-py/(PH-1))-0.5)*2*halfV + CAMERA_TILT_UP; // Apply configurable upward camera angle
+    for(let px=0;px<PW;px++){
+      const hAng=((1-px/(PW-1))-0.5)*2*halfH;
+      const angle=aimRad+hAng;
+      const dx=Math.cos(angle),dy=Math.sin(angle);
+
+      // Collect ALL hits along this ray, sorted front-to-back
+      const hits=[];
+      for(const b of blds){
+        const h=rayAABB(camFtX,camFtY,dx,dy,b);
+        if(h) {
+          hits.push({...h, building: b}); // Preserve building reference
+        }
+      }
+      hits.sort((a,b)=>a.t-b.t);
+
+      let r,g,b2;
+      let resolved=false;
+
+      for(const hit of hits){
+        const bh=bldH(hit.building); // Use building reference
+        const angTop=Math.atan2(bh-CAM_H,hit.t);
+        const angBot=Math.atan2(-CAM_H,hit.t);
+        if(vAng>=angBot&&vAng<=angTop){
+          // Ray hits this building face
+          let colorToUse = hit.col;
+          // Check if this is the top face and if top face color is defined
+          if(hit.building.faceColors && hit.building.faceColors.t && vAng > angBot + (angTop-angBot)*0.8){
+            // This is likely the top surface (upper portion of the face)
+            colorToUse = hit.building.faceColors.t;
+          }
+          const c=rgb(colorToUse);
+          const shade=1.0; // Remove vertical shading - uniform color
+          r=Math.min(255,Math.round(c[0]*shade));
+          g=Math.min(255,Math.round(c[1]*shade));
+          b2=Math.min(255,Math.round(c[2]*shade));
+          if(py===midRow) counts[hit.name]=(counts[hit.name]||0)+1;
+          resolved=true;
+          break;
+        }
+        // If vAng is above this building's roofline, keep looking at buildings behind
+        // If vAng is below this building's ground, it's ground — stop
+        if(vAng<angBot){ r=GND[0];g=GND[1];b2=GND[2];if(py===midRow)counts.ground++;resolved=true;break; }
+        // vAng > angTop: ray passes over this building — continue to next
+      }
+
+      if(!resolved){
+        if(vAng>horizAng){r=SKY[0];g=SKY[1];b2=SKY[2];if(py===midRow)counts.sky++;}
+        else{r=GND[0];g=GND[1];b2=GND[2];if(py===midRow)counts.ground++;}
+      }
+
+      const idx=(py*PW+px)*4;
+      d[idx]=r;d[idx+1]=g;d[idx+2]=b2;d[idx+3]=255;
+    }
+  }
+  psctx.putImageData(imgData,0,0);
+
+  // ZZZ NW corner stats - use BIS data
+  let zzzNWplate=null;
+  let zzzWorldN = 0; // Default to origin if BIS not available
+  if (BIS && BIS.getBuilding) {
+    const zzzBuilding = BIS.getBuilding('ZZZ');
+    if (zzzBuilding) {
+      zzzWorldN = zzzBuilding.nwCoordinate.y; // Get north coordinate from BIS
+    }
+  }
+  const ddx=0-camFtX, ddy=zzzWorldN-camFtY;
+  const mf=ddx*aimDx+ddy*aimDy;
+  if(mf>0.5){
+    const ml=ddx*rightDx+ddy*rightDy;
+    zzzNWplate=Math.round((1-(Math.atan2(ml,mf)/(2*halfH)+0.5))*(PW-1));
+  }
+
+  const N=PW;
+  const dist=Math.round(Math.sqrt(camFtX*camFtX+camFtY*camFtY));
+  document.getElementById('ps-pos').textContent=`(${camFtX}, ${camFtY>=0?'+':''}${camFtY}) ft`;
+  document.getElementById('ps-rot').textContent=`${camRotation}°`;
+  document.getElementById('ps-fov').textContent=`${fovDeg}° / ${vFovDeg.toFixed(1)}°`;
+  // Dynamic stats display - only show buildings that were actually encountered
+  if(document.getElementById('ps-zzz')) document.getElementById('ps-zzz').textContent=`${Math.round((counts.ZZZ||0)/N*100)}%`;
+  if(document.getElementById('ps-ch')) document.getElementById('ps-ch').textContent=`${Math.round(((counts.ChN||0)+(counts.ChM||0)+(counts.ChS||0))/N*100)}%`;
+  if(document.getElementById('ps-rh1')) document.getElementById('ps-rh1').textContent=`${Math.round((counts.RH1||0)/N*100)}%`;
+  if(document.getElementById('ps-rh2')) document.getElementById('ps-rh2').textContent=`${Math.round((counts.RH2||0)/N*100)}%`;
+  if(document.getElementById('ps-sky')) document.getElementById('ps-sky').textContent=`${Math.round((counts.sky||0)/N*100)}%`;
+  document.getElementById('ps-dist').textContent=`${dist} ft`;
+  document.getElementById('ps-nwpos').textContent=zzzNWplate!==null
+    ?`${Math.round(zzzNWplate/PW*100)}% from left`:'outside frame';
+  document.getElementById('plate-caption').textContent='';
+}
+
+
+// ── Plate Size Management ──────────────────────────────────────────────────────
+
+// Add event listeners for plate size radio buttons
+document.addEventListener('DOMContentLoaded', function() {
+  const plateSizeRadios = document.querySelectorAll('input[name="plate-size"]');
+  plateSizeRadios.forEach(radio => {
+    radio.addEventListener('change', function() {
+      if (this.checked) {
+        updatePlateSize(this.value);
+      }
+    });
+  });
+  
+  // Initialize with default 2x2.5 size
+  updatePlateSize('2x2.5');
+});
+
+</script>
+<script>
+// ── Temporary Map Controls ─────────────────────────────────────────────────────
+// Temporary map transformation variables
+let tempMapScale = 0.41;
+let tempMapRotation = -20.5; // degrees
+let tempMapX = -1587;
+let tempMapY = 7;
+let tempMapOpacity = 50;
+let tempMapVisible = true; // Default to visible
+let showRoadways = true; // Default to visible
+let showAlignmentGrid = true;
+
+
+
+</script>
+<script>
+(function(){
+  const opacitySlider = document.getElementById('overlayOpacity');
+  const opacityLabel  = document.getElementById('overlayOpacityVal');
+  const img    = document.getElementById('dagOverlay');
+  
+  // Opacity control
+  opacitySlider.addEventListener('input', function(){
+    const v = parseInt(this.value);
+    img.style.opacity = v / 100;
+    opacityLabel.textContent = v + '%';
+  });
+  
+  // Initialize overlay opacity to default value
+  const initialOpacity = parseInt(opacitySlider.value);
+  img.style.opacity = initialOpacity / 100;
+  opacityLabel.textContent = initialOpacity + '%';
+  
+  
+  })();
+</script>
 </body>
 </html>
