@@ -3350,13 +3350,76 @@ function clearAllMapPositions() {
   // Also clear the selected map preference
   localStorage.removeItem('plateH_selectedMap');
   
-  // Reset current map to default values
-  tempMapScale = 1.0;
-  tempMapRotation = 0.0;
-  tempMapX = 0;
-  tempMapY = 0;
-  tempMapVisible = true;
-  tempMapOpacity = 55;
+  // Set unique default positions for each map
+  const mapDefaults = {
+    0: { // 1852 Harrison
+      scale: 1.41,
+      rotation: -4.0,
+      x: -1680,
+      y: -2052,
+      visible: true,
+      opacity: 50
+    },
+    1: { // 1854 Perris
+      scale: 1.35,
+      rotation: -3.5,
+      x: -1550,
+      y: -1980,
+      visible: true,
+      opacity: 55
+    },
+    2: { // 2026 NYC Zoning
+      scale: 1.0,
+      rotation: 0.0,
+      x: 0,
+      y: 0,
+      visible: true,
+      opacity: 60
+    },
+    3: { // 1879 Brumley Map
+      scale: 1.25,
+      rotation: -2.0,
+      x: -1420,
+      y: -1890,
+      visible: true,
+      opacity: 45
+    },
+    4: { // 1891 NYU Bromley
+      scale: 1.30,
+      rotation: -2.5,
+      x: -1480,
+      y: -1920,
+      visible: true,
+      opacity: 50
+    },
+    5: { // 1893 Pincus Map
+      scale: 1.28,
+      rotation: -3.0,
+      x: -1520,
+      y: -1950,
+      visible: true,
+      opacity: 52
+    }
+  };
+  
+  // Save unique defaults for each map
+  for (let i = 0; i < Object.keys(MAP_CONFIGS).length; i++) {
+    const defaults = mapDefaults[i];
+    if (defaults) {
+      const storageKey = 'plateH_map' + i + '_settings';
+      localStorage.setItem(storageKey, JSON.stringify(defaults));
+      console.log('Set unique defaults for map', i, ':', MAP_CONFIGS[i].name, defaults);
+    }
+  }
+  
+  // Reset current map to its defaults
+  const currentDefaults = mapDefaults[currentMapIndex] || mapDefaults[0];
+  tempMapScale = currentDefaults.scale;
+  tempMapRotation = currentDefaults.rotation;
+  tempMapX = currentDefaults.x;
+  tempMapY = currentDefaults.y;
+  tempMapVisible = currentDefaults.visible;
+  tempMapOpacity = currentDefaults.opacity;
   
   // Update all controls to reflect default values
   if (document.getElementById('mapScale')) {
