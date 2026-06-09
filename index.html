@@ -1125,14 +1125,18 @@ let previousFOV = 15; // Start with default FOV
 
 // FOV slider event listener
 document.getElementById('fov-slider').addEventListener('input',e=>{
+  console.log('FOV slider triggered - input event');
   const fovDeg=parseFloat(e.target.value);
+  console.log('FOV degrees:', fovDeg);
   document.getElementById('fov-slider-out').textContent=fovDeg+'°';
   
   // Calculate focal length from FOV: focal_length = width / (2 * tan(FOV/2))
   const plateWidthInches = getPlateWidth();
   const plateHeightInches = getPlateHeight();
+  console.log('Plate dimensions:', plateWidthInches, 'x', plateHeightInches, 'inches');
   const fovRad = fovDeg * Math.PI / 180;
   const focalLength = plateWidthInches / (2 * Math.tan(fovRad / 2));
+  console.log('Calculated focal length:', focalLength, 'inches');
   
   // Update focal length display (read-only in FOV mode)
   document.getElementById('focal-out').textContent=focalLength.toFixed(1)+'"';
@@ -1148,13 +1152,16 @@ document.getElementById('fov-slider').addEventListener('input',e=>{
   const oldFovRad = previousFOV * Math.PI / 180;
   const newFovRad = fovDeg * Math.PI / 180;
   const scalingFactor = Math.tan(oldFovRad / 2) / Math.tan(newFovRad / 2);
+  console.log('FOV scaling factor:', scalingFactor);
   
   // Calculate new camera distance proportionally from current position
   const currentDistance = Math.abs(camFtX);
   const newDistance = currentDistance * scalingFactor;
+  console.log('Camera distance change:', currentDistance, '->', newDistance);
   
   // Update camera X position (distance from buildings)
   camFtX = -Math.abs(newDistance); // Keep negative (west of buildings)
+  console.log('Updated camFtX to:', camFtX);
   
   // Update camera position display
   document.getElementById('camX-out').textContent = Math.abs(newDistance).toFixed(0);
@@ -1171,7 +1178,9 @@ document.getElementById('fov-slider').addEventListener('input',e=>{
   // Update coordinates and redraw
   clampCam(); 
   updateCoords(); 
+  console.log('About to call drawAll() with new FOV settings');
   drawAll();
+  console.log('FOV slider event completed');
 });
 
 
