@@ -486,7 +486,7 @@ ctx.scale(tempMapScale, tempMapScale);
             </div>
             
             <!-- FOV Controls -->
-            <div id="fov-controls" style="display:block;">
+            <div id="fov-controls" style="display:none;">
               <div class="sl"><label>Horizontal FOV</label><input type="range" id="fov-slider" min="5" max="120" value="15" step="1"><span class="v" id="fov-slider-out">15 degrees</span></div>
             </div>
             
@@ -1125,18 +1125,14 @@ let previousFOV = 15; // Start with default FOV
 
 // FOV slider event listener
 document.getElementById('fov-slider').addEventListener('input',e=>{
-  console.log('FOV slider triggered - input event');
   const fovDeg=parseFloat(e.target.value);
-  console.log('FOV degrees:', fovDeg);
   document.getElementById('fov-slider-out').textContent=fovDeg+'°';
   
   // Calculate focal length from FOV: focal_length = width / (2 * tan(FOV/2))
   const plateWidthInches = getPlateWidth();
   const plateHeightInches = getPlateHeight();
-  console.log('Plate dimensions:', plateWidthInches, 'x', plateHeightInches, 'inches');
   const fovRad = fovDeg * Math.PI / 180;
   const focalLength = plateWidthInches / (2 * Math.tan(fovRad / 2));
-  console.log('Calculated focal length:', focalLength, 'inches');
   
   // Update focal length display (read-only in FOV mode)
   document.getElementById('focal-out').textContent=focalLength.toFixed(1)+'"';
@@ -1152,16 +1148,13 @@ document.getElementById('fov-slider').addEventListener('input',e=>{
   const oldFovRad = previousFOV * Math.PI / 180;
   const newFovRad = fovDeg * Math.PI / 180;
   const scalingFactor = Math.tan(oldFovRad / 2) / Math.tan(newFovRad / 2);
-  console.log('FOV scaling factor:', scalingFactor);
   
   // Calculate new camera distance proportionally from current position
   const currentDistance = Math.abs(camFtX);
   const newDistance = currentDistance * scalingFactor;
-  console.log('Camera distance change:', currentDistance, '->', newDistance);
   
   // Update camera X position (distance from buildings)
   camFtX = -Math.abs(newDistance); // Keep negative (west of buildings)
-  console.log('Updated camFtX to:', camFtX);
   
   // Update camera position display
   document.getElementById('camX-out').textContent = Math.abs(newDistance).toFixed(0);
@@ -1178,9 +1171,7 @@ document.getElementById('fov-slider').addEventListener('input',e=>{
   // Update coordinates and redraw
   clampCam(); 
   updateCoords(); 
-  console.log('About to call drawAll() with new FOV settings');
   drawAll();
-  console.log('FOV slider event completed');
 });
 
 
@@ -1190,15 +1181,9 @@ function updateModeDisplay() {
   const isFovMode = document.getElementById('fov-mode').checked;
   const isCameraMode = document.getElementById('camera-mode').checked;
   
-  const focalControls = document.getElementById('focal-controls');
-  const fovControls = document.getElementById('fov-controls');
-  const cameraControls = document.getElementById('camera-controls');
-  
-  if (focalControls) focalControls.style.display = isFocalMode ? 'block' : 'none';
-  if (fovControls) fovControls.style.display = isFovMode ? 'block' : 'none';
-  if (cameraControls) cameraControls.style.display = isCameraMode ? 'block' : 'none';
-  
-  console.log('Mode display updated - Focal:', isFocalMode, 'FOV:', isFovMode, 'Camera:', isCameraMode);
+  document.getElementById('focal-controls').style.display = isFocalMode ? 'block' : 'none';
+  document.getElementById('fov-controls').style.display = isFovMode ? 'block' : 'none';
+  document.getElementById('camera-controls').style.display = isCameraMode ? 'block' : 'none';
   
   drawAll();
 }
