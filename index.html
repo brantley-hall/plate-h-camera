@@ -486,7 +486,7 @@ ctx.scale(tempMapScale, tempMapScale);
             </div>
             
             <!-- FOV Controls -->
-            <div id="fov-controls" style="display:none;">
+            <div id="fov-controls" style="display:block;">
               <div class="sl"><label>Horizontal FOV</label><input type="range" id="fov-slider" min="5" max="120" value="15" step="1"><span class="v" id="fov-slider-out">15 degrees</span></div>
             </div>
             
@@ -1181,9 +1181,15 @@ function updateModeDisplay() {
   const isFovMode = document.getElementById('fov-mode').checked;
   const isCameraMode = document.getElementById('camera-mode').checked;
   
-  document.getElementById('focal-controls').style.display = isFocalMode ? 'block' : 'none';
-  document.getElementById('fov-controls').style.display = isFovMode ? 'block' : 'none';
-  document.getElementById('camera-controls').style.display = isCameraMode ? 'block' : 'none';
+  const focalControls = document.getElementById('focal-controls');
+  const fovControls = document.getElementById('fov-controls');
+  const cameraControls = document.getElementById('camera-controls');
+  
+  if (focalControls) focalControls.style.display = isFocalMode ? 'block' : 'none';
+  if (fovControls) fovControls.style.display = isFovMode ? 'block' : 'none';
+  if (cameraControls) cameraControls.style.display = isCameraMode ? 'block' : 'none';
+  
+  console.log('Mode display updated - Focal:', isFocalMode, 'FOV:', isFovMode, 'Camera:', isCameraMode);
   
   drawAll();
 }
