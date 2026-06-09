@@ -471,8 +471,8 @@ ctx.scale(tempMapScale, tempMapScale);
             <div class="sl" style="margin-bottom:0.8rem;">
               <label style="flex:0 0 100px;">Mode</label>
               <div style="display:flex;gap:8px;align-items:center;">
-                <input type="radio" id="focal-mode" name="optics-mode" value="focal" checked>
-                <label for="focal-mode" style="font-size:0.6rem;margin:0;">Focal Length</label>
+                <input type="radio" id="fov-mode" name="optics-mode" value="fov" checked>
+                <label for="fov-mode" style="font-size:0.6rem;margin:0;">FOV</label>
                 <input type="radio" id="camera-mode" name="optics-mode" value="camera">
                 <label for="camera-mode" style="font-size:0.6rem;margin:0;">Camera Type</label>
               </div>
@@ -483,7 +483,11 @@ ctx.scale(tempMapScale, tempMapScale);
               <div class="sl"><label>Focal Length</label><input type="range" id="focal" min="0.2" max="25" value="8" step="0.1"><span class="v" id="focal-out">8 inches</span></div>
             </div>
             
-                        
+            <!-- FOV Controls -->
+            <div id="fov-controls" style="display:none;">
+              <div class="sl"><label>Horizontal FOV</label><input type="range" id="fov-slider" min="5" max="120" value="15" step="1"><span class="v" id="fov-slider-out">15 degrees</span></div>
+            </div>
+            
             <!-- Camera Type Controls -->
             <div id="camera-controls">
               <div class="sl"><label>Lens Type</label>
@@ -1139,18 +1143,74 @@ document.getElementById('focal').addEventListener('input',e=>{
 // Store previous FOV for proportional scaling
 let previousFOV = 15; // Start with default FOV
 
+// FOV slider event listener
+document.getElementById('fov-slider').addEventListener('input',e=>{
+  console.log('FOV slider input event triggered');
+  const fovDeg=parseFloat(e.target.value);
+  console.log('FOV value:', fovDeg);
+  document.getElementById('fov-slider-out').textContent=fovDeg+'°';
+  
+  // Calculate focal length from FOV: focal_length = width / (2 * tan(FOV/2))
+  const plateWidthInches = getPlateWidth();
+  const plateHeightInches = getPlateHeight();
+  const fovRad = fovDeg * Math.PI / 180;
+  const focalLength = plateWidthInches / (2 * Math.tan(fovRad / 2));
+  
+  // Update focal length display (read-only in FOV mode)
+  document.getElementById('focal-out').textContent=focalLength.toFixed(1)+'"';
+  
+  // Update FOV displays
+  const vFovDeg = fovDeg * (plateHeightInches/plateWidthInches); // aspect ratio
+  document.getElementById('fov-out').textContent=fovDeg.toFixed(1)+'°';
+  document.getElementById('vfov-out').textContent=vFovDeg.toFixed(1)+'°';
+  
+  // GEOMETRICALLY CORRECT FOV BEHAVIOR:
+  // When FOV changes, recalculate camera distance to maintain apparent object size
+  // scalingFactor = tan(oldFOV/2) / tan(newFOV/2)
+  const oldFovRad = previousFOV * Math.PI / 180;
+  const newFovRad = fovDeg * Math.PI / 180;
+  const scalingFactor = Math.tan(oldFovRad / 2) / Math.tan(newFovRad / 2);
+  
+  // Calculate new camera distance proportionally from current position
+  const currentDistance = Math.abs(camFtX);
+  const newDistance = currentDistance * scalingFactor;
+  
+  // Update camera X position (distance from buildings)
+  camFtX = -Math.abs(newDistance); // Keep negative (west of buildings)
+  
+  // Update camera position display
+  const camXOut = document.getElementById('camX-out');
+  if (camXOut) {
+    camXOut.textContent = Math.abs(newDistance).toFixed(0);
+  }
+  
+  // Update instruction spans with current values
+  document.getElementById('instr-focal').textContent=focalLength.toFixed(1)+'"';
+  document.getElementById('instr-hfov').textContent=fovDeg.toFixed(1)+'°';
+  document.getElementById('instr-vfov').textContent=vFovDeg.toFixed(1)+'°';
+  document.getElementById('instr-plate-size').textContent=currentPlateSize;
+  
+  // Store current FOV for next change
+  previousFOV = fovDeg;
+  
+  // Update coordinates and redraw
+  clampCam(); 
+  updateCoords(); 
+  drawAll();
+});
+
 
 
 // Mode toggle event listeners
 function updateModeDisplay() {
-  const isFocalMode = document.getElementById('focal-mode').checked;
+  const isFovMode = document.getElementById('fov-mode').checked;
   const isCameraMode = document.getElementById('camera-mode').checked;
   
-  console.log('updateModeDisplay called - Focal:', isFocalMode, 'Camera:', isCameraMode);
+  console.log('updateModeDisplay called - FOV:', isFovMode, 'Camera:', isCameraMode);
   
-  // Focal Length mode: Show focal length slider
+  // FOV mode: Show FOV slider
   // Camera Type mode: Show camera selector
-  document.getElementById('focal-controls').style.display = isFocalMode ? 'block' : 'none';
+  document.getElementById('fov-controls').style.display = isFovMode ? 'block' : 'none';
   document.getElementById('camera-controls').style.display = isCameraMode ? 'block' : 'none';
   
   drawAll();
@@ -1158,12 +1218,196 @@ function updateModeDisplay() {
 
 // Initialize mode display
 document.addEventListener('DOMContentLoaded', function() {
+  console.log('DOM loaded - checking FOV elements');
+  const fovSlider = document.getElementById('fov-slider');
+  const fovControls = document.getElementById('fov-controls');
+  const fovMode = document.getElementById('fov-mode');
+  
+  console.log('FOV slider element:', fovSlider);
+  console.log('FOV controls element:', fovControls);
+  console.log('FOV mode element:', fovMode);
+  console.log('FOV mode checked:', fovMode ? fovMode.checked : 'not found');
+  console.log('FOV controls display:', fovControls ? fovControls.style.display : 'not found');
+  
   updateModeDisplay();
   initializeOverlayFit(); // Initialize overlay object-fit for 2x2.5 plate
 });
 
-document.getElementById('focal-mode').addEventListener('change', updateModeDisplay);
-document.getElementById('focal-mode').addEventListener('click', updateModeDisplay);
+// Function to log all map positions for online version
+window.logAllMapPositions = function() {
+  console.log('=== ALL MAP POSITIONS FOR ONLINE VERSION ===');
+  const mapPositions = {};
+  
+  for (let i = 0; i < 6; i++) {
+    const storageKey = 'plateH_map' + i + '_settings';
+    const savedSettings = localStorage.getItem(storageKey);
+    
+    if (savedSettings) {
+      try {
+        const parsed = JSON.parse(savedSettings);
+        mapPositions[i] = {
+          name: MAP_CONFIGS[i].name,
+          filename: MAP_CONFIGS[i].filename,
+          settings: parsed
+        };
+        console.log(`Map ${i} (${MAP_CONFIGS[i].name}):`, parsed);
+      } catch (e) {
+        console.log(`Map ${i} (${MAP_CONFIGS[i].name}): Failed to parse settings`);
+      }
+    } else {
+      console.log(`Map ${i} (${MAP_CONFIGS[i].name}): No saved settings found`);
+    }
+  }
+  
+  console.log('=== FORMATTED FOR ONLINE VERSION ===');
+  console.log('const MAP_DEFAULT_POSITIONS = {');
+  Object.entries(mapPositions).forEach(([index, data]) => {
+    console.log(`  ${index}: {`);
+    console.log(`    name: "${data.name}",`);
+    console.log(`    filename: "${data.filename}",`);
+    console.log(`    scale: ${data.settings.scale},`);
+    console.log(`    rotation: ${data.settings.rotation},`);
+    console.log(`    x: ${data.settings.x},`);
+    console.log(`    y: ${data.settings.y},`);
+    console.log(`    opacity: ${data.settings.opacity}`);
+    console.log(`  },`);
+  });
+  console.log('};');
+  console.log('==========================================');
+  
+  return mapPositions;
+};
+
+// Function to export map data as JSON for GitHub version
+window.exportMapDataForGitHub = function() {
+  const mapPositions = {};
+  
+  for (let i = 0; i < 6; i++) {
+    const storageKey = 'plateH_map' + i + '_settings';
+    const savedSettings = localStorage.getItem(storageKey);
+    
+    if (savedSettings) {
+      try {
+        const parsed = JSON.parse(savedSettings);
+        mapPositions[i] = {
+          name: MAP_CONFIGS[i].name,
+          filename: MAP_CONFIGS[i].filename,
+          scale: parsed.scale,
+          rotation: parsed.rotation,
+          x: parsed.x,
+          y: parsed.y,
+          opacity: parsed.opacity
+        };
+      } catch (e) {
+        console.log(`Map ${i} (${MAP_CONFIGS[i].name}): Failed to parse settings`);
+      }
+    }
+  }
+  
+  // Create formatted JSON string
+  const jsonExport = JSON.stringify(mapPositions, null, 2);
+  
+  console.log('=== MAP DATA FOR GITHUB VERSION ===');
+  console.log('Copy this JSON data and paste into GitHub version:');
+  console.log(jsonExport);
+  console.log('==========================================');
+  
+  // Also create a downloadable file
+  const blob = new Blob([jsonExport], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'map-positions-for-github.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  
+  console.log('📁 Downloaded map-positions-for-github.json file');
+  
+  return mapPositions;
+};
+
+// Function to create GitHub-ready JavaScript code
+window.createGitHubMapCode = function() {
+  const mapPositions = {};
+  
+  for (let i = 0; i < 6; i++) {
+    const storageKey = 'plateH_map' + i + '_settings';
+    const savedSettings = localStorage.getItem(storageKey);
+    
+    if (savedSettings) {
+      try {
+        const parsed = JSON.parse(savedSettings);
+        mapPositions[i] = {
+          name: MAP_CONFIGS[i].name,
+          filename: MAP_CONFIGS[i].filename,
+          scale: parsed.scale,
+          rotation: parsed.rotation,
+          x: parsed.x,
+          y: parsed.y,
+          opacity: parsed.opacity
+        };
+      } catch (e) {
+        console.log(`Map ${i} (${MAP_CONFIGS[i].name}): Failed to parse settings`);
+      }
+    }
+  }
+  
+  // Create JavaScript code for GitHub version
+  let jsCode = '// Map default positions extracted from local Version 7\n';
+  jsCode += 'const MAP_DEFAULT_POSITIONS = {\n';
+  
+  Object.entries(mapPositions).forEach(([index, data]) => {
+    jsCode += `  ${index}: {\n`;
+    jsCode += `    name: "${data.name}",\n`;
+    jsCode += `    filename: "${data.filename}",\n`;
+    jsCode += `    scale: ${data.scale},\n`;
+    jsCode += `    rotation: ${data.rotation},\n`;
+    jsCode += `    x: ${data.x},\n`;
+    jsCode += `    y: ${data.y},\n`;
+    jsCode += `    opacity: ${data.opacity}\n`;
+    jsCode += `  },\n`;
+  });
+  
+  jsCode += '};\n\n';
+  jsCode += '// Function to initialize map defaults\n';
+  jsCode += 'function initializeMapDefaults() {\n';
+  jsCode += '  Object.entries(MAP_DEFAULT_POSITIONS).forEach(([index, position]) => {\n';
+  jsCode += '    const storageKey = \'plateH_map\' + index + \'_settings\';\n';
+  jsCode += '    localStorage.setItem(storageKey, JSON.stringify({\n';
+  jsCode += '      scale: position.scale,\n';
+  jsCode += '      rotation: position.rotation,\n';
+  jsCode += '      x: position.x,\n';
+  jsCode += '      y: position.y,\n';
+  jsCode += '      opacity: position.opacity\n';
+  jsCode += '    }));\n';
+  jsCode += '  });\n';
+  jsCode += '}\n';
+  
+  console.log('=== GITHUB-READY JAVASCRIPT CODE ===');
+  console.log('Copy this code and paste into GitHub version:');
+  console.log(jsCode);
+  console.log('==========================================');
+  
+  // Create downloadable file
+  const blob = new Blob([jsCode], { type: 'text/javascript' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'map-positions-github.js';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  
+  console.log('📁 Downloaded map-positions-github.js file');
+  
+  return jsCode;
+};
+
+document.getElementById('fov-mode').addEventListener('change', updateModeDisplay);
+document.getElementById('fov-mode').addEventListener('click', updateModeDisplay);
 
 document.getElementById('camera-mode').addEventListener('change', updateModeDisplay);
 document.getElementById('camera-mode').addEventListener('click', updateModeDisplay);
