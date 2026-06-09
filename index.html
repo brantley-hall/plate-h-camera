@@ -471,9 +471,9 @@ ctx.scale(tempMapScale, tempMapScale);
             <div class="sl" style="margin-bottom:0.8rem;">
               <label style="flex:0 0 100px;">Mode</label>
               <div style="display:flex;gap:8px;align-items:center;">
-                <input type="radio" id="focal-mode" name="optics-mode" value="focal">
+                <input type="radio" id="focal-mode" name="optics-mode" value="focal" checked>
                 <label for="focal-mode" style="font-size:0.6rem;margin:0;">Focal Length</label>
-                <input type="radio" id="fov-mode" name="optics-mode" value="fov" checked>
+                <input type="radio" id="fov-mode" name="optics-mode" value="fov">
                 <label for="fov-mode" style="font-size:0.6rem;margin:0;">FOV</label>
                 <input type="radio" id="camera-mode" name="optics-mode" value="camera">
                 <label for="camera-mode" style="font-size:0.6rem;margin:0;">Camera Type</label>
@@ -486,7 +486,7 @@ ctx.scale(tempMapScale, tempMapScale);
             </div>
             
             <!-- FOV Controls -->
-            <div id="fov-controls" style="display:block;">
+            <div id="fov-controls" style="display:none;">
               <div class="sl"><label>Horizontal FOV</label><input type="range" id="fov-slider" min="5" max="120" value="15" step="1"><span class="v" id="fov-slider-out">15 degrees</span></div>
             </div>
             
@@ -1186,11 +1186,14 @@ function updateModeDisplay() {
   
   console.log('updateModeDisplay called - Focal:', isFocalMode, 'FOV:', isFovMode, 'Camera:', isCameraMode);
   
+  // Focal Length mode: Show focal slider + FOV slider (for direct FOV control)
+  // FOV mode: Show only FOV displays (read-only)  
+  // Camera Type mode: Show camera selector
   document.getElementById('focal-controls').style.display = isFocalMode ? 'block' : 'none';
-  document.getElementById('fov-controls').style.display = isFovMode ? 'block' : 'none';
+  document.getElementById('fov-controls').style.display = isFocalMode ? 'block' : 'none'; // Show FOV slider with Focal Length mode
   document.getElementById('camera-controls').style.display = isCameraMode ? 'block' : 'none';
   
-  console.log('FOV controls display set to:', isFovMode ? 'block' : 'none');
+  console.log('FOV controls display set to:', isFocalMode ? 'block' : 'none');
   
   drawAll();
 }
