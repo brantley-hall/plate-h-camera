@@ -1197,6 +1197,17 @@ function updateModeDisplay() {
 
 // Initialize mode display
 document.addEventListener('DOMContentLoaded', function() {
+  console.log('DOM loaded - checking FOV elements');
+  const fovSlider = document.getElementById('fov-slider');
+  const fovControls = document.getElementById('fov-controls');
+  const fovMode = document.getElementById('fov-mode');
+  
+  console.log('FOV slider element:', fovSlider);
+  console.log('FOV controls element:', fovControls);
+  console.log('FOV mode element:', fovMode);
+  console.log('FOV mode checked:', fovMode ? fovMode.checked : 'not found');
+  console.log('FOV controls display:', fovControls ? fovControls.style.display : 'not found');
+  
   updateModeDisplay();
   initializeOverlayFit(); // Initialize overlay object-fit for 2x2.5 plate
 });
