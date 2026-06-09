@@ -3350,57 +3350,57 @@ function clearAllMapPositions() {
   // Also clear the selected map preference
   localStorage.removeItem('plateH_selectedMap');
   
-  // Set all maps to use the same georeferenced coordinate system as 1852 Harrison
-  // All maps should align to the same coordinate system for proper georeferencing
-  // Use the working 1852 Harrison transformation values for all maps
+  // Set tempMap variables to work WITH georeferencing constants, not replace them
+  // The georeferencing constants (MAP_SCALE, MAP_THETA, MAP_TX, MAP_TY) do the heavy lifting
+  // tempMap variables should be minimal adjustments that work with the georeferencing system
   const mapDefaults = {
-    0: { // 1852 Harrison - Working georeferenced position
-      scale: 0.41,
-      rotation: -20.5,  // Working rotation for coordinate alignment
-      x: -1587,        // Working X offset for coordinate alignment
-      y: 7,            // Working Y offset for coordinate alignment
+    0: { // 1852 Harrison - Minimal tempMap values that work with georeferencing
+      scale: 1.0,      // Let MAP_SCALE handle the main scaling
+      rotation: 0.0,   // Let MAP_THETA handle the main rotation  
+      x: 0,           // Let MAP_TX/MAP_TY handle the main positioning
+      y: 0,           // Let MAP_TX/MAP_TY handle the main positioning
       visible: true,   // Maps visible by default
-      opacity: 50      // Working opacity
+      opacity: 55      // Standard opacity
     },
-    1: { // 1854 Perris - Use same coordinate system as Harrison
-      scale: 0.41,     // Same scale for coordinate alignment
-      rotation: -20.5,  // Same rotation for coordinate alignment
-      x: -1587,        // Same X offset for coordinate alignment
-      y: 7,            // Same Y offset for coordinate alignment
+    1: { // 1854 Perris - Same minimal tempMap values
+      scale: 1.0,      // Let MAP_SCALE handle the main scaling
+      rotation: 0.0,   // Let MAP_THETA handle the main rotation
+      x: 0,           // Let MAP_TX/MAP_TY handle the main positioning
+      y: 0,           // Let MAP_TX/MAP_TY handle the main positioning
       visible: true,
-      opacity: 50      // Same opacity for consistency
+      opacity: 55      // Standard opacity
     },
-    2: { // 2026 NYC Zoning - Use same coordinate system as Harrison
-      scale: 0.41,     // Same scale for coordinate alignment
-      rotation: -20.5,  // Same rotation for coordinate alignment
-      x: -1587,        // Same X offset for coordinate alignment
-      y: 7,            // Same Y offset for coordinate alignment
+    2: { // 2026 NYC Zoning - Same minimal tempMap values
+      scale: 1.0,      // Let MAP_SCALE handle the main scaling
+      rotation: 0.0,   // Let MAP_THETA handle the main rotation
+      x: 0,           // Let MAP_TX/MAP_TY handle the main positioning
+      y: 0,           // Let MAP_TX/MAP_TY handle the main positioning
       visible: true,
-      opacity: 50      // Same opacity for consistency
+      opacity: 55      // Standard opacity
     },
-    3: { // 1879 Brumley Map - Use same coordinate system as Harrison
-      scale: 0.41,     // Same scale for coordinate alignment
-      rotation: -20.5,  // Same rotation for coordinate alignment
-      x: -1587,        // Same X offset for coordinate alignment
-      y: 7,            // Same Y offset for coordinate alignment
+    3: { // 1879 Brumley Map - Same minimal tempMap values
+      scale: 1.0,      // Let MAP_SCALE handle the main scaling
+      rotation: 0.0,   // Let MAP_THETA handle the main rotation
+      x: 0,           // Let MAP_TX/MAP_TY handle the main positioning
+      y: 0,           // Let MAP_TX/MAP_TY handle the main positioning
       visible: true,
-      opacity: 50      // Same opacity for consistency
+      opacity: 55      // Standard opacity
     },
-    4: { // 1891 NYU Bromley - Use same coordinate system as Harrison
-      scale: 0.41,     // Same scale for coordinate alignment
-      rotation: -20.5,  // Same rotation for coordinate alignment
-      x: -1587,        // Same X offset for coordinate alignment
-      y: 7,            // Same Y offset for coordinate alignment
+    4: { // 1891 NYU Bromley - Same minimal tempMap values
+      scale: 1.0,      // Let MAP_SCALE handle the main scaling
+      rotation: 0.0,   // Let MAP_THETA handle the main rotation
+      x: 0,           // Let MAP_TX/MAP_TY handle the main positioning
+      y: 0,           // Let MAP_TX/MAP_TY handle the main positioning
       visible: true,
-      opacity: 50      // Same opacity for consistency
+      opacity: 55      // Standard opacity
     },
-    5: { // 1893 Pincus Map - Use same coordinate system as Harrison
-      scale: 0.41,     // Same scale for coordinate alignment
-      rotation: -20.5,  // Same rotation for coordinate alignment
-      x: -1587,        // Same X offset for coordinate alignment
-      y: 7,            // Same Y offset for coordinate alignment
+    5: { // 1893 Pincus Map - Same minimal tempMap values
+      scale: 1.0,      // Let MAP_SCALE handle the main scaling
+      rotation: 0.0,   // Let MAP_THETA handle the main rotation
+      x: 0,           // Let MAP_TX/MAP_TY handle the main positioning
+      y: 0,           // Let MAP_TX/MAP_TY handle the main positioning
       visible: true,
-      opacity: 50      // Same opacity for consistency
+      opacity: 55      // Standard opacity
     }
   };
   
