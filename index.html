@@ -1231,6 +1231,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
   updateModeDisplay();
   initializeOverlayFit(); // Initialize overlay object-fit for 2x2.5 plate
+  initializeMapDefaults(); // Initialize map default positions
 });
 
 // Function to log all map positions for online version
@@ -1327,6 +1328,78 @@ window.exportMapDataForGitHub = function() {
   
   return mapPositions;
 };
+
+// Map default positions extracted from local Version 7
+const MAP_DEFAULT_POSITIONS = {
+  0: {
+    name: "1852 Harrison",
+    filename: "1852MapNew YorkHarrison",
+    scale: 1.00,
+    rotation: 0.0,
+    x: 0,
+    y: 0,
+    opacity: 50
+  },
+  1: {
+    name: "1854 Perris",
+    filename: "1854 Perris Map Extract",
+    scale: 0.95,
+    rotation: 2.0,
+    x: -50,
+    y: 20,
+    opacity: 50
+  },
+  2: {
+    name: "2026 NYC Zoning",
+    filename: "NYCZoning2026.jpg",
+    scale: 0.40,
+    rotation: -32.7,
+    x: -1047,
+    y: 205,
+    opacity: 50
+  },
+  3: {
+    name: "1879 Brumley Map",
+    filename: "1879 Washington Square Park Bromley.jpg",
+    scale: 1.64,
+    rotation: -111.2,
+    x: -1150,
+    y: 3163,
+    opacity: 50
+  },
+  4: {
+    name: "1891 NYU Bromley",
+    filename: "1891 Bromley Map.jpg",
+    scale: 1.46,
+    rotation: -3.6,
+    x: -1602,
+    y: -1995,
+    opacity: 50
+  },
+  5: {
+    name: "1893 Pincus Map",
+    filename: "1893 Lionel Pincus and Princess Firyal Map Division.jpg",
+    scale: 1.88,
+    rotation: 0.0,
+    x: -1268,
+    y: -436,
+    opacity: 50
+  }
+};
+
+// Function to initialize map defaults
+function initializeMapDefaults() {
+  Object.entries(MAP_DEFAULT_POSITIONS).forEach(([index, position]) => {
+    const storageKey = 'plateH_map' + index + '_settings';
+    localStorage.setItem(storageKey, JSON.stringify({
+      scale: position.scale,
+      rotation: position.rotation,
+      x: position.x,
+      y: position.y,
+      opacity: position.opacity
+    }));
+  });
+}
 
 // Function to create GitHub-ready JavaScript code
 window.createGitHubMapCode = function() {
