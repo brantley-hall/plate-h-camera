@@ -3350,55 +3350,57 @@ function clearAllMapPositions() {
   // Also clear the selected map preference
   localStorage.removeItem('plateH_selectedMap');
   
-  // Set unique default positions for each map
+  // Set unique default positions for each map based on original Version 7 values
+  // Original Version 7 used: mapScale=1.0, mapRotation=30°, mapOffsetX=0, mapOffsetY=0
+  // Plus hardcoded georeferencing: MAP_SCALE=0.652362, MAP_THETA=-0.520630, MAP_TX=118, MAP_TY=55
   const mapDefaults = {
-    0: { // 1852 Harrison
-      scale: 1.41,
-      rotation: -4.0,
-      x: -1680,
-      y: -2052,
-      visible: true,
-      opacity: 50
-    },
-    1: { // 1854 Perris
-      scale: 1.35,
-      rotation: -3.5,
-      x: -1550,
-      y: -1980,
-      visible: true,
-      opacity: 55
-    },
-    2: { // 2026 NYC Zoning
+    0: { // 1852 Harrison - Use original Version 7 positioning
       scale: 1.0,
-      rotation: 0.0,
+      rotation: 30.0,  // Original mapRotation = 30 * Math.PI / 180
+      x: 0,           // Original mapOffsetX = 0
+      y: 0,           // Original mapOffsetY = 0  
+      visible: true,
+      opacity: 55      // Original mapOpacity = 0.55
+    },
+    1: { // 1854 Perris - Same base positioning as Version 7
+      scale: 1.0,
+      rotation: 30.0,
       x: 0,
       y: 0,
       visible: true,
-      opacity: 60
+      opacity: 55
     },
-    3: { // 1879 Brumley Map
-      scale: 1.25,
-      rotation: -2.0,
-      x: -1420,
-      y: -1890,
+    2: { // 2026 NYC Zoning - Same base positioning as Version 7
+      scale: 1.0,
+      rotation: 30.0,
+      x: 0,
+      y: 0,
       visible: true,
-      opacity: 45
+      opacity: 55
     },
-    4: { // 1891 NYU Bromley
-      scale: 1.30,
-      rotation: -2.5,
-      x: -1480,
-      y: -1920,
+    3: { // 1879 Brumley Map - Same base positioning as Version 7
+      scale: 1.0,
+      rotation: 30.0,
+      x: 0,
+      y: 0,
       visible: true,
-      opacity: 50
+      opacity: 55
     },
-    5: { // 1893 Pincus Map
-      scale: 1.28,
-      rotation: -3.0,
-      x: -1520,
-      y: -1950,
+    4: { // 1891 NYU Bromley - Same base positioning as Version 7
+      scale: 1.0,
+      rotation: 30.0,
+      x: 0,
+      y: 0,
       visible: true,
-      opacity: 52
+      opacity: 55
+    },
+    5: { // 1893 Pincus Map - Same base positioning as Version 7
+      scale: 1.0,
+      rotation: 30.0,
+      x: 0,
+      y: 0,
+      visible: true,
+      opacity: 55
     }
   };
   
