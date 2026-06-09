@@ -3354,57 +3354,56 @@ function clearAllMapPositions() {
 }
 
 function initializeMapDefaults() {
-  // Create unique transformation values for each of the 6 maps
-  // Each map has its own scale, rotation, offset, and opacity based on characteristics
-  // Values work WITH georeferencing constants to provide unique positioning
+  // Use actual working positioning values from local Version 7
+  // These values make all maps align correctly in the working local version
   const mapDefaults = {
-    0: { // 1852 Harrison - Original historical map, reference positioning
-      scale: 1.0,      // Base scale for reference map
-      rotation: 0.0,   // No additional rotation
-      x: 0,           // Centered positioning
-      y: 0,           // Centered positioning
+    0: { // 1852 Harrison - Working positioning from local Version 7
+      scale: 0.40,     // Working scale from local Version 7
+      rotation: -32.7,  // Working rotation from local Version 7
+      x: -1047,        // Working X offset from local Version 7
+      y: 205,          // Working Y offset from local Version 7
       visible: true,   // Maps visible by default
-      opacity: 55      // Standard opacity for reference
+      opacity: 55      // Standard opacity
     },
-    1: { // 1854 Perris - Earlier map, slightly different scale and rotation
-      scale: 0.95,     // Slightly smaller scale
-      rotation: 2.0,   // Small clockwise rotation
-      x: -50,         // Slight west offset
-      y: 20,          // Slight north offset
+    1: { // 1854 Perris - Same working positioning as local Version 7
+      scale: 0.40,     // Same working scale
+      rotation: -32.7,  // Same working rotation
+      x: -1047,        // Same working X offset
+      y: 205,          // Same working Y offset
       visible: true,
-      opacity: 60      // Slightly more opaque for clarity
+      opacity: 55      // Standard opacity
     },
-    2: { // 2026 NYC Zoning - Modern map, different orientation
-      scale: 0.85,     // Smaller scale for modern map
-      rotation: -5.0,  // Counter-clockwise rotation for modern orientation
-      x: 100,         // East offset
-      y: -30,         // South offset
+    2: { // 2026 NYC Zoning - Same working positioning as local Version 7
+      scale: 0.40,     // Same working scale
+      rotation: -32.7,  // Same working rotation
+      x: -1047,        // Same working X offset
+      y: 205,          // Same working Y offset
       visible: true,
-      opacity: 70      // More opaque for modern map clarity
+      opacity: 55      // Standard opacity
     },
-    3: { // 1879 Brumley Map - Photo map, unique positioning
-      scale: 1.1,      // Larger scale for photo detail
-      rotation: 8.0,   // Significant rotation for photo angle
-      x: -80,         // West offset
-      y: 40,          // North offset
+    3: { // 1879 Brumley Map - Same working positioning as local Version 7
+      scale: 0.40,     // Same working scale
+      rotation: -32.7,  // Same working rotation
+      x: -1047,        // Same working X offset
+      y: 205,          // Same working Y offset
       visible: true,
-      opacity: 45      // Less opaque for photo overlay effect
+      opacity: 55      // Standard opacity
     },
-    4: { // 1891 NYU Bromley - Detailed Bromley map
-      scale: 0.9,      // Slightly smaller scale
-      rotation: -3.0,  // Small counter-clockwise rotation
-      x: 30,          // Slight east offset
-      y: -10,         // Slight south offset
+    4: { // 1891 NYU Bromley - Same working positioning as local Version 7
+      scale: 0.40,     // Same working scale
+      rotation: -32.7,  // Same working rotation
+      x: -1047,        // Same working X offset
+      y: 205,          // Same working Y offset
       visible: true,
-      opacity: 50      // Standard opacity
+      opacity: 55      // Standard opacity
     },
-    5: { // 1893 Pincus Map - Library map, unique characteristics
-      scale: 0.88,     // Smaller scale for library map
-      rotation: 5.0,   // Clockwise rotation
-      x: -20,         // Slight west offset
-      y: 15,          // Slight north offset
+    5: { // 1893 Pincus Map - Same working positioning as local Version 7
+      scale: 0.40,     // Same working scale
+      rotation: -32.7,  // Same working rotation
+      x: -1047,        // Same working X offset
+      y: 205,          // Same working Y offset
       visible: true,
-      opacity: 48      // Slightly less opaque
+      opacity: 55      // Standard opacity
     }
   };
   
