@@ -1106,12 +1106,34 @@ document.getElementById('focal').addEventListener('input',e=>{
   document.getElementById('fov-out').textContent=fovDeg.toFixed(1)+'°';
   document.getElementById('vfov-out').textContent=vFovDeg.toFixed(1)+'°';
   
+  // GEOMETRICALLY CORRECT FOCAL LENGTH BEHAVIOR:
+  // When focal length changes, recalculate camera distance to maintain apparent object size
+  // scalingFactor = newFocalLength / oldFocalLength
+  const oldFocalLength = previousFOV ? (plateWidthInches / (2 * Math.tan(previousFOV * Math.PI / 180))) : 8.0;
+  const scalingFactor = focalLength / oldFocalLength;
+  
+  // Calculate new camera distance proportionally from current position
+  const currentDistance = Math.abs(camFtX);
+  const newDistance = currentDistance * scalingFactor;
+  
+  // Update camera X position (distance from buildings)
+  camFtX = -Math.abs(newDistance); // Keep negative (west of buildings)
+  
+  // Update camera position display
+  document.getElementById('camX-out').textContent = Math.abs(newDistance).toFixed(0);
+  
   // Update instruction spans with current values
   document.getElementById('instr-focal').textContent=focalLength+'"';
   document.getElementById('instr-hfov').textContent=fovDeg.toFixed(1)+'°';
   document.getElementById('instr-vfov').textContent=vFovDeg.toFixed(1)+'°';
   document.getElementById('instr-plate-size').textContent=currentPlateSize;
   
+  // Store current FOV for next change
+  previousFOV = fovDeg;
+  
+  // Update coordinates and redraw
+  clampCam(); 
+  updateCoords(); 
   drawAll();});
 
 // Store previous FOV for proportional scaling
