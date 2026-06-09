@@ -473,8 +473,6 @@ ctx.scale(tempMapScale, tempMapScale);
               <div style="display:flex;gap:8px;align-items:center;">
                 <input type="radio" id="focal-mode" name="optics-mode" value="focal" checked>
                 <label for="focal-mode" style="font-size:0.6rem;margin:0;">Focal Length</label>
-                <input type="radio" id="fov-mode" name="optics-mode" value="fov">
-                <label for="fov-mode" style="font-size:0.6rem;margin:0;">FOV</label>
                 <input type="radio" id="camera-mode" name="optics-mode" value="camera">
                 <label for="camera-mode" style="font-size:0.6rem;margin:0;">Camera Type</label>
               </div>
@@ -485,11 +483,7 @@ ctx.scale(tempMapScale, tempMapScale);
               <div class="sl"><label>Focal Length</label><input type="range" id="focal" min="0.2" max="25" value="8" step="0.1"><span class="v" id="focal-out">8 inches</span></div>
             </div>
             
-            <!-- FOV Controls -->
-            <div id="fov-controls" style="display:none;">
-              <div class="sl"><label>Horizontal FOV</label><input type="range" id="fov-slider" min="5" max="120" value="15" step="1"><span class="v" id="fov-slider-out">15 degrees</span></div>
-            </div>
-            
+                        
             <!-- Camera Type Controls -->
             <div id="camera-controls">
               <div class="sl"><label>Lens Type</label>
@@ -1123,103 +1117,31 @@ document.getElementById('focal').addEventListener('input',e=>{
 // Store previous FOV for proportional scaling
 let previousFOV = 15; // Start with default FOV
 
-// FOV slider event listener
-document.getElementById('fov-slider').addEventListener('input',e=>{
-  console.log('FOV slider input event triggered');
-  const fovDeg=parseFloat(e.target.value);
-  console.log('FOV value:', fovDeg);
-  document.getElementById('fov-slider-out').textContent=fovDeg+'°';
-  
-  // Calculate focal length from FOV: focal_length = width / (2 * tan(FOV/2))
-  const plateWidthInches = getPlateWidth();
-  const plateHeightInches = getPlateHeight();
-  const fovRad = fovDeg * Math.PI / 180;
-  const focalLength = plateWidthInches / (2 * Math.tan(fovRad / 2));
-  
-  // Update focal length display (read-only in FOV mode)
-  document.getElementById('focal-out').textContent=focalLength.toFixed(1)+'"';
-  
-  // Update FOV displays
-  const vFovDeg = fovDeg * (plateHeightInches/plateWidthInches); // aspect ratio
-  document.getElementById('fov-out').textContent=fovDeg.toFixed(1)+'°';
-  document.getElementById('vfov-out').textContent=vFovDeg.toFixed(1)+'°';
-  
-  // GEOMETRICALLY CORRECT FOV BEHAVIOR:
-  // When FOV changes, recalculate camera distance to maintain apparent object size
-  // scalingFactor = tan(oldFOV/2) / tan(newFOV/2)
-  const oldFovRad = previousFOV * Math.PI / 180;
-  const newFovRad = fovDeg * Math.PI / 180;
-  const scalingFactor = Math.tan(oldFovRad / 2) / Math.tan(newFovRad / 2);
-  
-  // Calculate new camera distance proportionally from current position
-  const currentDistance = Math.abs(camFtX);
-  const newDistance = currentDistance * scalingFactor;
-  
-  // Update camera X position (distance from buildings)
-  camFtX = -Math.abs(newDistance); // Keep negative (west of buildings)
-  
-  // Update camera position display
-  document.getElementById('camX-out').textContent = Math.abs(newDistance).toFixed(0);
-  
-  // Update instruction spans with current values
-  document.getElementById('instr-focal').textContent=focalLength.toFixed(1)+'"';
-  document.getElementById('instr-hfov').textContent=fovDeg.toFixed(1)+'°';
-  document.getElementById('instr-vfov').textContent=vFovDeg.toFixed(1)+'°';
-  document.getElementById('instr-plate-size').textContent=currentPlateSize;
-  
-  // Store current FOV for next change
-  previousFOV = fovDeg;
-  
-  // Update coordinates and redraw
-  clampCam(); 
-  updateCoords(); 
-  console.log('FOV slider: calling drawAll()');
-  drawAll();
-});
 
 
 // Mode toggle event listeners
 function updateModeDisplay() {
   const isFocalMode = document.getElementById('focal-mode').checked;
-  const isFovMode = document.getElementById('fov-mode').checked;
   const isCameraMode = document.getElementById('camera-mode').checked;
   
-  console.log('updateModeDisplay called - Focal:', isFocalMode, 'FOV:', isFovMode, 'Camera:', isCameraMode);
+  console.log('updateModeDisplay called - Focal:', isFocalMode, 'Camera:', isCameraMode);
   
-  // Focal Length mode: Show focal slider + FOV slider (for direct FOV control)
-  // FOV mode: Show only FOV displays (read-only)  
+  // Focal Length mode: Show focal length slider
   // Camera Type mode: Show camera selector
   document.getElementById('focal-controls').style.display = isFocalMode ? 'block' : 'none';
-  document.getElementById('fov-controls').style.display = isFocalMode ? 'block' : 'none'; // Show FOV slider with Focal Length mode
   document.getElementById('camera-controls').style.display = isCameraMode ? 'block' : 'none';
-  
-  console.log('FOV controls display set to:', isFocalMode ? 'block' : 'none');
   
   drawAll();
 }
 
 // Initialize mode display
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('DOM loaded - checking FOV elements');
-  const fovSlider = document.getElementById('fov-slider');
-  const fovControls = document.getElementById('fov-controls');
-  const fovMode = document.getElementById('fov-mode');
-  
-  console.log('FOV slider element:', fovSlider);
-  console.log('FOV controls element:', fovControls);
-  console.log('FOV mode element:', fovMode);
-  console.log('FOV mode checked:', fovMode ? fovMode.checked : 'not found');
-  console.log('FOV controls display:', fovControls ? fovControls.style.display : 'not found');
-  
   updateModeDisplay();
   initializeOverlayFit(); // Initialize overlay object-fit for 2x2.5 plate
 });
 
 document.getElementById('focal-mode').addEventListener('change', updateModeDisplay);
 document.getElementById('focal-mode').addEventListener('click', updateModeDisplay);
-
-document.getElementById('fov-mode').addEventListener('change', updateModeDisplay);
-document.getElementById('fov-mode').addEventListener('click', updateModeDisplay);
 
 document.getElementById('camera-mode').addEventListener('change', updateModeDisplay);
 document.getElementById('camera-mode').addEventListener('click', updateModeDisplay);
