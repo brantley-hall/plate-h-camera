@@ -2170,8 +2170,8 @@ function updateMapSelector() {
 }
 
 // Initialize map system
-// Clear saved positions to restore original transfer defaults
-clearAllMapPositions();
+// Initialize defaults first (only if no saved positions exist)
+initializeMapDefaults();
 // Then load selected map
 loadSelectedMap();
 
@@ -3350,6 +3350,10 @@ function clearAllMapPositions() {
   // Also clear the selected map preference
   localStorage.removeItem('plateH_selectedMap');
   
+  console.log('All map positions cleared from localStorage');
+}
+
+function initializeMapDefaults() {
   // Create unique transformation values for each of the 6 maps
   // Each map has its own scale, rotation, offset, and opacity based on characteristics
   // Values work WITH georeferencing constants to provide unique positioning
@@ -3404,67 +3408,23 @@ function clearAllMapPositions() {
     }
   };
   
-  // Save unique defaults for each map
+  // Set defaults only if no saved positions exist
   for (let i = 0; i < Object.keys(MAP_CONFIGS).length; i++) {
-    const defaults = mapDefaults[i];
-    if (defaults) {
-      const storageKey = 'plateH_map' + i + '_settings';
-      localStorage.setItem(storageKey, JSON.stringify(defaults));
-      console.log('Set unique defaults for map', i, ':', MAP_CONFIGS[i].name, defaults);
+    const storageKey = 'plateH_map' + i + '_settings';
+    const savedSettings = localStorage.getItem(storageKey);
+    
+    if (!savedSettings) {
+      const defaults = mapDefaults[i];
+      if (defaults) {
+        localStorage.setItem(storageKey, JSON.stringify(defaults));
+        console.log('Set initial defaults for map', i, ':', MAP_CONFIGS[i].name, defaults);
+      }
+    } else {
+      console.log('Map', i, 'already has saved settings, keeping them');
     }
   }
   
-  // Reset current map to its defaults
-  const currentDefaults = mapDefaults[currentMapIndex] || mapDefaults[0];
-  tempMapScale = currentDefaults.scale;
-  tempMapRotation = currentDefaults.rotation;
-  tempMapX = currentDefaults.x;
-  tempMapY = currentDefaults.y;
-  tempMapVisible = currentDefaults.visible;
-  tempMapOpacity = currentDefaults.opacity;
-  
-  // Update all controls to reflect default values
-  if (document.getElementById('mapScale')) {
-    document.getElementById('mapScale').value = tempMapScale;
-    document.getElementById('mapScale-input').value = tempMapScale;
-    document.getElementById('mapScale-out').textContent = tempMapScale.toFixed(2);
-  }
-  
-  if (document.getElementById('mapRotation')) {
-    document.getElementById('mapRotation').value = tempMapRotation;
-    document.getElementById('mapRotation-input').value = tempMapRotation;
-    document.getElementById('mapRotation-out').textContent = tempMapRotation.toFixed(1) + '°';
-  }
-  
-  if (document.getElementById('mapOffsetX')) {
-    document.getElementById('mapOffsetX').value = tempMapX;
-    document.getElementById('mapOffsetX-input').value = tempMapX;
-    document.getElementById('mapOffsetX-out').textContent = Math.round(tempMapX);
-  }
-  
-  if (document.getElementById('mapOffsetY')) {
-    document.getElementById('mapOffsetY').value = tempMapY;
-    document.getElementById('mapOffsetY-input').value = tempMapY;
-    document.getElementById('mapOffsetY-out').textContent = Math.round(tempMapY);
-  }
-  
-  if (document.getElementById('mapOpacity')) {
-    document.getElementById('mapOpacity').value = tempMapOpacity;
-    document.getElementById('mapOpacity-out').textContent = Math.round(tempMapOpacity) + '%';
-  }
-  
-  if (document.getElementById('tempMapVisible')) {
-    document.getElementById('tempMapVisible').checked = tempMapVisible;
-  }
-  
-  // Reset to first map
-  currentMapIndex = 0;
-  updateMapSelector();
-  
-  // Reload the map
-  loadSelectedMap();
-  
-  console.log('All map positions cleared and reset to original transfer defaults');
+  console.log('Map defaults initialization complete');
 }
 
 function loadMapSettings() {
