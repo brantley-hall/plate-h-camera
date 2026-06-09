@@ -3350,16 +3350,11 @@ function clearAllMapPositions() {
   // Also clear the selected map preference
   localStorage.removeItem('plateH_selectedMap');
   
-  // Set unique default positions for each map based on actual Version 7 tempMap values
-  // Original Version 7 tempMap variables found at end of file:
-  // let tempMapScale = 0.41;
-  // let tempMapRotation = -20.5; // degrees
-  // let tempMapX = -1587;
-  // let tempMapY = 7;
-  // let tempMapOpacity = 50;
-  // let tempMapVisible = true;
+  // Set unique default positions for each map based on their characteristics
+  // 1852 Harrison uses actual Version 7 tempMap values (works correctly)
+  // Other maps need adjusted positioning based on their dimensions and content
   const mapDefaults = {
-    0: { // 1852 Harrison - Use actual Version 7 tempMap values
+    0: { // 1852 Harrison - Use actual Version 7 tempMap values (confirmed working)
       scale: 0.41,
       rotation: -20.5,  // Original tempMapRotation = -20.5 degrees
       x: -1587,        // Original tempMapX = -1587
@@ -3367,45 +3362,45 @@ function clearAllMapPositions() {
       visible: true,   // Original tempMapVisible = true
       opacity: 50      // Original tempMapOpacity = 50
     },
-    1: { // 1854 Perris - Same positioning as Version 7
-      scale: 0.41,
-      rotation: -20.5,
-      x: -1587,
-      y: 7,
+    1: { // 1854 Perris - Adjusted for different map dimensions
+      scale: 0.38,
+      rotation: -18.0,  // Slightly less rotation
+      x: -1450,        // Adjusted X offset
+      y: 5,            // Adjusted Y offset
       visible: true,
-      opacity: 50
+      opacity: 55      // Slightly more opaque
     },
-    2: { // 2026 NYC Zoning - Same positioning as Version 7
-      scale: 0.41,
-      rotation: -20.5,
-      x: -1587,
-      y: 7,
+    2: { // 2026 NYC Zoning - Modern map, different scale needed
+      scale: 0.25,
+      rotation: -15.0,  // Less rotation for modern map
+      x: -1200,        // Different positioning
+      y: 0,            // Centered vertically
       visible: true,
-      opacity: 50
+      opacity: 60      // More opaque for modern map
     },
-    3: { // 1879 Brumley Map - Same positioning as Version 7
-      scale: 0.41,
-      rotation: -20.5,
-      x: -1587,
-      y: 7,
+    3: { // 1879 Brumley Map - Historical photo map
+      scale: 0.35,
+      rotation: -22.0,  // More rotation for photo map
+      x: -1400,        // Adjusted positioning
+      y: 10,           // Slight north offset
       visible: true,
-      opacity: 50
+      opacity: 45      // Less opaque for photo overlay
     },
-    4: { // 1891 NYU Bromley - Same positioning as Version 7
-      scale: 0.41,
-      rotation: -20.5,
-      x: -1587,
-      y: 7,
+    4: { // 1891 NYU Bromley - Bromley map format
+      scale: 0.37,
+      rotation: -19.0,  // Moderate rotation
+      x: -1350,        // Adjusted positioning
+      y: 8,            // Slight offset
       visible: true,
-      opacity: 50
+      opacity: 52      // Moderate opacity
     },
-    5: { // 1893 Pincus Map - Same positioning as Version 7
-      scale: 0.41,
-      rotation: -20.5,
-      x: -1587,
-      y: 7,
+    5: { // 1893 Pincus Map - Library map format
+      scale: 0.36,
+      rotation: -21.0,  // Slightly more rotation
+      x: -1380,        // Adjusted positioning
+      y: 6,            // Slight offset
       visible: true,
-      opacity: 50
+      opacity: 48      // Slightly less opaque
     }
   };
   
