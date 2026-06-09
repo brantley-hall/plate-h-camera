@@ -1125,7 +1125,9 @@ let previousFOV = 15; // Start with default FOV
 
 // FOV slider event listener
 document.getElementById('fov-slider').addEventListener('input',e=>{
+  console.log('FOV slider input event triggered');
   const fovDeg=parseFloat(e.target.value);
+  console.log('FOV value:', fovDeg);
   document.getElementById('fov-slider-out').textContent=fovDeg+'°';
   
   // Calculate focal length from FOV: focal_length = width / (2 * tan(FOV/2))
@@ -1171,6 +1173,7 @@ document.getElementById('fov-slider').addEventListener('input',e=>{
   // Update coordinates and redraw
   clampCam(); 
   updateCoords(); 
+  console.log('FOV slider: calling drawAll()');
   drawAll();
 });
 
@@ -1181,9 +1184,13 @@ function updateModeDisplay() {
   const isFovMode = document.getElementById('fov-mode').checked;
   const isCameraMode = document.getElementById('camera-mode').checked;
   
+  console.log('updateModeDisplay called - Focal:', isFocalMode, 'FOV:', isFovMode, 'Camera:', isCameraMode);
+  
   document.getElementById('focal-controls').style.display = isFocalMode ? 'block' : 'none';
   document.getElementById('fov-controls').style.display = isFovMode ? 'block' : 'none';
   document.getElementById('camera-controls').style.display = isCameraMode ? 'block' : 'none';
+  
+  console.log('FOV controls display set to:', isFovMode ? 'block' : 'none');
   
   drawAll();
 }
