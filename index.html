@@ -3350,57 +3350,57 @@ function clearAllMapPositions() {
   // Also clear the selected map preference
   localStorage.removeItem('plateH_selectedMap');
   
-  // Set unique default positions for each map based on their characteristics
-  // 1852 Harrison uses actual Version 7 tempMap values (works correctly)
-  // Other maps need adjusted positioning based on their dimensions and content
+  // Set all maps to use the same georeferenced coordinate system as 1852 Harrison
+  // All maps should align to the same coordinate system for proper georeferencing
+  // Use the working 1852 Harrison transformation values for all maps
   const mapDefaults = {
-    0: { // 1852 Harrison - Use actual Version 7 tempMap values (confirmed working)
+    0: { // 1852 Harrison - Working georeferenced position
       scale: 0.41,
-      rotation: -20.5,  // Original tempMapRotation = -20.5 degrees
-      x: -1587,        // Original tempMapX = -1587
-      y: 7,            // Original tempMapY = 7
-      visible: true,   // Original tempMapVisible = true
-      opacity: 50      // Original tempMapOpacity = 50
+      rotation: -20.5,  // Working rotation for coordinate alignment
+      x: -1587,        // Working X offset for coordinate alignment
+      y: 7,            // Working Y offset for coordinate alignment
+      visible: true,   // Maps visible by default
+      opacity: 50      // Working opacity
     },
-    1: { // 1854 Perris - Adjusted for different map dimensions
-      scale: 0.38,
-      rotation: -18.0,  // Slightly less rotation
-      x: -1450,        // Adjusted X offset
-      y: 5,            // Adjusted Y offset
+    1: { // 1854 Perris - Use same coordinate system as Harrison
+      scale: 0.41,     // Same scale for coordinate alignment
+      rotation: -20.5,  // Same rotation for coordinate alignment
+      x: -1587,        // Same X offset for coordinate alignment
+      y: 7,            // Same Y offset for coordinate alignment
       visible: true,
-      opacity: 55      // Slightly more opaque
+      opacity: 50      // Same opacity for consistency
     },
-    2: { // 2026 NYC Zoning - Modern map, different scale needed
-      scale: 0.25,
-      rotation: -15.0,  // Less rotation for modern map
-      x: -1200,        // Different positioning
-      y: 0,            // Centered vertically
+    2: { // 2026 NYC Zoning - Use same coordinate system as Harrison
+      scale: 0.41,     // Same scale for coordinate alignment
+      rotation: -20.5,  // Same rotation for coordinate alignment
+      x: -1587,        // Same X offset for coordinate alignment
+      y: 7,            // Same Y offset for coordinate alignment
       visible: true,
-      opacity: 60      // More opaque for modern map
+      opacity: 50      // Same opacity for consistency
     },
-    3: { // 1879 Brumley Map - Historical photo map
-      scale: 0.35,
-      rotation: -22.0,  // More rotation for photo map
-      x: -1400,        // Adjusted positioning
-      y: 10,           // Slight north offset
+    3: { // 1879 Brumley Map - Use same coordinate system as Harrison
+      scale: 0.41,     // Same scale for coordinate alignment
+      rotation: -20.5,  // Same rotation for coordinate alignment
+      x: -1587,        // Same X offset for coordinate alignment
+      y: 7,            // Same Y offset for coordinate alignment
       visible: true,
-      opacity: 45      // Less opaque for photo overlay
+      opacity: 50      // Same opacity for consistency
     },
-    4: { // 1891 NYU Bromley - Bromley map format
-      scale: 0.37,
-      rotation: -19.0,  // Moderate rotation
-      x: -1350,        // Adjusted positioning
-      y: 8,            // Slight offset
+    4: { // 1891 NYU Bromley - Use same coordinate system as Harrison
+      scale: 0.41,     // Same scale for coordinate alignment
+      rotation: -20.5,  // Same rotation for coordinate alignment
+      x: -1587,        // Same X offset for coordinate alignment
+      y: 7,            // Same Y offset for coordinate alignment
       visible: true,
-      opacity: 52      // Moderate opacity
+      opacity: 50      // Same opacity for consistency
     },
-    5: { // 1893 Pincus Map - Library map format
-      scale: 0.36,
-      rotation: -21.0,  // Slightly more rotation
-      x: -1380,        // Adjusted positioning
-      y: 6,            // Slight offset
+    5: { // 1893 Pincus Map - Use same coordinate system as Harrison
+      scale: 0.41,     // Same scale for coordinate alignment
+      rotation: -20.5,  // Same rotation for coordinate alignment
+      x: -1587,        // Same X offset for coordinate alignment
+      y: 7,            // Same Y offset for coordinate alignment
       visible: true,
-      opacity: 48      // Slightly less opaque
+      opacity: 50      // Same opacity for consistency
     }
   };
   
