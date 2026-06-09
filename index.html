@@ -3550,6 +3550,7 @@ function saveMapSettings() {
     x: tempMapX,
     y: tempMapY,
     visible: tempMapVisible,
+    opacity: tempMapOpacity,
     timestamp: new Date().toISOString()
   };
   
@@ -3635,78 +3636,6 @@ function clearAllMapPositions() {
   console.log('All map positions cleared from localStorage');
 }
 
-function initializeMapDefaults() {
-  // Use actual working positioning values from local Version 7
-  // These values make all maps align correctly in the working local version
-  const mapDefaults = {
-    0: { // 1852 Harrison - Working positioning from local Version 7
-      scale: 0.40,     // Working scale from local Version 7
-      rotation: -32.7,  // Working rotation from local Version 7
-      x: -1047,        // Working X offset from local Version 7
-      y: 205,          // Working Y offset from local Version 7
-      visible: true,   // Maps visible by default
-      opacity: 55      // Standard opacity
-    },
-    1: { // 1854 Perris - Unique working positioning from local Version 7
-      scale: 0.70,     // Working scale for 1854 Perris
-      rotation: 0.6,    // Working rotation for 1854 Perris
-      x: 138,          // Working X offset for 1854 Perris
-      y: -330,         // Working Y offset for 1854 Perris
-      visible: true,
-      opacity: 55      // Standard opacity
-    },
-    2: { // 2026 NYC Zoning - Same working positioning as local Version 7
-      scale: 0.40,     // Same working scale
-      rotation: -32.7,  // Same working rotation
-      x: -1047,        // Same working X offset
-      y: 205,          // Same working Y offset
-      visible: true,
-      opacity: 55      // Standard opacity
-    },
-    3: { // 1879 Brumley Map - Unique working positioning from local Version 7
-      scale: 1.64,     // Working scale for 1879 Brumley Map
-      rotation: -111.2, // Working rotation for 1879 Brumley Map
-      x: -1150,        // Working X offset for 1879 Brumley Map
-      y: 3163,         // Working Y offset for 1879 Brumley Map
-      visible: true,
-      opacity: 55      // Standard opacity
-    },
-    4: { // 1891 NYU Bromley - Unique working positioning from local Version 7
-      scale: 1.46,     // Working scale for 1891 NYU Bromley
-      rotation: -3.6,   // Working rotation for 1891 NYU Bromley
-      x: -1602,        // Working X offset for 1891 NYU Bromley
-      y: -1995,        // Working Y offset for 1891 NYU Bromley
-      visible: true,
-      opacity: 55      // Standard opacity
-    },
-    5: { // 1893 Pincus Map - Unique working positioning from local Version 7
-      scale: 1.88,     // Working scale for 1893 Pincus Map
-      rotation: 0.0,    // Working rotation for 1893 Pincus Map
-      x: -1268,        // Working X offset for 1893 Pincus Map
-      y: -436,         // Working Y offset for 1893 Pincus Map
-      visible: true,
-      opacity: 55      // Standard opacity
-    }
-  };
-  
-  // Set defaults only if no saved positions exist
-  for (let i = 0; i < Object.keys(MAP_CONFIGS).length; i++) {
-    const storageKey = 'plateH_map' + i + '_settings';
-    const savedSettings = localStorage.getItem(storageKey);
-    
-    if (!savedSettings) {
-      const defaults = mapDefaults[i];
-      if (defaults) {
-        localStorage.setItem(storageKey, JSON.stringify(defaults));
-        console.log('Set initial defaults for map', i, ':', MAP_CONFIGS[i].name, defaults);
-      }
-    } else {
-      console.log('Map', i, 'already has saved settings, keeping them');
-    }
-  }
-  
-  console.log('Map defaults initialization complete');
-}
 
 function loadMapSettings() {
   // Load map-specific settings
@@ -3727,6 +3656,7 @@ function loadMapSettings() {
     tempMapX = mapSettings.x || 0;
     tempMapY = mapSettings.y || 0;
     tempMapVisible = mapSettings.visible !== undefined ? mapSettings.visible : true;
+    tempMapOpacity = mapSettings.opacity !== undefined ? mapSettings.opacity : 50;
     
     // Update all controls - with debugging and safety checks
     console.log('DEBUG: Updating UI controls with loaded values');
@@ -3793,6 +3723,17 @@ function loadMapSettings() {
       console.log('DEBUG: Updated visible checkbox to', tempMapVisible);
     } else {
       console.log('DEBUG: Visible checkbox not found in DOM');
+    }
+    
+    const opacitySlider = document.getElementById('mapOpacity');
+    const opacityOut = document.getElementById('mapOpacity-out');
+    
+    if (opacitySlider && opacityOut) {
+      opacitySlider.value = tempMapOpacity;
+      opacityOut.textContent = Math.round(tempMapOpacity) + '%';
+      console.log('DEBUG: Updated opacity controls to', tempMapOpacity);
+    } else {
+      console.log('DEBUG: Opacity controls not found in DOM');
     }
     
     // Don't call drawAll here - wait for image to load to avoid BIS initialization issues
