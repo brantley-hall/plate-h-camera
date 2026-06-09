@@ -3350,57 +3350,57 @@ function clearAllMapPositions() {
   // Also clear the selected map preference
   localStorage.removeItem('plateH_selectedMap');
   
-  // Set tempMap variables to work WITH georeferencing constants, not replace them
-  // The georeferencing constants (MAP_SCALE, MAP_THETA, MAP_TX, MAP_TY) do the heavy lifting
-  // tempMap variables should be minimal adjustments that work with the georeferencing system
+  // Create unique transformation values for each of the 6 maps
+  // Each map has its own scale, rotation, offset, and opacity based on characteristics
+  // Values work WITH georeferencing constants to provide unique positioning
   const mapDefaults = {
-    0: { // 1852 Harrison - Minimal tempMap values that work with georeferencing
-      scale: 1.0,      // Let MAP_SCALE handle the main scaling
-      rotation: 0.0,   // Let MAP_THETA handle the main rotation  
-      x: 0,           // Let MAP_TX/MAP_TY handle the main positioning
-      y: 0,           // Let MAP_TX/MAP_TY handle the main positioning
+    0: { // 1852 Harrison - Original historical map, reference positioning
+      scale: 1.0,      // Base scale for reference map
+      rotation: 0.0,   // No additional rotation
+      x: 0,           // Centered positioning
+      y: 0,           // Centered positioning
       visible: true,   // Maps visible by default
-      opacity: 55      // Standard opacity
+      opacity: 55      // Standard opacity for reference
     },
-    1: { // 1854 Perris - Same minimal tempMap values
-      scale: 1.0,      // Let MAP_SCALE handle the main scaling
-      rotation: 0.0,   // Let MAP_THETA handle the main rotation
-      x: 0,           // Let MAP_TX/MAP_TY handle the main positioning
-      y: 0,           // Let MAP_TX/MAP_TY handle the main positioning
+    1: { // 1854 Perris - Earlier map, slightly different scale and rotation
+      scale: 0.95,     // Slightly smaller scale
+      rotation: 2.0,   // Small clockwise rotation
+      x: -50,         // Slight west offset
+      y: 20,          // Slight north offset
       visible: true,
-      opacity: 55      // Standard opacity
+      opacity: 60      // Slightly more opaque for clarity
     },
-    2: { // 2026 NYC Zoning - Same minimal tempMap values
-      scale: 1.0,      // Let MAP_SCALE handle the main scaling
-      rotation: 0.0,   // Let MAP_THETA handle the main rotation
-      x: 0,           // Let MAP_TX/MAP_TY handle the main positioning
-      y: 0,           // Let MAP_TX/MAP_TY handle the main positioning
+    2: { // 2026 NYC Zoning - Modern map, different orientation
+      scale: 0.85,     // Smaller scale for modern map
+      rotation: -5.0,  // Counter-clockwise rotation for modern orientation
+      x: 100,         // East offset
+      y: -30,         // South offset
       visible: true,
-      opacity: 55      // Standard opacity
+      opacity: 70      // More opaque for modern map clarity
     },
-    3: { // 1879 Brumley Map - Same minimal tempMap values
-      scale: 1.0,      // Let MAP_SCALE handle the main scaling
-      rotation: 0.0,   // Let MAP_THETA handle the main rotation
-      x: 0,           // Let MAP_TX/MAP_TY handle the main positioning
-      y: 0,           // Let MAP_TX/MAP_TY handle the main positioning
+    3: { // 1879 Brumley Map - Photo map, unique positioning
+      scale: 1.1,      // Larger scale for photo detail
+      rotation: 8.0,   // Significant rotation for photo angle
+      x: -80,         // West offset
+      y: 40,          // North offset
       visible: true,
-      opacity: 55      // Standard opacity
+      opacity: 45      // Less opaque for photo overlay effect
     },
-    4: { // 1891 NYU Bromley - Same minimal tempMap values
-      scale: 1.0,      // Let MAP_SCALE handle the main scaling
-      rotation: 0.0,   // Let MAP_THETA handle the main rotation
-      x: 0,           // Let MAP_TX/MAP_TY handle the main positioning
-      y: 0,           // Let MAP_TX/MAP_TY handle the main positioning
+    4: { // 1891 NYU Bromley - Detailed Bromley map
+      scale: 0.9,      // Slightly smaller scale
+      rotation: -3.0,  // Small counter-clockwise rotation
+      x: 30,          // Slight east offset
+      y: -10,         // Slight south offset
       visible: true,
-      opacity: 55      // Standard opacity
+      opacity: 50      // Standard opacity
     },
-    5: { // 1893 Pincus Map - Same minimal tempMap values
-      scale: 1.0,      // Let MAP_SCALE handle the main scaling
-      rotation: 0.0,   // Let MAP_THETA handle the main rotation
-      x: 0,           // Let MAP_TX/MAP_TY handle the main positioning
-      y: 0,           // Let MAP_TX/MAP_TY handle the main positioning
+    5: { // 1893 Pincus Map - Library map, unique characteristics
+      scale: 0.88,     // Smaller scale for library map
+      rotation: 5.0,   // Clockwise rotation
+      x: -20,         // Slight west offset
+      y: 15,          // Slight north offset
       visible: true,
-      opacity: 55      // Standard opacity
+      opacity: 48      // Slightly less opaque
     }
   };
   
