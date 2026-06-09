@@ -3350,57 +3350,62 @@ function clearAllMapPositions() {
   // Also clear the selected map preference
   localStorage.removeItem('plateH_selectedMap');
   
-  // Set unique default positions for each map based on original Version 7 values
-  // Original Version 7 used: mapScale=1.0, mapRotation=30°, mapOffsetX=0, mapOffsetY=0
-  // Plus hardcoded georeferencing: MAP_SCALE=0.652362, MAP_THETA=-0.520630, MAP_TX=118, MAP_TY=55
+  // Set unique default positions for each map based on actual Version 7 tempMap values
+  // Original Version 7 tempMap variables found at end of file:
+  // let tempMapScale = 0.41;
+  // let tempMapRotation = -20.5; // degrees
+  // let tempMapX = -1587;
+  // let tempMapY = 7;
+  // let tempMapOpacity = 50;
+  // let tempMapVisible = true;
   const mapDefaults = {
-    0: { // 1852 Harrison - Use original Version 7 positioning
-      scale: 1.0,
-      rotation: 30.0,  // Original mapRotation = 30 * Math.PI / 180
-      x: 0,           // Original mapOffsetX = 0
-      y: 0,           // Original mapOffsetY = 0  
-      visible: true,
-      opacity: 55      // Original mapOpacity = 0.55
+    0: { // 1852 Harrison - Use actual Version 7 tempMap values
+      scale: 0.41,
+      rotation: -20.5,  // Original tempMapRotation = -20.5 degrees
+      x: -1587,        // Original tempMapX = -1587
+      y: 7,            // Original tempMapY = 7
+      visible: true,   // Original tempMapVisible = true
+      opacity: 50      // Original tempMapOpacity = 50
     },
-    1: { // 1854 Perris - Same base positioning as Version 7
-      scale: 1.0,
-      rotation: 30.0,
-      x: 0,
-      y: 0,
+    1: { // 1854 Perris - Same positioning as Version 7
+      scale: 0.41,
+      rotation: -20.5,
+      x: -1587,
+      y: 7,
       visible: true,
-      opacity: 55
+      opacity: 50
     },
-    2: { // 2026 NYC Zoning - Same base positioning as Version 7
-      scale: 1.0,
-      rotation: 30.0,
-      x: 0,
-      y: 0,
+    2: { // 2026 NYC Zoning - Same positioning as Version 7
+      scale: 0.41,
+      rotation: -20.5,
+      x: -1587,
+      y: 7,
       visible: true,
-      opacity: 55
+      opacity: 50
     },
-    3: { // 1879 Brumley Map - Same base positioning as Version 7
-      scale: 1.0,
-      rotation: 30.0,
-      x: 0,
-      y: 0,
+    3: { // 1879 Brumley Map - Same positioning as Version 7
+      scale: 0.41,
+      rotation: -20.5,
+      x: -1587,
+      y: 7,
       visible: true,
-      opacity: 55
+      opacity: 50
     },
-    4: { // 1891 NYU Bromley - Same base positioning as Version 7
-      scale: 1.0,
-      rotation: 30.0,
-      x: 0,
-      y: 0,
+    4: { // 1891 NYU Bromley - Same positioning as Version 7
+      scale: 0.41,
+      rotation: -20.5,
+      x: -1587,
+      y: 7,
       visible: true,
-      opacity: 55
+      opacity: 50
     },
-    5: { // 1893 Pincus Map - Same base positioning as Version 7
-      scale: 1.0,
-      rotation: 30.0,
-      x: 0,
-      y: 0,
+    5: { // 1893 Pincus Map - Same positioning as Version 7
+      scale: 0.41,
+      rotation: -20.5,
+      x: -1587,
+      y: 7,
       visible: true,
-      opacity: 55
+      opacity: 50
     }
   };
   
