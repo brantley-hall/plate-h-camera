@@ -233,12 +233,12 @@ footer strong{font-style:normal;color:var(--sepia);}
           style="font-family:'Source Code Pro',monospace;font-size:0.6rem;background:var(--aged);color:var(--muted);border:1px solid var(--sepia);border-radius:3px;padding:0.2rem;">
           <option value="0">1852 Harrison</option>
           <option value="1">1854 Perris</option>
-          <option value="2">2026 NYC Zoning</option>
+          <option value="2" selected>2026 NYC Zoning</option>
           <option value="3">1879 Brumley Map</option>
           <option value="4">1891 NYU Bromley</option>
           <option value="5">1893 Pincus Map</option>
         </select>
-        <span id="current-map-name" style="font-family:'Source Code Pro',monospace;font-size:0.5rem;color:var(--sepia);margin-left:0.5rem;">1852 Harrison</span>
+        <span id="current-map-name" style="font-family:'Source Code Pro',monospace;font-size:0.5rem;color:var(--sepia);margin-left:0.5rem;">2026 NYC Zoning</span>
       </div>
       
             
@@ -2375,7 +2375,7 @@ const MAP_CONFIGS = {
 
 const _mapImg = new Image();
 let mapLoadAttempted = false;
-let currentMapIndex = 0;
+let currentMapIndex = 2;
 
 _mapImg.onload = () => {
   console.log('Map loaded successfully:', _mapImg.naturalWidth + 'x' + _mapImg.naturalHeight);
