@@ -2029,6 +2029,20 @@ function selectSiteScene(mapIndex) {
   console.log('Loading map:', config.name);
   console.log('File:', config.filename);
   
+  // Update the site plan callout to show the correct map name
+  const currentMapNameElement = document.getElementById('current-map-name');
+  if (currentMapNameElement) {
+    currentMapNameElement.textContent = config.name;
+    console.log('Updated site plan callout to show:', config.name);
+  }
+  
+  // Update the map selector dropdown to match
+  const mapSelector = document.getElementById('map-selector');
+  if (mapSelector) {
+    mapSelector.value = mapIndex;
+    console.log('Updated map selector to index:', mapIndex);
+  }
+  
   mapLoadAttempted = false;
   
   // Store existing onload handler if it exists
