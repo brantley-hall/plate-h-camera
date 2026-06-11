@@ -1232,6 +1232,9 @@ document.addEventListener('DOMContentLoaded', function() {
   updateModeDisplay();
   initializeOverlayFit(); // Initialize overlay object-fit for 2x2.5 plate
   initializeMapDefaults(); // Initialize map default positions
+  
+  // Initialize map callouts to show the correct default map
+  updateAllMapCallouts();
 });
 
 // Function to log all map positions for online version
@@ -2013,6 +2016,45 @@ function toggleSiteScene() {
   }
 }
 
+// ── Map Callout Management System ─────────────────────────────────────────────
+// Centralized system to read current map state and update all callouts dynamically
+
+function updateAllMapCallouts() {
+  // Read the current map state
+  const mapIndex = currentMapIndex || 0;
+  const config = MAP_CONFIGS[mapIndex];
+  
+  if (!config) {
+    console.error('Invalid map index:', mapIndex);
+    return;
+  }
+  
+  console.log('Updating all map callouts for:', config.name);
+  
+  // Update all callout elements that display the current map name
+  const calloutUpdates = [
+    { id: 'current-map-name', description: 'map controls callout' },
+    { id: 'site-plan-map-name', description: 'site plan header' }
+  ];
+  
+  calloutUpdates.forEach(update => {
+    const element = document.getElementById(update.id);
+    if (element) {
+      element.textContent = config.name;
+      console.log(`Updated ${update.description} to: ${config.name}`);
+    } else {
+      console.warn(`Element not found: ${update.id} (${update.description})`);
+    }
+  });
+  
+  // Update map selector dropdown to match current selection
+  const mapSelector = document.getElementById('map-selector');
+  if (mapSelector) {
+    mapSelector.value = mapIndex;
+    console.log('Updated map selector to index:', mapIndex);
+  }
+}
+
 function selectSiteScene(mapIndex) {
   // Set the selected map index
   currentMapIndex = mapIndex;
@@ -2029,19 +2071,8 @@ function selectSiteScene(mapIndex) {
   console.log('Loading map:', config.name);
   console.log('File:', config.filename);
   
-  // Update the site plan callout to show the correct map name
-  const currentMapNameElement = document.getElementById('current-map-name');
-  if (currentMapNameElement) {
-    currentMapNameElement.textContent = config.name;
-    console.log('Updated site plan callout to show:', config.name);
-  }
-  
-  // Update the map selector dropdown to match
-  const mapSelector = document.getElementById('map-selector');
-  if (mapSelector) {
-    mapSelector.value = mapIndex;
-    console.log('Updated map selector to index:', mapIndex);
-  }
+  // Update all map callouts using the centralized system
+  updateAllMapCallouts();
   
   mapLoadAttempted = false;
   
@@ -2054,6 +2085,9 @@ function selectSiteScene(mapIndex) {
     loadMapSettings();
     updateMapPosition(); // Apply the loaded settings
     
+    // Update callouts again after map loads to ensure consistency
+    updateAllMapCallouts();
+    
     // Call original onload handler if it existed
     if (originalOnload) {
       originalOnload.call(this);
@@ -2061,15 +2095,6 @@ function selectSiteScene(mapIndex) {
   };
   
   _mapImg.src = config.filename;
-  
-  // Update the map selector dropdown
-  updateMapSelector();
-  
-  // Update the site plan callout
-  const sitePlanMapNameSpan = document.getElementById('site-plan-map-name');
-  if (sitePlanMapNameSpan && MAP_CONFIGS[currentMapIndex]) {
-    sitePlanMapNameSpan.textContent = MAP_CONFIGS[currentMapIndex].name;
-  }
   
   // Hide the popup after selection and reset button text
   const display = document.getElementById('site-scene-selector-display');
@@ -2382,6 +2407,9 @@ _mapImg.onload = () => {
   // Load saved position settings after image loads
   setTimeout(() => loadMapSettings(), 50);
   drawAll();
+  
+  // Update all map callouts to ensure they match the loaded map
+  updateAllMapCallouts();
 };
 
 _mapImg.onerror = () => {
