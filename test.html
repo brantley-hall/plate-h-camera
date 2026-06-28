@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DEPLOYMENT TEST</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }
+        .test-box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .success { color: green; font-weight: bold; }
+        .timestamp { color: #666; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="test-box">
+        <h1>🧪 DEPLOYMENT TEST PAGE</h1>
+        <p class="success">✅ If you can see this page, GitHub Pages is working!</p>
+        <p class="timestamp">Deployed: <span id="time"></span></p>
+        <hr>
+        <h2>Test Results:</h2>
+        <ul>
+            <li>✅ HTML loads correctly</li>
+            <li>✅ CSS styles apply</li>
+            <li>✅ JavaScript runs</li>
+        </ul>
+        <h2>Next Steps:</h2>
+        <p>If this test page works, then the issue is with the main index.html file, not GitHub Pages.</p>
+    </div>
+
+    <script>
+        document.getElementById('time').textContent = new Date().toLocaleString();
+        console.log('Test page loaded successfully!');
+    </script>
+</body>
+</html>
