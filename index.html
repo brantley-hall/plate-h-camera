@@ -2344,8 +2344,11 @@ function updateMapSelector() {
   if (nameSpan) nameSpan.textContent = MAP_CONFIGS[currentMapIndex].name;
 }
 
-// Initialize map system
-loadSelectedMap();
+// Initialize map system after DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('DOM loaded - initializing map system');
+  loadSelectedMap();
+});
 
 // Initialize plate canvas size
 updatePlateCanvasSize();
