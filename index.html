@@ -96,7 +96,7 @@ footer strong{font-style:normal;color:var(--sepia);}
 
   <!-- CENTRE: PLAN VIEW -->
   <div class="plan-col">
-    <div class="ctrl-section-title" style="margin-bottom:0.3rem;font-size:0.7rem;text-align:center;">Site Plan <span id="site-plan-map-name" style="font-family:'Georgia',serif;font-size:0.6rem;color:var(--rust);font-style:italic;">2026 NYC Zoning</span></div>
+    <div class="ctrl-section-title" style="margin-bottom:0.3rem;font-size:0.7rem;text-align:center;">Site Plan <span id="site-plan-map-name" style="font-family:'Georgia',serif;font-size:0.6rem;color:var(--rust);font-style:italic;">1852 Harrison</span></div>
     
         
           
@@ -189,8 +189,8 @@ footer strong{font-style:normal;color:var(--sepia);}
         <div class="instr-card"><button class="instr-btn" onclick="speakInstruction('field-of-view')"><div class="instr-head">Field of view</div><div class="instr-body">FOV calculated from focal length. At <span id="instr-focal">8"</span> focal length, horizontal FOV is <span id="instr-hfov">14°</span> and vertical is <span id="instr-vfov">16.8°</span> for <span id="instr-plate-size">5×7</span> inch plate. Adjust focal length to change perspective.</div></button></div>
         <div class="instr-card"><button class="instr-btn" onclick="speakInstruction('image-overlay')"><div class="instr-head">Plate H overlay</div><div class="instr-body">Load the 1839 daguerreotype Plate H from McManus Collection to overlay on the simulated view. Adjust opacity slider (0-100%) to blend the historical photograph with the simulation for comparison.</div></button></div>
         <div class="instr-card"><button class="instr-btn" onclick="speakInstruction('building-movement')"><div class="instr-head">Building positions</div><div class="instr-body">Shift buildings north or south. Changes appear instantly in plan and ray-casting views. Test historical placement hypotheses.</div></button></div>
-        <div class="instr-card"><button class="instr-btn" onclick="speakInstruction('historical-map')"><div class="instr-head">Historical map</div><div class="instr-body">The selected map underlies the plan at georeferenced scale. Origin (0,0) is the NYU NW corner. The Church of the Messiah is <span id="instruction-distance">777</span> ft to the east - matching current NYC online system measurements.</div></button></div>
-        <div class="instr-card"><button class="instr-btn" onclick="speakInstruction('map-controls')"><div class="instr-head">Map controls</div><div class="instr-body">Toggle map positioning controls to scale, rotate, and offset the selected map. Save and load map positions for consistent reference. Adjust opacity and visibility for overlay comparison.</div></button></div>
+        <div class="instr-card"><button class="instr-btn" onclick="speakInstruction('historical-map')"><div class="instr-head">Historical map</div><div class="instr-body">The 1852 Harrison map underlies the plan at georeferenced scale. Origin (0,0) is the NYU NW corner. The Church of the Messiah is <span id="instruction-distance">777</span> ft to the east - matching current NYC online system measurements.</div></button></div>
+        <div class="instr-card"><button class="instr-btn" onclick="speakInstruction('map-controls')"><div class="instr-head">Map controls</div><div class="instr-body">Toggle map positioning controls to scale, rotate, and offset the 1852 Harrison map. Save and load map positions for consistent reference. Adjust opacity and visibility for overlay comparison.</div></button></div>
         <div class="instr-card"><button class="instr-btn" onclick="speakInstruction('tape-measure')"><div class="instr-head">Tape measure</div><div class="instr-body">Click and drag to measure distances between any two points on the plan. Distance displays in feet with transparent blue label. Use for precise spatial analysis and measurements.</div></button></div>
         <div class="instr-card"><button class="instr-btn" onclick="speakInstruction('building-info')"><div class="instr-head">Building info</div><div class="instr-body">Toggle building information display to view detailed data about NYU, Row Houses, and Church buildings. Shows coordinates, dimensions, and properties for historical analysis.</div></button></div>
       </div>
@@ -231,14 +231,14 @@ footer strong{font-style:normal;color:var(--sepia);}
         <label style="font-family:'Source Code Pro',monospace;font-size:0.6rem;color:var(--muted);">Map</label>
         <select id="map-selector" disabled
           style="font-family:'Source Code Pro',monospace;font-size:0.6rem;background:var(--aged);color:var(--muted);border:1px solid var(--sepia);border-radius:3px;padding:0.2rem;">
-          <option value="0">1852 Harrison</option>
+          <option value="0">Site Plan 1852 Harrison</option>
           <option value="1">1854 Perris</option>
-          <option value="2" selected>2026 NYC Zoning</option>
+          <option value="2">2026 NYC Zoning</option>
           <option value="3">1879 Brumley Map</option>
           <option value="4">1891 NYU Bromley</option>
           <option value="5">1893 Pincus Map</option>
         </select>
-        <span id="current-map-name" style="font-family:'Source Code Pro',monospace;font-size:0.5rem;color:var(--sepia);margin-left:0.5rem;">2026 NYC Zoning</span>
+        <span id="current-map-name" style="font-family:'Source Code Pro',monospace;font-size:0.5rem;color:var(--sepia);margin-left:0.5rem;">Site Plan 1852 Harrison</span>
       </div>
       
             
@@ -249,25 +249,7 @@ footer strong{font-style:normal;color:var(--sepia);}
         <span style="font-family:'Source Code Pro',monospace;font-size:0.6rem;color:var(--sepia);min-width:28px;text-align:right;" id="mapOpacity-out">50%</span>
       </div>
       
-      <div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.2rem;">
-        <button id="resetMapPosition" onclick="resetMapToOrigin()" 
-          style="font-family:'Source Code Pro',monospace;font-size:0.6rem;background:var(--paper);color:var(--ink);border:1px solid var(--sepia);border-radius:3px;padding:0.2rem 0.4rem;cursor:pointer;transition:all 0.2s;">
-          Reset to Origin
-        </button>
-        <button id="saveMapPosition" onclick="saveMapSettings()" 
-          style="font-family:'Source Code Pro',monospace;font-size:0.6rem;background:var(--paper);color:var(--ink);border:1px solid var(--sepia);border-radius:3px;padding:0.2rem 0.4rem;cursor:pointer;transition:all 0.2s;">
-          Save Position
-        </button>
-        <button id="testLoadMapPosition" onclick="testLoadMapSettings()" 
-          style="font-family:'Source Code Pro',monospace;font-size:0.6rem;background:var(--sepia);color:var(--paper);border:none;border-radius:3px;padding:0.2rem 0.4rem;cursor:pointer;transition:all 0.2s;">
-          Load
-        </button>
-        <button id="loadMapPosition" onclick="loadMapSettings()" 
-          style="font-family:'Source Code Pro',monospace;font-size:0.6rem;background:var(--paper);color:var(--ink);border:1px solid var(--sepia);border-radius:3px;padding:0.2rem 0.4rem;cursor:pointer;transition:all 0.2s;">
-          Load Position
-        </button>
-      </div>
-    </div>
+          </div>
     
     <!-- Site Scene Selector Display -->
     <div id="site-scene-selector-display" style="display:none;background:var(--aged-dark);border:1px solid var(--rule);border-radius:3px;padding:0.3rem 0.5rem;margin-top:0.3rem;">
@@ -276,37 +258,37 @@ footer strong{font-style:normal;color:var(--sepia);}
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;">
         <!-- 1852 Harrison Thumbnail -->
         <div onclick="selectSiteScene(0)" style="cursor:pointer;border:1px solid var(--sepia);border-radius:3px;padding:0.3rem;background:var(--paper);transition:all 0.2s;" onmouseover="this.style.background='var(--sepia)'" onmouseout="this.style.background='var(--paper)'">
-          <div style="width:100%;height:120px;background-image:url('site/images/map/1852MapNew YorkHarrison.jpg');background-size:cover;background-position:center;border-radius:2px;margin-bottom:0.3rem;"></div>
+          <div style="width:100%;height:120px;background-image:url('1852MapNew YorkHarrison');background-size:cover;background-position:center;border-radius:2px;margin-bottom:0.3rem;"></div>
           <div style="font-family:'Source Code Pro',monospace;font-size:0.5rem;color:var(--ink);text-align:center;">1852 Harrison</div>
         </div>
         
         <!-- 1854 Perris Thumbnail -->
         <div onclick="selectSiteScene(1)" style="cursor:pointer;border:1px solid var(--sepia);border-radius:3px;padding:0.3rem;background:var(--paper);transition:all 0.2s;" onmouseover="this.style.background='var(--sepia)'" onmouseout="this.style.background='var(--paper)'">
-          <div style="width:100%;height:120px;background-image:url('site/images/map/1854 Perris Map Extract.jpg');background-size:cover;background-position:center;border-radius:2px;margin-bottom:0.3rem;"></div>
+          <div style="width:100%;height:120px;background-image:url('1854 Perris Map Extract');background-size:cover;background-position:center;border-radius:2px;margin-bottom:0.3rem;"></div>
           <div style="font-family:'Source Code Pro',monospace;font-size:0.5rem;color:var(--ink);text-align:center;">1854 Perris</div>
         </div>
         
         <!-- 2026 NYC Zoning Thumbnail -->
         <div onclick="selectSiteScene(2)" style="cursor:pointer;border:1px solid var(--sepia);border-radius:3px;padding:0.3rem;background:var(--paper);transition:all 0.2s;" onmouseover="this.style.background='var(--sepia)'" onmouseout="this.style.background='var(--paper)'">
-          <div style="width:100%;height:120px;background-image:url('site/images/photos/NYCZoning2026.jpg');background-size:cover;background-position:center;border-radius:2px;margin-bottom:0.3rem;"></div>
+          <div style="width:100%;height:120px;background-image:url('NYCZoning2026.jpg');background-size:cover;background-position:center;border-radius:2px;margin-bottom:0.3rem;"></div>
           <div style="font-family:'Source Code Pro',monospace;font-size:0.5rem;color:var(--ink);text-align:center;">2026 NYC Zoning</div>
         </div>
         
         <!-- 1879 Brumley Map Thumbnail -->
         <div onclick="selectSiteScene(3)" style="cursor:pointer;border:1px solid var(--sepia);border-radius:3px;padding:0.3rem;background:var(--paper);transition:all 0.2s;" onmouseover="this.style.background='var(--sepia)'" onmouseout="this.style.background='var(--paper)'">
-          <div style="width:100%;height:120px;background-image:url('site/images/photos/1879 Washington Square Park Bromley.jpg');background-size:cover;background-position:center;border-radius:2px;margin-bottom:0.3rem;"></div>
+          <div style="width:100%;height:120px;background-image:url('1879 Washington Square Park Bromley.jpg');background-size:cover;background-position:center;border-radius:2px;margin-bottom:0.3rem;"></div>
           <div style="font-family:'Source Code Pro',monospace;font-size:0.5rem;color:var(--ink);text-align:center;">1879 Brumley Map</div>
         </div>
         
         <!-- 1891 NYU Bromley Thumbnail -->
         <div onclick="selectSiteScene(4)" style="cursor:pointer;border:1px solid var(--sepia);border-radius:3px;padding:0.3rem;background:var(--paper);transition:all 0.2s;" onmouseover="this.style.background='var(--sepia)'" onmouseout="this.style.background='var(--paper)'">
-          <div style="width:100%;height:120px;background-image:url('site/images/map/1891 Bromley Map.jpg');background-size:cover;background-position:center;border-radius:2px;margin-bottom:0.3rem;"></div>
+          <div style="width:100%;height:120px;background-image:url('1891 Bromley Map.jpg');background-size:cover;background-position:center;border-radius:2px;margin-bottom:0.3rem;"></div>
           <div style="font-family:'Source Code Pro',monospace;font-size:0.5rem;color:var(--ink);text-align:center;">1891 NYU Bromley</div>
         </div>
         
         <!-- 1893 Pincus Map Thumbnail -->
         <div onclick="selectSiteScene(5)" style="cursor:pointer;border:1px solid var(--sepia);border-radius:3px;padding:0.3rem;background:var(--paper);transition:all 0.2s;" onmouseover="this.style.background='var(--sepia)'" onmouseout="this.style.background='var(--paper)'">
-          <div style="width:100%;height:120px;background-image:url('site/images/map/1893 Lionel Pincus and Princess Firyal Map Division.jpg');background-size:cover;background-position:center;border-radius:2px;margin-bottom:0.3rem;"></div>
+          <div style="width:100%;height:120px;background-image:url('1893 Lionel Pincus and Princess Firyal Map Division.jpg');background-size:cover;background-position:center;border-radius:2px;margin-bottom:0.3rem;"></div>
           <div style="font-family:'Source Code Pro',monospace;font-size:0.5rem;color:var(--ink);text-align:center;">1893 Pincus Map</div>
         </div>
       </div>
@@ -319,38 +301,44 @@ footer strong{font-style:normal;color:var(--sepia);}
       <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:0.5rem;">
         <!-- Plate H Thumbnail -->
         <div onclick="selectOverlay('PlateH')" style="cursor:pointer;border:1px solid var(--sepia);border-radius:3px;padding:0.3rem;background:var(--paper);transition:all 0.2s;" onmouseover="this.style.background='var(--sepia)'" onmouseout="this.style.background='var(--paper)'">
-          <div style="width:100%;height:120px;background-image:url('site/images/PlateH.png');background-size:cover;background-position:center;border-radius:2px;margin-bottom:0.3rem;"></div>
+          <div style="width:100%;height:120px;background-image:url('PlateH.png');background-size:cover;background-position:center;border-radius:2px;margin-bottom:0.3rem;"></div>
           <div style="font-family:'Source Code Pro',monospace;font-size:0.5rem;color:var(--ink);text-align:center;">Plate H</div>
         </div>
         
         <!-- NYU Collection Thumbnail -->
         <div onclick="selectOverlay('KingsHandbookNYU')" style="cursor:pointer;border:1px solid var(--sepia);border-radius:3px;padding:0.3rem;background:var(--paper);transition:all 0.2s;" onmouseover="this.style.background='var(--sepia)'" onmouseout="this.style.background='var(--paper)'">
-          <div style="width:100%;height:120px;background-image:url('site/images/photos/Kings Handbook NYU.jpg');background-size:cover;background-position:center;border-radius:2px;margin-bottom:0.3rem;"></div>
+          <div style="width:100%;height:120px;background-image:url('Kings Handbook NYU.jpg');background-size:cover;background-position:center;border-radius:2px;margin-bottom:0.3rem;"></div>
           <div style="font-family:'Source Code Pro',monospace;font-size:0.5rem;color:var(--ink);text-align:center;">King's Handbook 1893</div>
         </div>
         
         <!-- NYU Collection 1893 Thumbnail -->
         <div onclick="selectOverlay('KingsHandbook1893')" style="cursor:pointer;border:1px solid var(--sepia);border-radius:3px;padding:0.3rem;background:var(--paper);transition:all 0.2s;" onmouseover="this.style.background='var(--sepia)'" onmouseout="this.style.background='var(--paper)'">
-          <div style="width:100%;height:120px;background-image:url('site/images/photos/1890 NYU Archive.jpg');background-size:cover;background-position:center;border-radius:2px;margin-bottom:0.3rem;"></div>
+          <div style="width:100%;height:120px;background-image:url('1890 NYU Archive.jpg');background-size:cover;background-position:center;border-radius:2px;margin-bottom:0.3rem;"></div>
           <div style="font-family:'Source Code Pro',monospace;font-size:0.5rem;color:var(--ink);text-align:center;">NYU Collection 1893</div>
         </div>
         
         <!-- NYU Collection 1870 Thumbnail -->
         <div onclick="selectOverlay('NYUCollection1870')" style="cursor:pointer;border:1px solid var(--sepia);border-radius:3px;padding:0.3rem;background:var(--paper);transition:all 0.2s;" onmouseover="this.style.background='var(--sepia)'" onmouseout="this.style.background='var(--paper)'">
-          <div style="width:100%;height:120px;background-image:url('site/images/photos/1870 NYU Collection.jpg');background-size:cover;background-position:center;border-radius:2px;margin-bottom:0.3rem;"></div>
+          <div style="width:100%;height:120px;background-image:url('1870 NYU Collection.jpg');background-size:cover;background-position:center;border-radius:2px;margin-bottom:0.3rem;"></div>
           <div style="font-family:'Source Code Pro',monospace;font-size:0.5rem;color:var(--ink);text-align:center;">NYU Collection 1870</div>
         </div>
         
         <!-- NYU from Middle of Park Thumbnail -->
         <div onclick="selectOverlay('NYUCollection1891')" style="cursor:pointer;border:1px solid var(--sepia);border-radius:3px;padding:0.3rem;background:var(--paper);transition:all 0.2s;" onmouseover="this.style.background='var(--sepia)'" onmouseout="this.style.background='var(--paper)'">
-          <div style="width:100%;height:120px;background-image:url('site/images/photos/1891 NYU Collection.jpg');background-size:cover;background-position:center;border-radius:2px;margin-bottom:0.3rem;"></div>
+          <div style="width:100%;height:120px;background-image:url('1891 NYU Collection.jpg');background-size:cover;background-position:center;border-radius:2px;margin-bottom:0.3rem;"></div>
           <div style="font-family:'Source Code Pro',monospace;font-size:0.5rem;color:var(--ink);text-align:center;">NYU from Middle of Park</div>
         </div>
         
         <!-- Austen 1894 Thumbnail -->
         <div onclick="selectOverlay('Austen1894')" style="cursor:pointer;border:1px solid var(--sepia);border-radius:3px;padding:0.3rem;background:var(--paper);transition:all 0.2s;" onmouseover="this.style.background='var(--sepia)'" onmouseout="this.style.background='var(--paper)'">
-          <div style="width:100%;height:120px;background-image:url('site/images/photos/Austen 1894.jpg');background-size:cover;background-position:center;border-radius:2px;margin-bottom:0.3rem;"></div>
+          <div style="width:100%;height:120px;background-image:url('Austen 1894.jpg');background-size:cover;background-position:center;border-radius:2px;margin-bottom:0.3rem;"></div>
           <div style="font-family:'Source Code Pro',monospace;font-size:0.5rem;color:var(--ink);text-align:center;">Austen 1894</div>
+        </div>
+        
+        <!-- 1839 Smithsonian Thumbnail -->
+        <div onclick="selectOverlay('Smithsonian1839')" style="cursor:pointer;border:1px solid var(--sepia);border-radius:3px;padding:0.3rem;background:var(--paper);transition:all 0.2s;" onmouseover="this.style.background='var(--sepia)'" onmouseout="this.style.background='var(--paper)'">
+          <div style="width:100%;height:120px;background-image:url('1839ChurchofMessiahSmithsonian.jpg');background-size:cover;background-position:center;border-radius:2px;margin-bottom:0.3rem;"></div>
+          <div style="font-family:'Source Code Pro',monospace;font-size:0.5rem;color:var(--ink);text-align:center;">1839 Smithsonian</div>
         </div>
       </div>
     </div>
@@ -365,6 +353,7 @@ footer strong{font-style:normal;color:var(--sepia);}
       <span style="font-size:0.6rem;color:var(--sepia);font-family:'Source Code Pro',monospace;">Plate Size:</span>
       <select id="plate-size-selector" onchange="changePlateSize(this.value)" 
         style="font-family:'Source Code Pro',monospace;font-size:0.6rem;background:var(--paper);color:var(--ink);border:1px solid var(--sepia);border-radius:3px;padding:0.2rem;">
+        <option value="quarter">4.25×3.25</option>
         <option value="2x2.5">2×2.5</option>
         <option value="5x7-portrait">5×7 Portrait</option>
         <option value="5x7-landscape">5×7 Landscape</option>
@@ -380,7 +369,7 @@ footer strong{font-style:normal;color:var(--sepia);}
         <canvas id="plateStrip"></canvas>
       </div>
       <img id="dagOverlay"
-        src="site/images/PlateH.png"
+        src="PlateH.png"
         style="position:absolute;top:3px;left:3px;width:calc(100% - 6px);height:calc(100% - 6px);
                pointer-events:none;opacity:0;display:block;"
         alt="Plate H overlay" />
@@ -391,6 +380,14 @@ footer strong{font-style:normal;color:var(--sepia);}
       <input type="range" id="overlayOpacity" min="0" max="100" value="30"
         style="width:120px;accent-color:var(--sepia);">
       <span style="font-size:0.6rem;color:var(--sepia);font-family:'Source Code Pro',monospace;min-width:28px;text-align:right;" id="overlayOpacityVal">30%</span>
+    </div>
+    
+    <!-- Occlusion Zone Controls -->
+    <div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.3rem;align-self:center;flex-wrap:wrap;justify-content:center;">
+      <span style="font-size:0.6rem;color:var(--sepia);font-family:'Source Code Pro',monospace;">Occlusion</span>
+      <input type="range" id="occlusionZone" min="0" max="100" value="0"
+        style="width:120px;accent-color:var(--sepia);">
+      <span style="font-size:0.6rem;color:var(--sepia);font-family:'Source Code Pro',monospace;min-width:28px;text-align:right;" id="occlusionZoneVal">0%</span>
     </div>
     <div class="plate-caption" id="plate-caption">—</div>            </div>
   </div>
@@ -432,6 +429,7 @@ ctx.scale(tempMapScale, tempMapScale);
 <div class="slider-panel">
   <div class="slider-panel-inner" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
     
+        
     <!-- Left Column: Camera Variable Settings -->
     <div>
       <div class="ctrl-section-title" style="font-size:0.7rem;text-align:center;margin-bottom:0.6rem;padding-bottom:0.4rem;border-bottom:1px solid var(--rule);">Camera Variable Settings</div>
@@ -442,7 +440,12 @@ ctx.scale(tempMapScale, tempMapScale);
           <div class="slider-group">
             <div class="ctrl-section-title">Camera Position</div>
             <div class="coord-display">Position: <span id="coords">—</span></div>
-              <div class="sl"><label>Rotation</label><input type="range" id="rotation" min="-180" max="180" value="0" step="1"><span class="v" id="rot-out">0°</span></div>
+              <div class="sl">
+              <label>Rotation</label>
+              <input type="range" id="rotation" min="-180" max="180" value="0" step="0.1" style="flex:1;">
+              <input type="number" id="rotation-input" min="-180" max="180" step="0.1" value="0" style="width:60px;font-size:0.6rem;margin-left:0.2rem;" onchange="updateRotationFromInput()">
+              <span class="v" id="rot-out">0°</span>
+            </div>
             
             <!-- X Position Input Only -->
             <div class="sl">
@@ -458,7 +461,7 @@ ctx.scale(tempMapScale, tempMapScale);
               <span class="v">ft</span>
             </div>
             
-                        <div class="sl"><label>Height</label><input type="range" id="cameraHeight" min="3" max="35" value="5" step="0.5"><span class="v" id="cameraHeight-out">5.0 ft</span></div>
+                        <div class="sl"><label>Height</label><input type="range" id="cameraHeight" min="3" max="100" value="5" step="0.5"><span class="v" id="cameraHeight-out">5.0 ft</span></div>
           </div>
         </div>
 
@@ -523,7 +526,7 @@ ctx.scale(tempMapScale, tempMapScale);
           <!-- NYU Building -->
           <div class="slider-group">
             <div class="ctrl-section-title">NYU</div>
-            <div class="sl"><label>Position</label><input type="range" id="nyuslide" min="0" max="50" value="10" step="1" style="width:30px;"><span class="v" id="nyu-out">10</span></div>
+            <div class="sl"><label>Position</label><input type="range" id="nyuslide" min="-70" max="70" value="10" step="1" style="width:30px;"><span class="v" id="nyu-out">10</span></div>
             <div class="sl"><label>Height</label><input type="range" id="nyuheight" min="10" max="120" value="85" step="1" style="width:30px;"><span class="v" id="nyuheight-out">85</span></div>
           </div>
 
@@ -736,6 +739,8 @@ let camFtX=-125, camFtY=0;
 let camRotation=0;
 // Plate size state
 let currentPlateSize = '2x2.5';
+// Occlusion zone state (percentage from bottom)
+let occlusionZonePercent = 0;
 
 // Function to handle plate size changes
 function changePlateSize(size) {
@@ -744,9 +749,6 @@ function changePlateSize(size) {
   
   // Update canvas dimensions based on plate size
   updatePlateCanvasSize();
-  
-  // Update plate title
-  updatePlateTitle();
   
   // Update instruction display
   document.getElementById('instr-plate-size').textContent = getDisplayName(size);
@@ -758,7 +760,12 @@ function changePlateSize(size) {
 // Function to update plate canvas size based on plate dimensions
 function updatePlateCanvasSize() {
   const canvas = document.getElementById('plateStrip');
-  if (!canvas) return;
+  console.log('DEBUG: Canvas element found:', !!canvas);
+  console.log('DEBUG: Current plate size:', currentPlateSize);
+  if (!canvas) {
+    console.log('DEBUG: Canvas element not found!');
+    return;
+  }
   
   const plateWidth = getPlateWidth();
   const plateHeight = getPlateHeight();
@@ -767,7 +774,20 @@ function updatePlateCanvasSize() {
   // These maintain aspect ratios but are proportional to each other
   let targetWidth, targetHeight;
   
-  if (currentPlateSize === '2x2.5') {
+  if (currentPlateSize === 'quarter') {
+    targetWidth = 340;  // Width for 260px height at 1.308 aspect ratio (4.25/3.25)
+    targetHeight = 260; // Max height 260px
+    console.log('DEBUG: Quarter plate selected - setting canvas to', targetWidth, 'x', targetHeight);
+    
+    // Force complete canvas reinitialization for quarter plate
+    console.log('DEBUG: Forcing canvas reinitialization for quarter plate');
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    canvas.width = 0;
+    canvas.height = 0;
+    canvas.width = targetWidth;
+    canvas.height = targetHeight;
+  } else if (currentPlateSize === '2x2.5') {
     targetWidth = 320;  // Width for 400px height at 0.8 aspect ratio
     targetHeight = 400; // Max height 400px
   } else if (currentPlateSize === '5x7-portrait') {
@@ -795,6 +815,9 @@ function updatePlateCanvasSize() {
   // Update CSS display size
   canvas.style.width = targetWidth + 'px';
   canvas.style.height = targetHeight + 'px';
+  
+  console.log('DEBUG: Canvas updated to', targetWidth, 'x', targetHeight);
+  console.log('DEBUG: Canvas.width =', canvas.width, 'Canvas.height =', canvas.height);
   
   // Update plate border to fit exactly around canvas
   const plateBorder = canvas.parentElement;
@@ -870,17 +893,19 @@ function updatePlateCanvasSize() {
   console.log(`Updated canvas size to ${targetWidth}x${targetHeight} for plate ${plateWidth}x${plateHeight} (aspect ratio: ${(plateWidth/plateHeight).toFixed(2)})`);
   console.log(`DEBUG: Canvas actual size: ${canvas.width}x${canvas.height}, CSS size: ${canvas.style.width}x${canvas.style.height}`);
   
-  // Verify the change took effect
+  // Force a redraw and then update the plate title
   setTimeout(() => {
+    updatePlateTitle();
     const computedWidth = canvas.offsetWidth;
     const computedHeight = canvas.offsetHeight;
     console.log(`DEBUG: Computed canvas size after update: ${computedWidth}x${computedHeight}`);
-  }, 100);
+  }, 50);
 }
 
 // Function to get display name for plate size
 function getDisplayName(size) {
   const names = {
+    'quarter': '4.25×3.25',
     '2x2.5': '2×2.5',
     '5x7-portrait': '5×7 Portrait',
     '5x7-landscape': '5×7 Landscape',
@@ -894,33 +919,38 @@ function getDisplayName(size) {
 const OVERLAY_IMAGES = {
   'PlateH': {
     name: 'Plate H',
-    filename: 'site/images/PlateH.png',
+    filename: 'PlateH.png',
     alt: 'Plate H overlay'
   },
   'KingsHandbook1893': {
     name: "NYU Collection 1893",
-    filename: 'site/images/photos/1890 NYU Archive.jpg',
+    filename: '1890 NYU Archive.jpg',
     alt: "NYU Collection 1893 overlay"
   },
   'KingsHandbookNYU': {
     name: "NYU Collection",
-    filename: 'site/images/photos/Kings Handbook NYU.jpg',
+    filename: 'Kings Handbook NYU.jpg',
     alt: "NYU Collection overlay"
   },
   'NYUCollection1870': {
     name: "NYU Collection 1870",
-    filename: 'site/images/photos/1870 NYU Collection.jpg',
+    filename: '1870 NYU Collection.jpg',
     alt: "NYU Collection 1870 overlay"
   },
   'NYUCollection1891': {
     name: "NYU Collection 1891",
-    filename: 'site/images/photos/1891 NYU Collection.jpg',
+    filename: '1891 NYU Collection.jpg',
     alt: "NYU Collection 1891 overlay"
   },
   'Austen1894': {
     name: "Austen 1894",
-    filename: 'site/images/photos/Austen 1894.jpg',
+    filename: 'Austen 1894.jpg',
     alt: "Austen 1894 overlay"
+  },
+  'Smithsonian1839': {
+    name: "1839 Smithsonian",
+    filename: '1839ChurchofMessiahSmithsonian.jpg',
+    alt: "1839 Smithsonian Church of Messiah overlay"
   }
 };
 
@@ -949,6 +979,8 @@ function toggleOverlaySelection() {
       shortName = '1891';
     } else if (nextOverlayType === 'Austen1894') {
       shortName = 'AUSTEN';
+    } else if (nextOverlayType === 'Smithsonian1839') {
+      shortName = '1839';
     } else {
       shortName = "KING'S";
     }
@@ -1040,7 +1072,9 @@ function updatePlateTitle() {
   const titleElement = document.getElementById('plate-title');
   if (titleElement) {
     const displayName = getDisplayName(currentPlateSize);
-    const orientation = currentPlateSize.includes('portrait') ? 'portrait' : 'landscape';
+    const orientation = currentPlateSize.includes('portrait') ? 'portrait' : 
+                    (currentPlateSize.includes('landscape') ? 'landscape' : 
+                     (currentPlateSize === 'quarter' ? 'landscape' : 'portrait'));
     
     // Get actual canvas dimensions
     const canvas = document.getElementById('plateStrip');
@@ -1064,6 +1098,8 @@ function setup(){
   plan.width = W;
   plan.height = Math.round(W * 0.375); // Reduced from 0.5 to 0.375 (25% reduction)
   
+  // Initialize plateStrip canvas based on current plate size
+  updatePlateCanvasSize();
   
   // Initialize instruction spans with current focal length values
   const focalLength = parseFloat(document.getElementById('focal').value);
@@ -1200,16 +1236,11 @@ document.getElementById('fov-slider').addEventListener('input',e=>{
 });
 
 
-
 // Mode toggle event listeners
 function updateModeDisplay() {
   const isFovMode = document.getElementById('fov-mode').checked;
   const isCameraMode = document.getElementById('camera-mode').checked;
   
-  console.log('updateModeDisplay called - FOV:', isFovMode, 'Camera:', isCameraMode);
-  
-  // FOV mode: Show FOV slider
-  // Camera Type mode: Show camera selector
   document.getElementById('fov-controls').style.display = isFovMode ? 'block' : 'none';
   document.getElementById('camera-controls').style.display = isCameraMode ? 'block' : 'none';
   
@@ -1231,256 +1262,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
   updateModeDisplay();
   initializeOverlayFit(); // Initialize overlay object-fit for 2x2.5 plate
-  initializeMapDefaults(); // Initialize map default positions
-  
-  // Initialize map callouts to show the correct default map
-  updateAllMapCallouts();
 });
-
-// Function to log all map positions for online version
-window.logAllMapPositions = function() {
-  console.log('=== ALL MAP POSITIONS FOR ONLINE VERSION ===');
-  const mapPositions = {};
-  
-  for (let i = 0; i < 6; i++) {
-    const storageKey = 'plateH_map' + i + '_settings';
-    const savedSettings = localStorage.getItem(storageKey);
-    
-    if (savedSettings) {
-      try {
-        const parsed = JSON.parse(savedSettings);
-        mapPositions[i] = {
-          name: MAP_CONFIGS[i].name,
-          filename: MAP_CONFIGS[i].filename,
-          settings: parsed
-        };
-        console.log(`Map ${i} (${MAP_CONFIGS[i].name}):`, parsed);
-      } catch (e) {
-        console.log(`Map ${i} (${MAP_CONFIGS[i].name}): Failed to parse settings`);
-      }
-    } else {
-      console.log(`Map ${i} (${MAP_CONFIGS[i].name}): No saved settings found`);
-    }
-  }
-  
-  console.log('=== FORMATTED FOR ONLINE VERSION ===');
-  console.log('const MAP_DEFAULT_POSITIONS = {');
-  Object.entries(mapPositions).forEach(([index, data]) => {
-    console.log(`  ${index}: {`);
-    console.log(`    name: "${data.name}",`);
-    console.log(`    filename: "${data.filename}",`);
-    console.log(`    scale: ${data.settings.scale},`);
-    console.log(`    rotation: ${data.settings.rotation},`);
-    console.log(`    x: ${data.settings.x},`);
-    console.log(`    y: ${data.settings.y},`);
-    console.log(`    opacity: ${data.settings.opacity}`);
-    console.log(`  },`);
-  });
-  console.log('};');
-  console.log('==========================================');
-  
-  return mapPositions;
-};
-
-// Function to export map data as JSON for GitHub version
-window.exportMapDataForGitHub = function() {
-  const mapPositions = {};
-  
-  for (let i = 0; i < 6; i++) {
-    const storageKey = 'plateH_map' + i + '_settings';
-    const savedSettings = localStorage.getItem(storageKey);
-    
-    if (savedSettings) {
-      try {
-        const parsed = JSON.parse(savedSettings);
-        mapPositions[i] = {
-          name: MAP_CONFIGS[i].name,
-          filename: MAP_CONFIGS[i].filename,
-          scale: parsed.scale,
-          rotation: parsed.rotation,
-          x: parsed.x,
-          y: parsed.y,
-          opacity: parsed.opacity
-        };
-      } catch (e) {
-        console.log(`Map ${i} (${MAP_CONFIGS[i].name}): Failed to parse settings`);
-      }
-    }
-  }
-  
-  // Create formatted JSON string
-  const jsonExport = JSON.stringify(mapPositions, null, 2);
-  
-  console.log('=== MAP DATA FOR GITHUB VERSION ===');
-  console.log('Copy this JSON data and paste into GitHub version:');
-  console.log(jsonExport);
-  console.log('==========================================');
-  
-  // Also create a downloadable file
-  const blob = new Blob([jsonExport], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'map-positions-for-github.json';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  
-  console.log('📁 Downloaded map-positions-for-github.json file');
-  
-  return mapPositions;
-};
-
-// Map default positions extracted from local Version 7
-const MAP_DEFAULT_POSITIONS = {
-  0: {
-    name: "1852 Harrison",
-    filename: "1852MapNew YorkHarrison",
-    scale: 0.43,
-    rotation: -21.9,
-    x: -1516,
-    y: 54,
-    opacity: 50
-  },
-  1: {
-    name: "1854 Perris",
-    filename: "1854 Perris Map Extract",
-    scale: 0.69,
-    rotation: 0.7,
-    x: 147,
-    y: -327,
-    opacity: 50
-  },
-  2: {
-    name: "2026 NYC Zoning",
-    filename: "NYCZoning2026.jpg",
-    scale: 0.40,
-    rotation: -32.7,
-    x: -1047,
-    y: 205,
-    opacity: 50
-  },
-  3: {
-    name: "1879 Brumley Map",
-    filename: "1879 Washington Square Park Bromley.jpg",
-    scale: 1.64,
-    rotation: -111.2,
-    x: -1150,
-    y: 3163,
-    opacity: 50
-  },
-  4: {
-    name: "1891 NYU Bromley",
-    filename: "1891 Bromley Map.jpg",
-    scale: 1.46,
-    rotation: -3.6,
-    x: -1602,
-    y: -1995,
-    opacity: 50
-  },
-  5: {
-    name: "1893 Pincus Map",
-    filename: "1893 Lionel Pincus and Princess Firyal Map Division.jpg",
-    scale: 1.88,
-    rotation: 0.0,
-    x: -1268,
-    y: -436,
-    opacity: 50
-  }
-};
-
-// Function to initialize map defaults
-function initializeMapDefaults() {
-  Object.entries(MAP_DEFAULT_POSITIONS).forEach(([index, position]) => {
-    const storageKey = 'plateH_map' + index + '_settings';
-    localStorage.setItem(storageKey, JSON.stringify({
-      scale: position.scale,
-      rotation: position.rotation,
-      x: position.x,
-      y: position.y,
-      opacity: position.opacity
-    }));
-  });
-}
-
-// Function to create GitHub-ready JavaScript code
-window.createGitHubMapCode = function() {
-  const mapPositions = {};
-  
-  for (let i = 0; i < 6; i++) {
-    const storageKey = 'plateH_map' + i + '_settings';
-    const savedSettings = localStorage.getItem(storageKey);
-    
-    if (savedSettings) {
-      try {
-        const parsed = JSON.parse(savedSettings);
-        mapPositions[i] = {
-          name: MAP_CONFIGS[i].name,
-          filename: MAP_CONFIGS[i].filename,
-          scale: parsed.scale,
-          rotation: parsed.rotation,
-          x: parsed.x,
-          y: parsed.y,
-          opacity: parsed.opacity
-        };
-      } catch (e) {
-        console.log(`Map ${i} (${MAP_CONFIGS[i].name}): Failed to parse settings`);
-      }
-    }
-  }
-  
-  // Create JavaScript code for GitHub version
-  let jsCode = '// Map default positions extracted from local Version 7\n';
-  jsCode += 'const MAP_DEFAULT_POSITIONS = {\n';
-  
-  Object.entries(mapPositions).forEach(([index, data]) => {
-    jsCode += `  ${index}: {\n`;
-    jsCode += `    name: "${data.name}",\n`;
-    jsCode += `    filename: "${data.filename}",\n`;
-    jsCode += `    scale: ${data.scale},\n`;
-    jsCode += `    rotation: ${data.rotation},\n`;
-    jsCode += `    x: ${data.x},\n`;
-    jsCode += `    y: ${data.y},\n`;
-    jsCode += `    opacity: ${data.opacity}\n`;
-    jsCode += `  },\n`;
-  });
-  
-  jsCode += '};\n\n';
-  jsCode += '// Function to initialize map defaults\n';
-  jsCode += 'function initializeMapDefaults() {\n';
-  jsCode += '  Object.entries(MAP_DEFAULT_POSITIONS).forEach(([index, position]) => {\n';
-  jsCode += '    const storageKey = \'plateH_map\' + index + \'_settings\';\n';
-  jsCode += '    localStorage.setItem(storageKey, JSON.stringify({\n';
-  jsCode += '      scale: position.scale,\n';
-  jsCode += '      rotation: position.rotation,\n';
-  jsCode += '      x: position.x,\n';
-  jsCode += '      y: position.y,\n';
-  jsCode += '      opacity: position.opacity\n';
-  jsCode += '    }));\n';
-  jsCode += '  });\n';
-  jsCode += '}\n';
-  
-  console.log('=== GITHUB-READY JAVASCRIPT CODE ===');
-  console.log('Copy this code and paste into GitHub version:');
-  console.log(jsCode);
-  console.log('==========================================');
-  
-  // Create downloadable file
-  const blob = new Blob([jsCode], { type: 'text/javascript' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'map-positions-github.js';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  
-  console.log('📁 Downloaded map-positions-github.js file');
-  
-  return jsCode;
-};
 
 document.getElementById('fov-mode').addEventListener('change', updateModeDisplay);
 document.getElementById('fov-mode').addEventListener('click', updateModeDisplay);
@@ -1489,7 +1271,27 @@ document.getElementById('camera-mode').addEventListener('change', updateModeDisp
 document.getElementById('camera-mode').addEventListener('click', updateModeDisplay);
 
 document.getElementById('rotation').addEventListener('input',e=>{
-  document.getElementById('rot-out').textContent=e.target.value+'°'; camRotation=parseInt(e.target.value); drawAll();});
+  const rotationValue = parseFloat(e.target.value);
+  document.getElementById('rot-out').textContent=rotationValue.toFixed(1)+'°'; 
+  document.getElementById('rotation-input').value = rotationValue;
+  camRotation = rotationValue; 
+  drawAll();
+});
+
+// Function to handle rotation input from number field
+function updateRotationFromInput() {
+  const rotationInput = document.getElementById('rotation-input');
+  const rotationSlider = document.getElementById('rotation');
+  const rotationValue = parseFloat(rotationInput.value);
+  
+  // Validate rotation value
+  if (rotationValue >= -180 && rotationValue <= 180) {
+    camRotation = rotationValue;
+    rotationSlider.value = rotationValue;
+    document.getElementById('rot-out').textContent = rotationValue.toFixed(1) + '°';
+    drawAll();
+  }
+}
 let cameraTiltUp = 0; // Global variable for camera tilt in radians (always 0)
 let cameraHeight = 5; // Global variable for camera height in feet
 
@@ -1739,16 +1541,44 @@ if (churchDistElement) {
 } else {
   console.error('Church distance slider element not found!');
 }
-// NYU position slider - update BIS data for both NYU and NYU Corner
+
+// Occlusion zone slider event listener
+document.getElementById('occlusionZone').addEventListener('input',e=>{
+  const occlusionPercent = parseInt(e.target.value);
+  document.getElementById('occlusionZoneVal').textContent = occlusionPercent + '%';
+  occlusionZonePercent = occlusionPercent;
+  drawAll();
+});
+
+// NYU position slider - update BIS data for all three NYU cubes and NYU Corner
 document.getElementById('nyuslide').addEventListener('input',e=>{
   const position = parseInt(e.target.value);
   document.getElementById('nyu-out').textContent = position;
   
-  // Update both NYU and NYU Corner position in BIS (move South = negative Y)
+  // Update all three NYU cubes and NYU Corner position in BIS maintaining relative positions
   if (BIS && BIS.updateBuildingPosition) {
-    BIS.updateBuildingPosition('NYU', { y: -position });
-    BIS.updateBuildingPosition('NYU Corner', { y: -position });
-    console.log('Updated both NYU positions in BIS (South):', -position);
+    // Original positions from building coordinates
+    const originalPositions = {
+      'NYU Main': { x: 0, y: -10 },
+      'NYU North': { x: 75, y: -10 },
+      'NYU South': { x: 75, y: -140 },
+      'NYU Corner': { x: -1, y: -10 }
+    };
+    
+    // Calculate offset from original position (move South = negative Y)
+    const offset = -position; // Convert slider position to offset
+    
+    // Update each cube maintaining its relative position
+    BIS.updateBuildingPosition('NYU Main', { y: originalPositions['NYU Main'].y + offset });
+    BIS.updateBuildingPosition('NYU North', { y: originalPositions['NYU North'].y + offset });
+    BIS.updateBuildingPosition('NYU South', { y: originalPositions['NYU South'].y + offset });
+    BIS.updateBuildingPosition('NYU Corner', { y: originalPositions['NYU Corner'].y + offset });
+    
+    console.log('Updated NYU positions maintaining relative structure (offset:', offset, '):');
+    console.log('  NYU Main:', originalPositions['NYU Main'].y + offset);
+    console.log('  NYU North:', originalPositions['NYU North'].y + offset);
+    console.log('  NYU South:', originalPositions['NYU South'].y + offset);
+    console.log('  NYU Corner:', originalPositions['NYU Corner'].y + offset);
     
     // Debug: Check NYU Corner source after update
     setTimeout(() => {
@@ -1761,16 +1591,18 @@ document.getElementById('nyuslide').addEventListener('input',e=>{
   drawAll();
 });
 
-// NYU height slider - update BIS data for both NYU and NYU Corner
+// NYU height slider - update BIS data for all three NYU cubes and NYU Corner
 document.getElementById('nyuheight').addEventListener('input',e=>{
   const height = parseInt(e.target.value);
   document.getElementById('nyuheight-out').textContent = height + ' ft';
   
-  // Update both NYU and NYU Corner height in BIS
+  // Update all three NYU cubes and NYU Corner height in BIS
   if (BIS && BIS.updateBuildingHeight) {
-    BIS.updateBuildingHeight('NYU', height);
+    BIS.updateBuildingHeight('NYU Main', height);
+    BIS.updateBuildingHeight('NYU North', height);
+    BIS.updateBuildingHeight('NYU South', height);
     BIS.updateBuildingHeight('NYU Corner', height);
-    console.log('Updated both NYU heights in BIS:', height);
+    console.log('Updated all three NYU cubes and NYU Corner heights in BIS:', height);
     
     // Debug: Check NYU Corner source after height update
     setTimeout(() => {
@@ -2016,45 +1848,6 @@ function toggleSiteScene() {
   }
 }
 
-// ── Map Callout Management System ─────────────────────────────────────────────
-// Centralized system to read current map state and update all callouts dynamically
-
-function updateAllMapCallouts() {
-  // Read the current map state
-  const mapIndex = currentMapIndex || 0;
-  const config = MAP_CONFIGS[mapIndex];
-  
-  if (!config) {
-    console.error('Invalid map index:', mapIndex);
-    return;
-  }
-  
-  console.log('Updating all map callouts for:', config.name);
-  
-  // Update all callout elements that display the current map name
-  const calloutUpdates = [
-    { id: 'current-map-name', description: 'map controls callout' },
-    { id: 'site-plan-map-name', description: 'site plan header' }
-  ];
-  
-  calloutUpdates.forEach(update => {
-    const element = document.getElementById(update.id);
-    if (element) {
-      element.textContent = config.name;
-      console.log(`Updated ${update.description} to: ${config.name}`);
-    } else {
-      console.warn(`Element not found: ${update.id} (${update.description})`);
-    }
-  });
-  
-  // Update map selector dropdown to match current selection
-  const mapSelector = document.getElementById('map-selector');
-  if (mapSelector) {
-    mapSelector.value = mapIndex;
-    console.log('Updated map selector to index:', mapIndex);
-  }
-}
-
 function selectSiteScene(mapIndex) {
   // Set the selected map index
   currentMapIndex = mapIndex;
@@ -2071,9 +1864,6 @@ function selectSiteScene(mapIndex) {
   console.log('Loading map:', config.name);
   console.log('File:', config.filename);
   
-  // Update all map callouts using the centralized system
-  updateAllMapCallouts();
-  
   mapLoadAttempted = false;
   
   // Store existing onload handler if it exists
@@ -2085,9 +1875,6 @@ function selectSiteScene(mapIndex) {
     loadMapSettings();
     updateMapPosition(); // Apply the loaded settings
     
-    // Update callouts again after map loads to ensure consistency
-    updateAllMapCallouts();
-    
     // Call original onload handler if it existed
     if (originalOnload) {
       originalOnload.call(this);
@@ -2095,6 +1882,15 @@ function selectSiteScene(mapIndex) {
   };
   
   _mapImg.src = config.filename;
+  
+  // Update the map selector dropdown
+  updateMapSelector();
+  
+  // Update the site plan callout
+  const sitePlanMapNameSpan = document.getElementById('site-plan-map-name');
+  if (sitePlanMapNameSpan && MAP_CONFIGS[currentMapIndex]) {
+    sitePlanMapNameSpan.textContent = MAP_CONFIGS[currentMapIndex].name;
+  }
   
   // Hide the popup after selection and reset button text
   const display = document.getElementById('site-scene-selector-display');
@@ -2224,7 +2020,9 @@ plan.addEventListener('touchend',()=>pDrag=false);
 // ── Geometry helpers ──────────────────────────────────────────────────────
 function getPlateWidth() {
   // Return plate width in inches based on current selection
-  if (currentPlateSize === '5x7-landscape') {
+  if (currentPlateSize === 'quarter') {
+    return 4.25; // 4.25 inches wide for quarter plate landscape
+  } else if (currentPlateSize === '5x7-landscape') {
     return 7.0; // 7 inches wide for 5x7 landscape
   } else if (currentPlateSize === '5x7-portrait') {
     return 5.0; // 5 inches wide for 5x7 portrait
@@ -2240,7 +2038,9 @@ function getPlateWidth() {
 
 function getPlateHeight() {
   // Return plate height in inches based on current selection
-  if (currentPlateSize === '5x7-landscape') {
+  if (currentPlateSize === 'quarter') {
+    return 3.25; // 3.25 inches tall for quarter plate landscape
+  } else if (currentPlateSize === '5x7-landscape') {
     return 5.0; // 5 inches tall for 5x7 landscape
   } else if (currentPlateSize === '5x7-portrait') {
     return 7.0; // 7 inches tall for 5x7 portrait
@@ -2364,52 +2164,103 @@ let mapOffsetY = 0;
 let mapRotation = 30 * Math.PI / 180;
 const mapOpacity = 0.55;
 
+// Temporary map variables for interactive positioning (from PlateHVersion7.html)
+let tempMapScale = 1.0;
+let tempMapRotation = 0.0;
+let tempMapX = 0;
+let tempMapY = 0;
+let tempMapVisible = true;
+let tempMapOpacity = 50;
+
+// Complete map default positions from PlateHVersion7.html for all maps
+const MAP_DEFAULT_POSITIONS = {
+  0: { // 1852 Harrison
+    scale: 0.41,
+    rotation: -20.8, // degrees
+    x: -1587,
+    y: 8,
+    opacity: 50
+  },
+  1: { // 1854 Perris
+    scale: 0.71,
+    rotation: 0.3, // degrees
+    x: 139,
+    y: -315,
+    opacity: 50
+  },
+  2: { // 2026 NYC Zoning
+    scale: 0.40,
+    rotation: -32.7,
+    x: -1047,
+    y: 205,
+    opacity: 50
+  },
+  3: { // 1879 Brumley Map
+    scale: 1.64,
+    rotation: -111.2,
+    x: -1150,
+    y: 3163,
+    opacity: 50
+  },
+  4: { // 1891 NYU Bromley
+    scale: 1.46,
+    rotation: -3.6,
+    x: -1602,
+    y: -1995,
+    opacity: 50
+  },
+  5: { // 1893 Pincus Map
+    scale: 1.88,
+    rotation: 0.0,
+    x: -1268,
+    y: -436,
+    opacity: 50
+  }
+};
+
 // Simple map configuration
 const MAP_CONFIGS = {
   0: {
-    name: "1852 Harrison",
-    filename: 'site/images/map/1852MapNew YorkHarrison.jpg',
-    fallback: 'site/images/map/1852MapNew YorkHarrison.jpg'
+    name: "Site Plan 1852 Harrison",
+    filename: '1852MapNew YorkHarrison.jpg',
+    fallback: '1852MapNew YorkHarrison.jpg'
   },
   1: {
     name: "1854 Perris", 
-    filename: 'site/images/map/1854 Perris Map Extract.jpg',
-    fallback: 'site/images/map/1854 Perris Map Extract.jpg'
+    filename: '1854 Perris Map Extract.jpg',
+    fallback: '1854 Perris Map Extract.jpg'
   },
   2: {
     name: "2026 NYC Zoning",
-    filename: 'site/images/photos/NYCZoning2026.jpg',
-    fallback: 'site/images/photos/NYCZoning2026.jpg'
+    filename: 'NYCZoning2026.jpg',
+    fallback: 'NYCZoning2026.jpg'
   },
   3: {
     name: "1879 Brumley Map",
-    filename: 'site/images/photos/1879 Washington Square Park Bromley.jpg',
-    fallback: 'site/images/photos/1879 Washington Square Park Bromley.jpg'
+    filename: '1879 Washington Square Park Bromley.jpg',
+    fallback: '1879 Washington Square Park Bromley.jpg'
   },
   4: {
     name: "1891 NYU Bromley",
-    filename: 'site/images/map/1891 Bromley Map.jpg',
-    fallback: 'site/images/map/1891 Bromley Map.jpg'
+    filename: '1891 Bromley Map.jpg',
+    fallback: '1891 Bromley Map.jpg'
   },
   5: {
     name: "1893 Pincus Map",
-    filename: 'site/images/map/1893 Lionel Pincus and Princess Firyal Map Division.jpg',
-    fallback: 'site/images/map/1893 Lionel Pincus and Princess Firyal Map Division.jpg'
+    filename: '1893 Lionel Pincus and Princess Firyal Map Division.jpg',
+    fallback: '1893 Lionel Pincus and Princess Firyal Map Division.jpg'
   }
 };
 
 const _mapImg = new Image();
 let mapLoadAttempted = false;
-let currentMapIndex = 2;
+let currentMapIndex = 0;
 
 _mapImg.onload = () => {
   console.log('Map loaded successfully:', _mapImg.naturalWidth + 'x' + _mapImg.naturalHeight);
-  // Load saved position settings after image loads
-  setTimeout(() => loadMapSettings(), 50);
+  // Apply map settings when image loads
+  loadMapSettings();
   drawAll();
-  
-  // Update all map callouts to ensure they match the loaded map
-  updateAllMapCallouts();
 };
 
 _mapImg.onerror = () => {
@@ -2494,9 +2345,6 @@ function updateMapSelector() {
 }
 
 // Initialize map system
-// Initialize defaults first (only if no saved positions exist)
-initializeMapDefaults();
-// Then load selected map
 loadSelectedMap();
 
 // Initialize plate canvas size
@@ -2542,11 +2390,236 @@ window.debugMapStorage = function() {
   console.log('======================');
 };
 
+// Function to log all map positions for online version
+window.logAllMapPositions = function() {
+  console.log('=== ALL MAP POSITIONS FOR ONLINE VERSION ===');
+  const mapPositions = {};
+  
+  for (let i = 0; i < 6; i++) {
+    const storageKey = 'plateH_map' + i + '_settings';
+    const savedSettings = localStorage.getItem(storageKey);
+    
+    if (savedSettings) {
+      try {
+        const parsed = JSON.parse(savedSettings);
+        mapPositions[i] = {
+          name: MAP_CONFIGS[i].name,
+          filename: MAP_CONFIGS[i].filename,
+          settings: parsed
+        };
+        console.log(`Map ${i} (${MAP_CONFIGS[i].name}):`, parsed);
+      } catch (e) {
+        console.log(`Map ${i} (${MAP_CONFIGS[i].name}): Failed to parse settings`);
+      }
+    } else {
+      console.log(`Map ${i} (${MAP_CONFIGS[i].name}): No saved settings found`);
+    }
+  }
+  
+  console.log('=== FORMATTED FOR ONLINE VERSION ===');
+  console.log('const MAP_DEFAULT_POSITIONS = {');
+  Object.entries(mapPositions).forEach(([index, data]) => {
+    console.log(`  ${index}: {`);
+    console.log(`    name: "${data.name}",`);
+    console.log(`    filename: "${data.filename}",`);
+    console.log(`    scale: ${data.settings.scale},`);
+    console.log(`    rotation: ${data.settings.rotation},`);
+    console.log(`    x: ${data.settings.x},`);
+    console.log(`    y: ${data.settings.y},`);
+    console.log(`    opacity: ${data.settings.opacity}`);
+    console.log(`  },`);
+  });
+  console.log('};');
+  console.log('==========================================');
+  
+  return mapPositions;
+};
+
+// Function to export map data as JSON for GitHub version
+window.exportMapDataForGitHub = function() {
+  const mapPositions = {};
+  
+  for (let i = 0; i < 6; i++) {
+    const storageKey = 'plateH_map' + i + '_settings';
+    const savedSettings = localStorage.getItem(storageKey);
+    
+    if (savedSettings) {
+      try {
+        const parsed = JSON.parse(savedSettings);
+        mapPositions[i] = {
+          name: MAP_CONFIGS[i].name,
+          filename: MAP_CONFIGS[i].filename,
+          scale: parsed.scale,
+          rotation: parsed.rotation,
+          x: parsed.x,
+          y: parsed.y,
+          opacity: parsed.opacity
+        };
+      } catch (e) {
+        console.log(`Map ${i} (${MAP_CONFIGS[i].name}): Failed to parse settings`);
+      }
+    }
+  }
+  
+  // Create formatted JSON string
+  const jsonExport = JSON.stringify(mapPositions, null, 2);
+  
+  console.log('=== MAP DATA FOR GITHUB VERSION ===');
+  console.log('Copy this JSON data and paste into GitHub version:');
+  console.log(jsonExport);
+  console.log('==========================================');
+  
+  // Also create a downloadable file
+  const blob = new Blob([jsonExport], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'map-positions-for-github.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  
+  console.log('📁 Downloaded map-positions-for-github.json file');
+  
+  return mapPositions;
+};
+
+// Function to save specific map data from user input
+window.saveMapDataFromInput = function(mapIndex, scale, rotation, x, y, opacity = 50) {
+  const mapData = {
+    scale: parseFloat(scale),
+    rotation: parseFloat(rotation),
+    x: parseFloat(x),
+    y: parseFloat(y),
+    opacity: parseFloat(opacity)
+  };
+  
+  // Save to localStorage
+  const storageKey = 'plateH_map' + mapIndex + '_settings';
+  localStorage.setItem(storageKey, JSON.stringify(mapData));
+  
+  console.log(`Saved Map ${mapIndex} (${MAP_CONFIGS[mapIndex].name}) settings:`, mapData);
+  
+  return mapData;
+};
+
+// Function to create GitHub-ready JavaScript code
+window.createGitHubMapCode = function() {
+  const mapPositions = {};
+  
+  for (let i = 0; i < 6; i++) {
+    const storageKey = 'plateH_map' + i + '_settings';
+    const savedSettings = localStorage.getItem(storageKey);
+    
+    if (savedSettings) {
+      try {
+        const parsed = JSON.parse(savedSettings);
+        mapPositions[i] = {
+          name: MAP_CONFIGS[i].name,
+          filename: MAP_CONFIGS[i].filename,
+          scale: parsed.scale,
+          rotation: parsed.rotation,
+          x: parsed.x,
+          y: parsed.y,
+          opacity: parsed.opacity
+        };
+      } catch (e) {
+        console.log(`Map ${i} (${MAP_CONFIGS[i].name}): Failed to parse settings`);
+      }
+    }
+  }
+  
+  // Create JavaScript code for GitHub version
+  let jsCode = '// Map default positions extracted from local Version 7\n';
+  jsCode += 'const MAP_DEFAULT_POSITIONS = {\n';
+  
+  Object.entries(mapPositions).forEach(([index, data]) => {
+    jsCode += `  ${index}: {\n`;
+    jsCode += `    name: "${data.name}",\n`;
+    jsCode += `    filename: "${data.filename}",\n`;
+    jsCode += `    scale: ${data.scale},\n`;
+    jsCode += `    rotation: ${data.rotation},\n`;
+    jsCode += `    x: ${data.x},\n`;
+    jsCode += `    y: ${data.y},\n`;
+    jsCode += `    opacity: ${data.opacity}\n`;
+    jsCode += `  },\n`;
+  });
+  
+  jsCode += '};\n\n';
+  jsCode += '// Function to initialize map defaults\n';
+  jsCode += 'function initializeMapDefaults() {\n';
+  jsCode += '  Object.entries(MAP_DEFAULT_POSITIONS).forEach(([index, position]) => {\n';
+  jsCode += '    const storageKey = \'plateH_map\' + index + \'_settings\';\n';
+  jsCode += '    localStorage.setItem(storageKey, JSON.stringify({\n';
+  jsCode += '      scale: position.scale,\n';
+  jsCode += '      rotation: position.rotation,\n';
+  jsCode += '      x: position.x,\n';
+  jsCode += '      y: position.y,\n';
+  jsCode += '      opacity: position.opacity\n';
+  jsCode += '    }));\n';
+  jsCode += '  });\n';
+  jsCode += '}\n';
+  
+  console.log('=== GITHUB-READY JAVASCRIPT CODE ===');
+  console.log('Copy this code and paste into GitHub version:');
+  console.log(jsCode);
+  console.log('==========================================');
+  
+  // Create downloadable file
+  const blob = new Blob([jsCode], { type: 'text/javascript' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'map-positions-github.js';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  
+  console.log('📁 Downloaded map-positions-github.js file');
+  
+  return jsCode;
+};
+
 // Auto-run debug after 1 second
 setTimeout(() => {
   console.log('Auto-running map storage debug...');
   if (typeof window.debugMapStorage === 'function') {
     window.debugMapStorage();
+  }
+  if (typeof window.logAllMapPositions === 'function') {
+    window.logAllMapPositions();
+  }
+  
+  // Save Map 0 (1852 Harrison) data from user input - CORRECTED POSITIONING
+  if (typeof window.saveMapDataFromInput === 'function') {
+    window.saveMapDataFromInput(0, 0.41, -20.8, -1587, 8, 50);
+  }
+  
+  // Save Map 1 (1854 Perris) data from user input - CORRECTED POSITIONING
+  if (typeof window.saveMapDataFromInput === 'function') {
+    window.saveMapDataFromInput(1, 0.71, 0.3, 139, -315, 50);
+  }
+  
+  // Save Map 2 (2026 NYC Zoning) data from user input
+  if (typeof window.saveMapDataFromInput === 'function') {
+    window.saveMapDataFromInput(2, 0.40, -32.7, -1047, 205, 50);
+  }
+  
+  // Save Map 3 (1879 Brumley Map) data from user input
+  if (typeof window.saveMapDataFromInput === 'function') {
+    window.saveMapDataFromInput(3, 1.64, -111.2, -1150, 3163, 50);
+  }
+  
+  // Save Map 4 (1891 NYU Bromley) data from user input
+  if (typeof window.saveMapDataFromInput === 'function') {
+    window.saveMapDataFromInput(4, 1.46, -3.6, -1602, -1995, 50);
+  }
+  
+  // Save Map 5 (1893 Pincus Map) data from user input
+  if (typeof window.saveMapDataFromInput === 'function') {
+    window.saveMapDataFromInput(5, 1.88, 0.0, -1268, -436, 50);
   }
 }, 1000);
 
@@ -2556,9 +2629,31 @@ document.addEventListener('DOMContentLoaded', function() {
     const nyuSlider = document.getElementById('nyuslide');
     if (nyuSlider && BIS && BIS.updateBuildingPosition) {
       const position = parseInt(nyuSlider.value);
-      BIS.updateBuildingPosition('NYU', { y: -position });
-      BIS.updateBuildingPosition('NYU Corner', { y: -position });
-      console.log('Initialized both NYU positions to:', -position, '(slider value:', position, ')');
+      
+      // Original positions from building coordinates
+      const originalPositions = {
+        'NYU Main': { x: 0, y: -10 },
+        'NYU North': { x: 75, y: -10 },
+        'NYU South': { x: 75, y: -140 },
+        'NYU Corner': { x: -1, y: -10 }
+      };
+      
+      // Calculate offset from original position (move South = negative Y)
+      const offset = -position;
+      
+      // Update each cube maintaining its relative position
+      BIS.updateBuildingPosition('NYU Main', { y: originalPositions['NYU Main'].y + offset });
+      BIS.updateBuildingPosition('NYU North', { y: originalPositions['NYU North'].y + offset });
+      BIS.updateBuildingPosition('NYU South', { y: originalPositions['NYU South'].y + offset });
+      BIS.updateBuildingPosition('NYU Corner', { y: originalPositions['NYU Corner'].y + offset });
+      
+      console.log('Initialized NYU positions maintaining relative structure (offset:', offset, '):');
+      console.log('  NYU Main:', originalPositions['NYU Main'].y + offset);
+      console.log('  NYU North:', originalPositions['NYU North'].y + offset);
+      console.log('  NYU South:', originalPositions['NYU South'].y + offset);
+      console.log('  NYU Corner:', originalPositions['NYU Corner'].y + offset);
+      console.log('(slider value:', position, ')');
+      
       drawAll();
     }
   }, 500); // Wait for BIS to initialize
@@ -2975,6 +3070,20 @@ document.addEventListener('DOMContentLoaded', function() {
   if (camXInput) camXInput.value = Math.round(camFtX);
   if (camYInput) camYInput.value = Math.round(camFtY);
   
+  // Initialize plate size selector and canvas
+  const plateSizeSelector = document.getElementById('plate-size-selector');
+  if (plateSizeSelector) {
+    // Get the currently selected plate size
+    currentPlateSize = plateSizeSelector.value;
+    console.log('DEBUG: Initial plate size from selector:', currentPlateSize);
+    
+    // Update canvas dimensions based on initial plate size
+    updatePlateCanvasSize();
+    
+    // Update instruction display
+    document.getElementById('instr-plate-size').textContent = getDisplayName(currentPlateSize);
+  }
+  
   // Force an initial redraw after a short delay to ensure all elements are ready
   setTimeout(() => drawAll(), 100);
 });
@@ -3024,14 +3133,15 @@ class BuildingCoordinates {
   }
   
   initializeDefaults() {
-    // Default building coordinates using NW, WDist, NDist, Ht system
-    this.buildings.set('NYU', {
-      nw: { x: 0, y: 0 },      // NW corner coordinates
-      wDist: 95,                // West-to-East distance (width)
-      nDist: 180,               // North-to-South distance (length)
+    // NYU Three-Cube Structure: Main 75x180 + two 25x50 side cubes forming C-shape with open end pointing east
+    this.buildings.set('NYU Main', {
+      nw: { x: 0, y: -10 },     // NW corner coordinates (user specified)
+      wDist: 75,                // West-to-East distance (width) - main cube
+      nDist: 180,               // North-to-South distance (length) - main cube
       ht: 85,                   // Height
       color: 'rgba(128,128,128,0.6)',  // NYU gray building color
       type: 'building',
+      source: 'user',           // Required for ray-casting visibility
       faceColors: {
         w: null,
         e: null,
@@ -3041,15 +3151,49 @@ class BuildingCoordinates {
       }
     });
     
-    // NYU Corner building - 1x1 black block at upper left corner
-    this.buildings.set('NYU Corner', {
-      nw: { x: -1, y: 1 },      // Position at NYU upper left corner (NW corner with offset)
-      wDist: 1,                  // 1ft width
-      nDist: 1,                  // 1ft length
-      ht: 85,                    // Same height as NYU
-      color: 'black',            // Black block
+    this.buildings.set('NYU North', {
+      nw: { x: 75, y: -10 },    // NW corner coordinates (user specified)
+      wDist: 25,                // West-to-East distance (width) - side cube
+      nDist: 50,                // North-to-South distance (length) - side cube
+      ht: 85,                   // Height
+      color: 'rgba(100,100,100,0.6)',  // Darker gray for side cube
       type: 'building',
-      source: 'user',            // Required for ray-casting visibility
+      source: 'user',           // Required for ray-casting visibility
+      faceColors: {
+        w: null,
+        e: null,
+        n: 'rgba(70,70,70,0.6)',  // North face - darker shade
+        s: null,
+        t: null
+      }
+    });
+    
+    this.buildings.set('NYU South', {
+      nw: { x: 75, y: -140 },   // NW corner coordinates (user specified)
+      wDist: 25,                // West-to-East distance (width) - side cube
+      nDist: 50,                // North-to-South distance (length) - side cube
+      ht: 85,                   // Height
+      color: 'rgba(100,100,100,0.6)',  // Darker gray for side cube
+      type: 'building',
+      source: 'user',           // Required for ray-casting visibility
+      faceColors: {
+        w: null,
+        e: null,
+        n: null,
+        s: 'rgba(70,70,70,0.6)',  // South face - darker shade
+        t: null
+      }
+    });
+    
+    // NYU Corner building - 0.25x0.25 black block at upper left corner
+    this.buildings.set('NYU Corner', {
+      nw: { x: -1, y: -10 },    // Position at NYU upper left corner (user specified)
+      wDist: 0.25,              // 0.25ft width
+      nDist: 0.25,              // 0.25ft length
+      ht: 85,                   // Same height as NYU
+      color: 'black',           // Black block
+      type: 'building',
+      source: 'user',           // Required for ray-casting visibility
       faceColors: {
         w: null,
         e: null,
@@ -3060,7 +3204,7 @@ class BuildingCoordinates {
     });
     
     this.buildings.set('RH1', {
-      nw: { x: 95, y: 0 },     // NW corner coordinates
+      nw: { x: 0, y: 10 },     // NW corner coordinates
       wDist: 112,               // West-to-East distance
       nDist: 50,                // North-to-South distance
       ht: 45,                   // Height
@@ -3076,7 +3220,7 @@ class BuildingCoordinates {
     });
     
     this.buildings.set('RH2', {
-      nw: { x: 260, y: 0 },    // NW corner coordinates
+      nw: { x: 0, y: 10 },     // NW corner coordinates
       wDist: 180,               // West-to-East distance
       nDist: 50,                // North-to-South distance
       ht: 45,                   // Height
@@ -3592,7 +3736,6 @@ function saveMapSettings() {
     x: tempMapX,
     y: tempMapY,
     visible: tempMapVisible,
-    opacity: tempMapOpacity,
     timestamp: new Date().toISOString()
   };
   
@@ -3664,21 +3807,6 @@ function resetMapToOrigin() {
   console.log('Map reset to origin position');
 }
 
-function clearAllMapPositions() {
-  // Clear all saved map positions from localStorage
-  for (let i = 0; i < Object.keys(MAP_CONFIGS).length; i++) {
-    const storageKey = 'plateH_map' + i + '_settings';
-    localStorage.removeItem(storageKey);
-    console.log('Cleared saved position for map', i, ':', storageKey);
-  }
-  
-  // Also clear the selected map preference
-  localStorage.removeItem('plateH_selectedMap');
-  
-  console.log('All map positions cleared from localStorage');
-}
-
-
 function loadMapSettings() {
   // Load map-specific settings
   const storageKey = 'plateH_map' + currentMapIndex + '_settings';
@@ -3698,7 +3826,6 @@ function loadMapSettings() {
     tempMapX = mapSettings.x || 0;
     tempMapY = mapSettings.y || 0;
     tempMapVisible = mapSettings.visible !== undefined ? mapSettings.visible : true;
-    tempMapOpacity = mapSettings.opacity !== undefined ? mapSettings.opacity : 50;
     
     // Update all controls - with debugging and safety checks
     console.log('DEBUG: Updating UI controls with loaded values');
@@ -3767,17 +3894,6 @@ function loadMapSettings() {
       console.log('DEBUG: Visible checkbox not found in DOM');
     }
     
-    const opacitySlider = document.getElementById('mapOpacity');
-    const opacityOut = document.getElementById('mapOpacity-out');
-    
-    if (opacitySlider && opacityOut) {
-      opacitySlider.value = tempMapOpacity;
-      opacityOut.textContent = Math.round(tempMapOpacity) + '%';
-      console.log('DEBUG: Updated opacity controls to', tempMapOpacity);
-    } else {
-      console.log('DEBUG: Opacity controls not found in DOM');
-    }
-    
     // Don't call drawAll here - wait for image to load to avoid BIS initialization issues
     
     // Visual feedback
@@ -3795,20 +3911,113 @@ function loadMapSettings() {
     
     console.log('Map settings loaded successfully');
   } else {
-    console.log('No saved map settings found');
+    console.log('No saved map settings found, using MAP_DEFAULT_POSITIONS fallback');
     
-    // Visual feedback for no settings
-    const loadBtn = document.getElementById('loadMapPosition');
-    const originalText = loadBtn.textContent;
-    loadBtn.textContent = 'None Found';
-    loadBtn.style.background = 'var(--rust)';
-    loadBtn.style.color = 'var(--paper)';
-    
-    setTimeout(() => {
-      loadBtn.textContent = originalText;
-      loadBtn.style.background = 'var(--paper)';
-      loadBtn.style.color = 'var(--ink)';
-    }, 1500);
+    // Use MAP_DEFAULT_POSITIONS as fallback
+    const defaultPosition = MAP_DEFAULT_POSITIONS[currentMapIndex];
+    if (defaultPosition) {
+      console.log('Applying default position for', MAP_CONFIGS[currentMapIndex].name, ':', defaultPosition);
+      
+      // Apply default settings
+      tempMapScale = defaultPosition.scale || 1.0;
+      tempMapRotation = defaultPosition.rotation || 0.0;
+      tempMapX = defaultPosition.x || 0;
+      tempMapY = defaultPosition.y || 0;
+      tempMapOpacity = defaultPosition.opacity || 50;
+      tempMapVisible = true;
+      
+      console.log('Applied fallback settings:', {
+        scale: tempMapScale,
+        rotation: tempMapRotation,
+        x: tempMapX,
+        y: tempMapY,
+        opacity: tempMapOpacity
+      });
+      
+      // Update UI controls
+      const scaleSlider = document.getElementById('mapScale');
+      const scaleInput = document.getElementById('mapScale-input');
+      const scaleOut = document.getElementById('mapScale-out');
+      
+      if (scaleSlider && scaleInput && scaleOut) {
+        scaleSlider.value = tempMapScale;
+        scaleInput.value = tempMapScale;
+        scaleOut.textContent = tempMapScale.toFixed(2);
+      }
+      
+      const rotSlider = document.getElementById('mapRotation');
+      const rotInput = document.getElementById('mapRotation-input');
+      const rotOut = document.getElementById('mapRotation-out');
+      
+      if (rotSlider && rotInput && rotOut) {
+        rotSlider.value = tempMapRotation;
+        rotInput.value = tempMapRotation;
+        rotOut.textContent = tempMapRotation.toFixed(1) + '°';
+      }
+      
+      const xSlider = document.getElementById('mapOffsetX');
+      const xInput = document.getElementById('mapOffsetX-input');
+      const xOut = document.getElementById('mapOffsetX-out');
+      
+      if (xSlider && xInput && xOut) {
+        xSlider.value = tempMapX;
+        xInput.value = tempMapX;
+        xOut.textContent = Math.round(tempMapX);
+      }
+      
+      const ySlider = document.getElementById('mapOffsetY');
+      const yInput = document.getElementById('mapOffsetY-input');
+      const yOut = document.getElementById('mapOffsetY-out');
+      
+      if (ySlider && yInput && yOut) {
+        ySlider.value = tempMapY;
+        yInput.value = tempMapY;
+        yOut.textContent = Math.round(tempMapY);
+      }
+      
+      const opacitySlider = document.getElementById('mapOpacity');
+      const opacityOut = document.getElementById('mapOpacity-out');
+      
+      if (opacitySlider && opacityOut) {
+        opacitySlider.value = tempMapOpacity;
+        opacityOut.textContent = Math.round(tempMapOpacity) + '%';
+      }
+      
+      const visibleCheck = document.getElementById('tempMapVisible');
+      if (visibleCheck) {
+        visibleCheck.checked = tempMapVisible;
+      }
+      
+      // Visual feedback for fallback applied
+      const loadBtn = document.getElementById('loadMapPosition');
+      const originalText = loadBtn.textContent;
+      loadBtn.textContent = 'Fallback Used';
+      loadBtn.style.background = 'var(--sepia)';
+      loadBtn.style.color = 'var(--paper)';
+      
+      setTimeout(() => {
+        loadBtn.textContent = originalText;
+        loadBtn.style.background = 'var(--paper)';
+        loadBtn.style.color = 'var(--ink)';
+      }, 1500);
+      
+      console.log('Map default position applied successfully');
+    } else {
+      console.log('No default position found for map index:', currentMapIndex);
+      
+      // Visual feedback for no settings
+      const loadBtn = document.getElementById('loadMapPosition');
+      const originalText = loadBtn.textContent;
+      loadBtn.textContent = 'None Found';
+      loadBtn.style.background = 'var(--rust)';
+      loadBtn.style.color = 'var(--paper)';
+      
+      setTimeout(() => {
+        loadBtn.textContent = originalText;
+        loadBtn.style.background = 'var(--paper)';
+        loadBtn.style.color = 'var(--ink)';
+      }, 1500);
+    }
   }
 }
 
@@ -4172,7 +4381,7 @@ function getBuildings(){
       x1: building.x1,
       y0: building.y0,  // Use original Y coordinate
       y1: building.y1,  // Use original Y coordinate
-      h: building.h,
+      h: building.h || building.height, // FIX: Fallback to .height to catch the true property name
       col: building.col,
       name: building.name
     });
@@ -4183,6 +4392,122 @@ function getBuildings(){
   return buildings;
 }
 
+// ============================================================================
+// 3D VOLUMETRIC CUBE INTERSECTION ENGINE (FLAT ROOFS & OVER-VIEWING)
+// ============================================================================
+
+/**
+ * Helper function to modulate shade values for realistic 3D face definition
+ */
+function adjustColorBrightness(rgbaStr, factor) {
+    if (!rgbaStr.includes('rgba')) return rgbaStr;
+    let parts = rgbaStr.match(/[\d.]+/g);
+    if (!parts || parts.length < 3) return rgbaStr;
+    let r = Math.min(255, Math.max(0, parseInt(parts[0]) * factor));
+    let g = Math.min(255, Math.max(0, parseInt(parts[1]) * factor));
+    let b = Math.min(255, Math.max(0, parseInt(parts[2]) * factor));
+    let a = parts[3] ? parts[3] : "1";
+    return `rgba(${Math.round(r)},${Math.round(g)},${Math.round(b)},${a})`;
+}
+
+/**
+ * Calculates the exact 3D intersection point of a camera ray with a solid building block.
+ * Supports flat roofs, solid side faces, and ray-continuations ("see-over").
+ * @param {Object} rayOrigin - {x: camX, y: camY, z: camZ}
+ * @param {Object} rayDir - {x: dx, y: dy, z: dz} normalized direction vectors
+ * @param {Object} b - Building definition with limits {x0, x1, y0, y1, height, col}
+ * @return {Object|null} Intersection metrics or null if missed
+ */
+function intersectBuilding3DCube(rayOrigin, rayDir, b) {
+    // 1. Calculate intervals for X and Y axes (AABB Intersection algorithm)
+    let tXMin = (b.x0 - rayOrigin.x) / rayDir.x;
+    let tXMax = (b.x1 - rayOrigin.x) / rayDir.x;
+    if (tXMin > tXMax) { let temp = tXMin; tXMin = tXMax; tXMax = temp; }
+
+    let tYMin = (b.y0 - rayOrigin.y) / rayDir.y;
+    let tYMax = (b.y1 - rayOrigin.y) / rayDir.y;
+    if (tYMin > tYMax) { let temp = tYMin; tYMin = tYMax; tYMax = temp; }
+
+    // Check if the ray missed the 2D footprint entirely
+    if ((tXMin > tYMax) || (tYMin > tXMax)) return null;
+
+    // Entry and exit distances along the horizontal path
+    let tEnter = Math.max(tXMin, tYMin);
+    let tExit = Math.min(tXMax, tYMax);
+
+    // If the building volume is behind the camera ray
+    if (tExit < 0) return null;
+    
+    // Determine the distance to the point where ray meets the solid block
+    let tHit = tEnter;
+    if (tHit < 0) tHit = 0; // Camera inside the bounding box footprint
+
+    // 2. Calculate the exact 3D entry point coordinates
+    let hitX = rayOrigin.x + rayDir.x * tHit;
+    let hitY = rayOrigin.y + rayDir.y * tHit;
+    let hitZ = rayOrigin.z + rayDir.z * tHit;
+
+    // 3. Evaluate Roof Cap vs Vertical Walls
+    // Check for roof intersection from any angle
+    if (rayDir.z !== 0) {
+        let tRoof = (b.h - rayOrigin.z) / rayDir.z;
+        // Verify if the roof intersection point lands within the horizontal boundary limits
+        if (tRoof >= tEnter && tRoof <= tExit && tRoof > 0) {
+            let roofHitX = rayOrigin.x + rayDir.x * tRoof;
+            let roofHitY = rayOrigin.y + rayDir.y * tRoof;
+            
+            // Calculate distance relative to horizontal baseline projection
+            let horizontalDist = Math.sqrt(Math.pow(roofHitX - rayOrigin.x, 2) + Math.pow(roofHitY - rayOrigin.y, 2));
+            
+            // Return designated surface metrics for the top flat roof
+            return {
+                distance: horizontalDist,
+                hitZ: b.h,
+                isRoof: true,
+                color: adjustColorBrightness(b.col, 1.25) // Use 1.25x lighting multiplier for roofs
+            };
+        }
+    }
+
+    // 4. Ray hits a vertical wall surface of the cube structure
+    if (tEnter >= 0) {
+        let horizontalDist = Math.sqrt(Math.pow(hitX - rayOrigin.x, 2) + Math.pow(hitY - rayOrigin.y, 2));
+        
+        // Determine lighting shading variant depending on which wall face was intersected
+        let faceShading = 1.0;
+        if (Math.abs(hitX - b.x0) < 0.01 || Math.abs(hitX - b.x1) < 0.01) faceShading = 0.85; // E/W walls
+        if (Math.abs(hitY - b.y0) < 0.01 || Math.abs(hitY - b.y1) < 0.01) faceShading = 0.70; // N/S walls
+
+        return {
+            distance: horizontalDist,
+            hitZ: hitZ,
+            isRoof: false,
+            color: adjustColorBrightness(b.col, faceShading)
+        };
+    }
+
+    return null;
+}
+
+function castRay3DSpace(rayOrigin, rayDir, buildings) {
+    let closestHit = null;
+    let minDistance = Infinity;
+
+    buildings.forEach(building => {
+        let hit = intersectBuilding3DCube(rayOrigin, rayDir, building);
+        if (hit && hit.distance < minDistance) {
+            // FIX: Track physical structure bounds using building.h
+            if (hit.isRoof || (hit.hitZ >= 0 && hit.hitZ <= building.h)) {
+                minDistance = hit.distance;
+                closestHit = hit;
+            }
+        }
+    });
+
+    return closestHit;
+}
+
+// Simple 2D rayAABB for testing
 function rayAABB(ox,oy,dx,dy,b){
   let tmin=-1e9, tmax=1e9;
   if(Math.abs(dx)>1e-10){
@@ -4196,29 +4521,7 @@ function rayAABB(ox,oy,dx,dy,b){
   if(tmax<0.5||tmin>tmax) return null;
   const t=tmin>0.5?tmin:tmax;
   if(t<0.5) return null;
-  // Determine which face was hit
-  let col=b.col;
-  if(b.faceColors){
-      const hx=ox+dx*t, hy=oy+dy*t, eps=0.5;
-      // Check side faces first (vertical surfaces)
-      if(Math.abs(hx-b.x0)<eps)      col=b.faceColors.w;
-      else if(Math.abs(hx-b.x1)<eps) col=b.faceColors.e;
-      else if(Math.abs(hy-b.y1)<eps) col=b.faceColors.n;
-      else if(Math.abs(hy-b.y0)<eps) col=b.faceColors.s;
-      // If not a side face, check if it's the top face (horizontal surface)
-      else if(b.faceColors.t)        col=b.faceColors.t;
-  }
-  return {t, col, name:b.name};
-}
-
-function castRay(ox,oy,angle,buildings){
-  const dx=Math.cos(angle), dy=Math.sin(angle);
-  let best=null;
-  for(const b of buildings){
-    const h=rayAABB(ox,oy,dx,dy,b);
-    if(h&&(!best||h.t<best.t)) best=h;
-  }
-  return best||{col:'#c8d4e8',name:'sky',t:9999};
+  return {t, col:b.col, name:b.name};
 }
 
 function updateRayCasting(){
@@ -4264,63 +4567,77 @@ function updateRayCasting(){
     return 0; // Default height if not specified
   }
 
-  for(let py=0;py<PH;py++){
-    const vAng=((1-py/(PH-1))-0.5)*2*halfV + CAMERA_TILT_UP; // Apply configurable upward camera angle
-    for(let px=0;px<PW;px++){
-      const hAng=((1-px/(PW-1))-0.5)*2*halfH;
-      const angle=aimRad+hAng;
-      const dx=Math.cos(angle),dy=Math.sin(angle);
+  // ============================================================================
+// FIXED: UNIFIED 3D VOLUMETRIC VIEWPORT GENERATION ENGINE
+// ============================================================================
+  for (let py = 0; py < PH; py++) {
+    // Vertical angle calculation matching standard screen coordinates deflection
+    const vAng = ((1 - py / (PH - 1)) - 0.5) * 2 * halfV + CAMERA_TILT_UP;
+    const slopeZ = Math.tan(vAng); // Upward or downward tangent component for the 3D ray
 
-      // Collect ALL hits along this ray, sorted front-to-back
-      const hits=[];
-      for(const b of blds){
-        const h=rayAABB(camFtX,camFtY,dx,dy,b);
-        if(h) {
-          hits.push({...h, building: b}); // Preserve building reference
+    for (let px = 0; px < PW; px++) {
+      const hAng = ((1 - px / (PW - 1)) - 0.5) * 2 * halfH;
+      const angle = aimRad + hAng;
+
+      // Project explicit coordinates on the horizontal plane
+      const dirX = Math.cos(angle);
+      const dirY = Math.sin(angle);
+
+      // Construct a clean, standardized 3D ray direction struct
+      const normDir = { x: dirX, y: dirY, z: slopeZ };
+      const rayOrigin = { x: camFtX, y: camFtY, z: CAM_H };
+
+      // Query the unified 3D volumetric cube intersection solver
+      const closestHit = castRay3DSpace(rayOrigin, normDir, blds);
+
+      let r = SKY[0], g = SKY[1], b2 = SKY[2]; // Default environment setup: Sky background
+
+      if (closestHit && closestHit.name !== 'sky') {
+        // A physical structure surface was intersected by the ray
+        const c = rgb(closestHit.color);
+        r = Math.min(255, Math.round(c[0]));
+        g = Math.min(255, Math.round(c[1]));
+        b2 = Math.min(255, Math.round(c[2]));
+        
+        if (py === midRow) counts[closestHit.name] = (counts[closestHit.name] || 0) + 1;
+      } else {
+        // No building hit: evaluate background texture boundaries (Sky vs Ground)
+        if (vAng > horizAng) {
+          r = SKY[0]; g = SKY[1]; b2 = SKY[2];
+          if (py === midRow) counts.sky++;
+        } else {
+          r = GND[0]; g = GND[1]; b2 = GND[2];
+          if (py === midRow) counts.ground++;
         }
       }
-      hits.sort((a,b)=>a.t-b.t);
 
-      let r,g,b2;
-      let resolved=false;
-
-      for(const hit of hits){
-        const bh=bldH(hit.building); // Use building reference
-        const angTop=Math.atan2(bh-CAM_H,hit.t);
-        const angBot=Math.atan2(-CAM_H,hit.t);
-        if(vAng>=angBot&&vAng<=angTop){
-          // Ray hits this building face
-          let colorToUse = hit.col;
-          // Check if this is the top face and if top face color is defined
-          if(hit.building.faceColors && hit.building.faceColors.t && vAng > angBot + (angTop-angBot)*0.8){
-            // This is likely the top surface (upper portion of the face)
-            colorToUse = hit.building.faceColors.t;
-          }
-          const c=rgb(colorToUse);
-          const shade=1.0; // Remove vertical shading - uniform color
-          r=Math.min(255,Math.round(c[0]*shade));
-          g=Math.min(255,Math.round(c[1]*shade));
-          b2=Math.min(255,Math.round(c[2]*shade));
-          if(py===midRow) counts[hit.name]=(counts[hit.name]||0)+1;
-          resolved=true;
-          break;
-        }
-        // If vAng is above this building's roofline, keep looking at buildings behind
-        // If vAng is below this building's ground, it's ground — stop
-        if(vAng<angBot){ r=GND[0];g=GND[1];b2=GND[2];if(py===midRow)counts.ground++;resolved=true;break; }
-        // vAng > angTop: ray passes over this building — continue to next
-      }
-
-      if(!resolved){
-        if(vAng>horizAng){r=SKY[0];g=SKY[1];b2=SKY[2];if(py===midRow)counts.sky++;}
-        else{r=GND[0];g=GND[1];b2=GND[2];if(py===midRow)counts.ground++;}
-      }
-
-      const idx=(py*PW+px)*4;
-      d[idx]=r;d[idx+1]=g;d[idx+2]=b2;d[idx+3]=255;
+      // Commit color outputs directly to the native active canvas data array
+      const idx = (py * PW + px) * 4;
+      d[idx] = r;
+      d[idx + 1] = g;
+      d[idx + 2] = b2;
+      d[idx + 3] = 255;
     }
   }
   psctx.putImageData(imgData,0,0);
+
+  // Draw occlusion zone if enabled
+  if (occlusionZonePercent > 0) {
+    const occlusionHeight = Math.floor(PH * (occlusionZonePercent / 100));
+    const occlusionStartY = PH - occlusionHeight;
+    
+    // Draw fully opaque occlusion zone
+    psctx.fillStyle = 'rgba(0, 0, 0, 1)';
+    psctx.fillRect(0, occlusionStartY, PW, occlusionHeight);
+    
+    // Add subtle border line at occlusion boundary
+    psctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+    psctx.lineWidth = 1;
+    psctx.beginPath();
+    psctx.moveTo(0, occlusionStartY);
+    psctx.lineTo(PW, occlusionStartY);
+    psctx.stroke();
+  }
 
   // ZZZ NW corner stats - use BIS data
   let zzzNWplate=null;
@@ -4376,17 +4693,9 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 <script>
 // ── Temporary Map Controls ─────────────────────────────────────────────────────
-// Temporary map transformation variables
-let tempMapScale = 0.41;
-let tempMapRotation = -20.5; // degrees
-let tempMapX = -1587;
-let tempMapY = 7;
-let tempMapOpacity = 50;
-let tempMapVisible = true; // Default to visible
+// Additional map control variables
 let showRoadways = true; // Default to visible
 let showAlignmentGrid = true;
-
-
 
 </script>
 <script>
@@ -4409,6 +4718,268 @@ let showAlignmentGrid = true;
   
   
   })();
+// ── Solution Management System ─────────────────────────────────────────────────────
+let solutionsData = null;
+
+// Load solutions from JSON file
+async function loadSolutionsData() {
+  try {
+    const response = await fetch('solutions.json');
+    solutionsData = await response.json();
+    console.log('Solutions loaded:', solutionsData);
+  } catch (error) {
+    console.error('Error loading solutions:', error);
+    solutionsData = { solutions: {} };
+  }
+}
+
+// Load a specific solution by name
+function loadSolution(solutionName) {
+  if (!solutionsData || !solutionsData.solutions[solutionName]) {
+    console.error('Solution not found:', solutionName);
+    alert('Solution "' + solutionName + '" not found!');
+    return;
+  }
+  
+  const solution = solutionsData.solutions[solutionName];
+  console.log('Loading solution:', solution);
+  
+  // Apply camera settings
+  if (solution.camera) {
+    // Camera position
+    if (solution.camera.position) {
+      if (solution.camera.position.x !== undefined) {
+        camFtX = solution.camera.position.x;
+        const camXInput = document.getElementById('camX-input');
+        if (camXInput) camXInput.value = solution.camera.position.x;
+      }
+      if (solution.camera.position.y !== undefined) {
+        camFtY = solution.camera.position.y;
+        const camYInput = document.getElementById('camY-input');
+        if (camYInput) camYInput.value = solution.camera.position.y;
+      }
+      if (solution.camera.position.height !== undefined) {
+        cameraHeight = solution.camera.position.height;
+        const camHeightSlider = document.getElementById('cameraHeight');
+        if (camHeightSlider) camHeightSlider.value = solution.camera.position.height;
+        const camHeightOut = document.getElementById('cameraHeight-out');
+        if (camHeightOut) camHeightOut.textContent = solution.camera.position.height.toFixed(1) + ' ft';
+      }
+    }
+    
+    // Camera rotation
+    if (solution.camera.rotation !== undefined) {
+      camRotation = solution.camera.rotation;
+      const rotationSlider = document.getElementById('rotation');
+      if (rotationSlider) rotationSlider.value = solution.camera.rotation;
+      const rotationInput = document.getElementById('rotation-input');
+      if (rotationInput) rotationInput.value = solution.camera.rotation;
+      const rotOut = document.getElementById('rot-out');
+      if (rotOut) rotOut.textContent = solution.camera.rotation + '°';
+    }
+    
+    // Camera optics
+    if (solution.camera.optics) {
+      if (solution.camera.optics.horizontalFOV !== undefined) {
+        const fovSlider = document.getElementById('fov-slider');
+        if (fovSlider) fovSlider.value = solution.camera.optics.horizontalFOV;
+        const fovSliderOut = document.getElementById('fov-slider-out');
+        if (fovSliderOut) fovSliderOut.textContent = solution.camera.optics.horizontalFOV + ' degrees';
+        const fovOut = document.getElementById('fov-out');
+        if (fovOut) fovOut.textContent = solution.camera.optics.horizontalFOV + ' degrees';
+      }
+      
+      // Calculate and set vertical FOV
+      if (solution.camera.optics.verticalFOV !== undefined) {
+        const vFovOut = document.getElementById('vfov-out');
+        if (vFovOut) vFovOut.textContent = solution.camera.optics.verticalFOV + ' degrees';
+      }
+    }
+  }
+  
+  // Apply building settings
+  if (solution.buildings) {
+    // NYU Building
+    if (solution.buildings.NYU) {
+      if (solution.buildings.NYU.position !== undefined) {
+        const nyuSlider = document.getElementById('nyuslide');
+        if (nyuSlider) nyuSlider.value = solution.buildings.NYU.position;
+        const nyuOut = document.getElementById('nyu-out');
+        if (nyuOut) nyuOut.textContent = solution.buildings.NYU.position;
+      }
+      if (solution.buildings.NYU.height !== undefined) {
+        const nyuHeightSlider = document.getElementById('nyuheight');
+        if (nyuHeightSlider) nyuHeightSlider.value = solution.buildings.NYU.height;
+        const nyuHeightOut = document.getElementById('nyuheight-out');
+        if (nyuHeightOut) nyuHeightOut.textContent = solution.buildings.NYU.height;
+      }
+    }
+    
+    // Row Houses
+    if (solution.buildings.RowHouses) {
+      if (solution.buildings.RowHouses.RH1) {
+        if (solution.buildings.RowHouses.RH1.position !== undefined) {
+          const rh1Slider = document.getElementById('rh1slide');
+          if (rh1Slider) rh1Slider.value = solution.buildings.RowHouses.RH1.position;
+          const rh1Out = document.getElementById('rh1-out');
+          if (rh1Out) rh1Out.textContent = solution.buildings.RowHouses.RH1.position;
+        }
+        if (solution.buildings.RowHouses.RH1.height !== undefined) {
+          const rh1HeightSlider = document.getElementById('rh1height');
+          if (rh1HeightSlider) rh1HeightSlider.value = solution.buildings.RowHouses.RH1.height;
+          const rh1HeightOut = document.getElementById('rh1height-out');
+          if (rh1HeightOut) rh1HeightOut.textContent = solution.buildings.RowHouses.RH1.height;
+        }
+      }
+      
+      if (solution.buildings.RowHouses.RH2) {
+        if (solution.buildings.RowHouses.RH2.position !== undefined) {
+          const rh2Slider = document.getElementById('rh2slide');
+          if (rh2Slider) rh2Slider.value = solution.buildings.RowHouses.RH2.position;
+          const rh2Out = document.getElementById('rh2-out');
+          if (rh2Out) rh2Out.textContent = solution.buildings.RowHouses.RH2.position;
+        }
+        if (solution.buildings.RowHouses.RH2.height !== undefined) {
+          const rh2HeightSlider = document.getElementById('rh2height');
+          if (rh2HeightSlider) rh2HeightSlider.value = solution.buildings.RowHouses.RH2.height;
+          const rh2HeightOut = document.getElementById('rh2height-out');
+          if (rh2HeightOut) rh2HeightOut.textContent = solution.buildings.RowHouses.RH2.height;
+        }
+      }
+    }
+    
+    // Church
+    if (solution.buildings.Church) {
+      if (solution.buildings.Church.distance !== undefined) {
+        const churchDistSlider = document.getElementById('churchdist');
+        if (churchDistSlider) churchDistSlider.value = solution.buildings.Church.distance;
+        const churchDistOut = document.getElementById('churchdist-out');
+        if (churchDistOut) churchDistOut.textContent = solution.buildings.Church.distance;
+      }
+      if (solution.buildings.Church.position !== undefined) {
+        const churchSlider = document.getElementById('churchslide');
+        if (churchSlider) churchSlider.value = solution.buildings.Church.position;
+        const churchOut = document.getElementById('church-out');
+        if (churchOut) churchOut.textContent = solution.buildings.Church.position;
+      }
+      if (solution.buildings.Church.heights) {
+        if (solution.buildings.Church.heights.north !== undefined) {
+          const chnHeightSlider = document.getElementById('chnheight');
+          if (chnHeightSlider) chnHeightSlider.value = solution.buildings.Church.heights.north;
+          const chnHeightOut = document.getElementById('chnheight-out');
+          if (chnHeightOut) chnHeightOut.textContent = solution.buildings.Church.heights.north;
+        }
+        if (solution.buildings.Church.heights.center !== undefined) {
+          const chmHeightSlider = document.getElementById('chmheight');
+          if (chmHeightSlider) chmHeightSlider.value = solution.buildings.Church.heights.center;
+          const chmHeightOut = document.getElementById('chmheight-out');
+          if (chmHeightOut) chmHeightOut.textContent = solution.buildings.Church.heights.center;
+        }
+        if (solution.buildings.Church.heights.south !== undefined) {
+          const chsHeightSlider = document.getElementById('chsheight');
+          if (chsHeightSlider) chsHeightSlider.value = solution.buildings.Church.heights.south;
+          const chsHeightOut = document.getElementById('chsheight-out');
+          if (chsHeightOut) chsHeightOut.textContent = solution.buildings.Church.heights.south;
+        }
+      }
+    }
+  }
+  
+  // Update display
+  updateCoords();
+  drawAll();
+  
+  alert('Solution "' + solutionName + '" loaded successfully!');
+}
+
+// Save current configuration as a solution
+function saveCurrentSolution() {
+  const solutionName = prompt('Enter a name for this solution:');
+  if (!solutionName) return;
+  
+  const currentSolution = {
+    name: solutionName,
+    description: prompt('Enter a description (optional):') || '',
+    camera: {
+      position: {
+        x: camFtX,
+        y: camFtY,
+        height: cameraHeight
+      },
+      rotation: camRotation,
+      optics: {
+        mode: document.getElementById('fov-mode').checked ? 'FOV' : 'Camera Type',
+        horizontalFOV: getFovDeg(),
+        verticalFOV: getFovDeg() * (getPlateHeight() / getPlateWidth())
+      }
+    },
+    buildings: {
+      NYU: {
+        position: parseInt(document.getElementById('nyuslide').value),
+        height: parseInt(document.getElementById('nyuheight').value)
+      },
+      RowHouses: {
+        RH1: {
+          position: parseInt(document.getElementById('rh1slide').value),
+          height: parseInt(document.getElementById('rh1height').value)
+        },
+        RH2: {
+          position: parseInt(document.getElementById('rh2slide').value),
+          height: parseInt(document.getElementById('rh2height').value)
+        }
+      },
+      Church: {
+        distance: parseInt(document.getElementById('churchdist').value),
+        position: parseInt(document.getElementById('churchslide').value),
+        heights: {
+          north: parseInt(document.getElementById('chnheight').value),
+          center: parseInt(document.getElementById('chmheight').value),
+          south: parseInt(document.getElementById('chsheight').value)
+        }
+      }
+    }
+  };
+  
+  // Save to localStorage (in a real implementation, this would save to the JSON file)
+  const savedSolutions = JSON.parse(localStorage.getItem('customSolutions') || '{}');
+  savedSolutions[solutionName] = currentSolution;
+  localStorage.setItem('customSolutions', JSON.stringify(savedSolutions));
+  
+  alert('Solution "' + solutionName + '" saved to browser storage!');
+}
+
+// List all available solutions
+function listSolutions() {
+  let message = 'Available Solutions:\n\n';
+  
+  // Built-in solutions
+  if (solutionsData && solutionsData.solutions) {
+    message += 'Built-in Solutions:\n';
+    for (const [name, solution] of Object.entries(solutionsData.solutions)) {
+      message += `- ${name}: ${solution.description || 'No description'}\n`;
+    }
+    message += '\n';
+  }
+  
+  // Custom solutions from localStorage
+  const customSolutions = JSON.parse(localStorage.getItem('customSolutions') || '{}');
+  if (Object.keys(customSolutions).length > 0) {
+    message += 'Custom Solutions:\n';
+    for (const [name, solution] of Object.entries(customSolutions)) {
+      message += `- ${name}: ${solution.description || 'No description'}\n`;
+    }
+  } else {
+    message += 'No custom solutions saved yet.\n';
+  }
+  
+  alert(message);
+}
+
+// Initialize solutions on page load
+document.addEventListener('DOMContentLoaded', function() {
+  loadSolutionsData();
+});
+
 </script>
 </body>
 </html>
