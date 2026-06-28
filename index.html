@@ -2220,132 +2220,49 @@ const MAP_DEFAULT_POSITIONS = {
 
 // Simple map configuration
 const MAP_CONFIGS = {
-  0: {
-    name: "Site Plan 1852 Harrison",
-    filename: '1852MapNew YorkHarrison.jpg',
-    fallback: '1852MapNew YorkHarrison.jpg'
-  },
-  1: {
-    name: "1854 Perris", 
-    filename: '1854 Perris Map Extract.jpg',
-    fallback: '1854 Perris Map Extract.jpg'
-  },
-  2: {
-    name: "2026 NYC Zoning",
-    filename: 'NYCZoning2026.jpg',
-    fallback: 'NYCZoning2026.jpg'
-  },
-  3: {
-    name: "1879 Brumley Map",
-    filename: '1879 Washington Square Park Bromley.jpg',
-    fallback: '1879 Washington Square Park Bromley.jpg'
-  },
-  4: {
-    name: "1891 NYU Bromley",
-    filename: '1891 Bromley Map.jpg',
-    fallback: '1891 Bromley Map.jpg'
-  },
-  5: {
-    name: "1893 Pincus Map",
-    filename: '1893 Lionel Pincus and Princess Firyal Map Division.jpg',
-    fallback: '1893 Lionel Pincus and Princess Firyal Map Division.jpg'
-  }
+  0: { name: "Site Plan 1852 Harrison", filename: '1852MapNew YorkHarrison.jpg' },
+  1: { name: "1854 Perris", filename: '1854 Perris Map Extract.jpg' },
+  2: { name: "2026 NYC Zoning", filename: 'NYCZoning2026.jpg' },
+  3: { name: "1879 Brumley Map", filename: '1879 Washington Square Park Bromley.jpg' },
+  4: { name: "1891 NYU Bromley", filename: '1891 Bromley Map.jpg' },
+  5: { name: "1893 Pincus Map", filename: '1893 Lionel Pincus and Princess Firyal Map Division.jpg' }
 };
 
-const _mapImg = new Image();
-let mapLoadAttempted = false;
-let currentMapIndex = 0;
-
-_mapImg.onload = () => {
-  console.log('Map loaded successfully:', _mapImg.naturalWidth + 'x' + _mapImg.naturalHeight);
-  // Apply map settings when image loads
-  loadMapSettings();
-  drawAll();
-};
-
-_mapImg.onerror = () => {
-  console.error('Failed to load map image:', _mapImg.src);
-  if (!mapLoadAttempted) {
-    mapLoadAttempted = true;
-    const config = MAP_CONFIGS[currentMapIndex];
-    if (config && config.fallback) {
-      console.log('Trying fallback file:', config.fallback);
-      _mapImg.src = config.fallback;
-    } else {
-      console.error('No fallback file available');
-    }
-  } else {
-    console.error('Both map filenames failed. Map will not be displayed.');
-  }
-};
-
-// Function to get selected map from URL or localStorage
-function getSelectedMapIndex() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const mapParam = urlParams.get('map');
-  if (mapParam !== null) {
-    const index = parseInt(mapParam);
-    if (index in MAP_CONFIGS) return index;
-  }
+// Simple map switching
+function switchMap(index) {
+  const config = MAP_CONFIGS[index];
+  if (!config) return;
   
-  const stored = localStorage.getItem('plateH_selectedMap');
-  if (stored !== null) {
-    const index = parseInt(stored);
-    if (index in MAP_CONFIGS) return index;
-  }
-  
-  return 0; // Default to first map
-}
-
-// Function to load selected map
-function loadSelectedMap() {
-  currentMapIndex = getSelectedMapIndex();
-  const config = MAP_CONFIGS[currentMapIndex];
-  
-  console.log('DEBUG: loadSelectedMap called');
-  console.log('DEBUG: currentMapIndex:', currentMapIndex);
-  console.log('DEBUG: config:', config);
-  console.log('Loading map:', config.name);
-  console.log('File:', config.filename);
-  
-  mapLoadAttempted = false;
-  _mapImg.src = config.filename;
+  // Update current map
+  currentMapIndex = parseInt(index);
   
   // Update UI
-  updateMapSelector();
-  
-  // Load map-specific calibration settings after DOM is ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-      setTimeout(() => loadMapSettings(), 100);
-    });
-  } else {
-    setTimeout(() => loadMapSettings(), 100);
-  }
-  
-  // Don't call drawAll here - wait for image to load
-}
-
-// Function to switch maps
-function switchMap(index) {
-  localStorage.setItem('plateH_selectedMap', index.toString());
-  const newUrl = window.location.pathname + '?map=' + index;
-  window.location.href = newUrl;
-}
-
-// Function to update map selector UI
-function updateMapSelector() {
   const selector = document.getElementById('map-selector');
-  if (selector) {
-    selector.value = currentMapIndex;
-  }
+  if (selector) selector.value = index;
   
   const nameSpan = document.getElementById('current-map-name');
-  if (nameSpan) nameSpan.textContent = MAP_CONFIGS[currentMapIndex].name;
+  if (nameSpan) nameSpan.textContent = config.name;
+  
+  // Load map image for canvas
+  const mapImg = new Image();
+  mapImg.onload = () => {
+    _mapImg = mapImg; // Set global map image
+    loadMapSettings();
+    drawAll();
+  };
+  mapImg.onerror = () => {
+    console.error('Failed to load map:', config.filename);
+  };
+  mapImg.src = config.filename;
 }
 
-// Initialize map system
-loadSelectedMap();
+// Initialize on page load
+let currentMapIndex = 0;
+let _mapImg = new Image();
+document.addEventListener('DOMContentLoaded', () => {
+  // Load initial map
+  switchMap(0);
+});
 
 // Initialize plate canvas size
 updatePlateCanvasSize();
