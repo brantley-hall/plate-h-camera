@@ -2329,8 +2329,8 @@ function loadSelectedMap() {
 // Function to switch maps
 function switchMap(index) {
   localStorage.setItem('plateH_selectedMap', index.toString());
-  currentMapIndex = parseInt(index);
-  loadSelectedMap();
+  const newUrl = window.location.pathname + '?map=' + index;
+  window.location.href = newUrl;
 }
 
 // Function to update map selector UI
@@ -2344,12 +2344,8 @@ function updateMapSelector() {
   if (nameSpan) nameSpan.textContent = MAP_CONFIGS[currentMapIndex].name;
 }
 
-// Initialize map system after DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
-  console.log('DOM loaded - initializing map system');
-  console.log('Cache bust: ' + Date.now());
-  loadSelectedMap();
-});
+// Initialize map system
+loadSelectedMap();
 
 // Initialize plate canvas size
 updatePlateCanvasSize();
